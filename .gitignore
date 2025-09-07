@@ -1,0 +1,66 @@
+
+# === Python / Django ===
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.manifest
+*.spec
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# Django stuff
+*.log
+*.pot
+*.pyc
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Django migrations (optional: keep if needed for dev)
+*/migrations/__pycache__/
+*/migrations/*.py[cod]
+# Uncomment below if you don’t want to track migration files
+# */migrations/*.py
+
+# === Node / Next.js ===
+node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp.*
+.pnp.js
+
+# === Environment files ===
+.env
+.env.* 
+!.env.example
+
+# === IDE / OS ===
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# === Docker (if used) ===
+/data/
+*.pid
+*.seed
+*.pid.lock
+docker-compose.override.yml
+
+# === PostgreSQL dumps ===
+*.sql
+*.dump
