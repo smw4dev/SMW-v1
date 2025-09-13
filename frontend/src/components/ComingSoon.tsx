@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Mail } from "lucide-react";
+import { Mail, Twitter, Facebook, Instagram, Linkedin } from "lucide-react";
 
 // Set your target date here
 const TARGET_DATE = new Date("2025-11-01T00:00:00Z");
@@ -71,24 +71,28 @@ const MathComingSoonPage: React.FC = () => {
       symbol: "π",
       href: "#",
       color: "hover:text-blue-400",
+      Icon: Twitter,
     },
     {
       name: "Facebook",
       symbol: "∑",
       href: "#",
       color: "hover:text-blue-500",
+      Icon: Facebook,
     },
     {
       name: "Instagram",
       symbol: "∫",
       href: "#",
       color: "hover:text-pink-400",
+      Icon: Instagram,
     },
     {
       name: "LinkedIn",
       symbol: "∂",
       href: "#",
       color: "hover:text-blue-300",
+      Icon: Linkedin,
     },
   ];
 
@@ -173,7 +177,31 @@ const MathComingSoonPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 overflow-hidden relative font-sans">
+      {/* Import attractive Google Fonts */}
+      <style jsx global>{`
+        @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Fira+Mono:wght@400;700&family=Quicksand:wght@500;700&display=swap");
+        html,
+        body {
+          font-family: "Quicksand", "Montserrat", "Fira Mono", "ui-sans-serif",
+            "system-ui", sans-serif;
+        }
+        .math-mono {
+          font-family: "Fira Mono", "Menlo", "Monaco", "Consolas", monospace;
+        }
+        .math-label {
+          font-family: "Montserrat", "Quicksand", "ui-sans-serif", sans-serif;
+          font-weight: 700;
+        }
+        .math-symbol {
+          font-family: "Fira Mono", "Menlo", "Monaco", "Consolas", monospace;
+        }
+        .math-quote {
+          font-family: "Quicksand", "Montserrat", "ui-sans-serif", sans-serif;
+          font-style: italic;
+        }
+      `}</style>
+
       {/* Mathematical Grid Background */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(59,130,246,0.1)_1px,transparent_1px),linear-gradient(180deg,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
@@ -184,7 +212,7 @@ const MathComingSoonPage: React.FC = () => {
         {floatingSymbols.map((item, index) => (
           <div
             key={index}
-            className={`absolute ${item.size} ${item.color} ${item.animation} font-serif`}
+            className={`absolute ${item.size} ${item.color} ${item.animation} math-symbol`}
             style={{
               left: `${item.x}%`,
               top: `${item.y}%`,
@@ -204,14 +232,14 @@ const MathComingSoonPage: React.FC = () => {
             <div className="space-y-4">
               <h1
                 id="hero-title"
-                className="animate-bounce-gentle font-mono text-4xl md:text-5xl leading-tight font-extrabold tracking-wide mb-4 bg-gradient-to-r from-white via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient-x"
+                className="font-mono animate-bounce-gentle text-4xl md:text-5xl leading-tight font-extrabold tracking-wide mb-4 bg-gradient-to-r from-white via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient-x"
                 style={{ animationDelay: "0.1s" }}
               >
-                we’re almost there
+                we&apos;re almost there
               </h1>
 
               {/* Mathematical decoration */}
-              <div className="flex justify-center items-center gap-4 text-2xl text-cyan-400 opacity-60">
+              <div className="flex justify-center items-center gap-4 text-2xl text-cyan-400 opacity-60 math-symbol">
                 <span className="animate-pulse">∑</span>
                 <span
                   className="animate-pulse"
@@ -229,7 +257,7 @@ const MathComingSoonPage: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-              <p className="text-xl md:text-xl text-gray-300 leading-relaxed font-light animate-fade-in-up">
+              <p className="text-lg md:text-lg text-gray-300 leading-relaxed font-light animate-fade-in-up math-label">
                 Get ready to{" "}
                 <span className="text-cyan-400 font-semibold">multiply</span>{" "}
                 your knowledge – without the boring lectures!
@@ -239,16 +267,16 @@ const MathComingSoonPage: React.FC = () => {
               <div className="relative">
                 {/* Floating math symbols around timer */}
                 <div className="absolute -inset-8 pointer-events-none">
-                  <div className="absolute top-0 left-0 text-cyan-400 text-2xl animate-float">
+                  <div className="absolute top-0 left-0 text-cyan-400 text-2xl animate-float math-symbol">
                     π
                   </div>
-                  <div className="absolute top-0 right-0 text-blue-400 text-2xl animate-float-delayed">
+                  <div className="absolute top-0 right-0 text-blue-400 text-2xl animate-float-delayed math-symbol">
                     √
                   </div>
-                  <div className="absolute bottom-0 left-0 text-purple-400 text-2xl animate-float-slow">
+                  <div className="absolute bottom-0 left-0 text-purple-400 text-2xl animate-float-slow math-symbol">
                     ∞
                   </div>
-                  <div className="absolute bottom-0 right-0 text-green-400 text-2xl animate-float-delayed-slow">
+                  <div className="absolute bottom-0 right-0 text-green-400 text-2xl animate-float-delayed-slow math-symbol">
                     ≠
                   </div>
                 </div>
@@ -311,14 +339,14 @@ const MathComingSoonPage: React.FC = () => {
                                 }}
                               />
                             </svg>
-                            <span className="text-3xl font-bold z-10 text-white">
+                            <span className="text-3xl font-bold z-10 text-white math-mono">
                               {value.toString().padStart(2, "0")}
                             </span>
-                            <span className="absolute top-2 right-2 text-cyan-400 text-lg opacity-70 animate-pulse">
+                            <span className="absolute top-2 right-2 text-cyan-400 text-lg opacity-70 animate-pulse math-symbol">
                               {unit.symbol}
                             </span>
                           </div>
-                          <div className="text-xs text-gray-400 mt-2 tracking-wider uppercase">
+                          <div className="text-xs text-gray-400 mt-2 tracking-wider uppercase math-label">
                             {unit.label}
                           </div>
                         </div>
@@ -329,10 +357,10 @@ const MathComingSoonPage: React.FC = () => {
               </div>
 
               <div className="space-y-4">
-                <p className="text-lg text-gray-400 flex items-center justify-center gap-2">
+                <p className="text-md text-gray-400 flex items-center justify-center gap-2 math-label">
                   Want to be the first to solve this equation?
-                  <span className="text-cyan-400">∫</span> Register to get
-                  notified!
+                  <span className="text-cyan-400 math-symbol">∫</span> Register
+                  to get notified!
                 </p>
 
                 {/* Email Signup */}
@@ -345,7 +373,7 @@ const MathComingSoonPage: React.FC = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Enter your email"
-                        className="w-full pl-10 pr-4 py-3 bg-white/10 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-300"
+                        className="w-full pl-10 pr-4 py-3 bg-white/10 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-300 math-label"
                         required
                       />
                     </div>
@@ -353,7 +381,7 @@ const MathComingSoonPage: React.FC = () => {
                     <button
                       type="submit"
                       disabled={isSubmitted}
-                      className="group relative px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="group relative px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed math-label"
                     >
                       {isSubmitted ? (
                         <span className="flex items-center gap-2">
@@ -371,7 +399,7 @@ const MathComingSoonPage: React.FC = () => {
                   </div>
 
                   {isSubmitted && (
-                    <div className="text-green-400 text-sm animate-fade-in">
+                    <div className="text-green-400 text-sm animate-fade-in math-label">
                       Thanks! We&apos;ll notify you when we launch! 🎉
                     </div>
                   )}
@@ -380,20 +408,31 @@ const MathComingSoonPage: React.FC = () => {
 
               {/* Social Icons */}
               <div className="flex justify-center items-center space-x-6 pt-4">
-                {socialLinks.map((link) => (
+                {socialLinks.map(({ name, href, color, symbol, Icon }) => (
                   <a
-                    key={link.name}
-                    href={link.href}
-                    className={`group relative w-12 h-12 bg-white/10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 transition-all duration-300 hover:border-cyan-400 hover:scale-110 hover:rotate-12 ${link.color}`}
-                    aria-label={link.name}
+                    key={name}
+                    href={href}
+                    className={`group relative w-12 h-12 overflow-hidden bg-white/10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-cyan-400 hover:scale-110 hover:rotate-12 ${color} math-label`}
+                    aria-label={name}
                   >
-                    <span className="text-xl font-bold group-hover:animate-pulse">
-                      {link.symbol}
+                    {/* Placeholder math symbol (default view) */}
+                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-xl font-bold math-symbol transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] opacity-100 scale-100 blur-0 group-hover:opacity-0 group-hover:scale-75 group-hover:blur-sm">
+                      {symbol}
                     </span>
 
+                    {/* Actual social icon (reveals on hover) */}
+                    {Icon && (
+                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                        <Icon className="w-5 h-5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] opacity-0 scale-125 group-hover:opacity-100 group-hover:scale-100 group-hover:blur-0" />
+                      </span>
+                    )}
+
+                    {/* Ripple highlight for extra satisfaction */}
+                    <span className="pointer-events-none absolute inset-0 rounded-full bg-cyan-400/0 group-hover:bg-cyan-400/5 transition-colors duration-500" />
+
                     {/* Tooltip */}
-                    <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-                      {link.name}
+                    <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap math-label">
+                      {name}
                     </div>
                   </a>
                 ))}
@@ -421,7 +460,7 @@ const MathComingSoonPage: React.FC = () => {
             {equations.map((equation, index) => (
               <div
                 key={equation}
-                className={`absolute text-white/20 text-lg font-mono animate-float-equation-${
+                className={`absolute text-white/20 text-lg math-mono animate-float-equation-${
                   index % 3
                 }`}
                 style={{
@@ -439,15 +478,15 @@ const MathComingSoonPage: React.FC = () => {
           <div className="relative z-10 flex items-center justify-center h-full p-8">
             <div className="text-center max-w-md">
               <div className="bg-black/30 backdrop-blur-md rounded-2xl p-8 border border-cyan-400/20 shadow-2xl">
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                  Your Next <span className="text-cyan-400">Equation</span>
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 math-label">
+                  Your next <span className="text-cyan-400">equation</span>
                 </h2>
-                <h3 className="text-xl md:text-2xl text-gray-300 mb-6">
+                <h3 className="text-xl md:text-2xl text-gray-300 mb-6 math-label">
                   Starts Here
                 </h3>
 
                 {/* Mathematical decoration */}
-                <div className="flex justify-center items-center space-x-4 text-cyan-400 text-2xl opacity-60">
+                <div className="flex justify-center items-center space-x-4 text-cyan-400 text-2xl opacity-60 math-symbol">
                   <span className="animate-pulse">∮</span>
                   <span className="animate-spin-slow">⊕</span>
                   <span
@@ -458,7 +497,7 @@ const MathComingSoonPage: React.FC = () => {
                   </span>
                 </div>
 
-                <p className="text-gray-400 mt-6 italic">
+                <p className="text-gray-400 mt-6 math-quote">
                   &quot;Mathematics is the language with which God has written
                   the universe.&quot;
                 </p>
@@ -467,10 +506,10 @@ const MathComingSoonPage: React.FC = () => {
           </div>
 
           {/* Corner Math Symbols */}
-          <div className="absolute top-8 right-8 text-6xl text-cyan-400/30 animate-pulse">
+          <div className="absolute top-8 right-8 text-6xl text-cyan-400/30 animate-pulse math-symbol">
             ∞
           </div>
-          <div className="absolute bottom-8 left-8 text-4xl text-blue-400/30 animate-bounce">
+          <div className="absolute bottom-8 left-8 text-4xl text-blue-400/30 animate-bounce math-symbol">
             φ
           </div>
         </div>
@@ -478,7 +517,7 @@ const MathComingSoonPage: React.FC = () => {
 
       {/* Bottom Mathematical Pattern */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-900 to-transparent pointer-events-none">
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-gray-600 text-sm opacity-50">
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-gray-600 text-sm opacity-50 math-mono">
           π = 3.14159... ∞
         </div>
       </div>
