@@ -2,45 +2,34 @@
 import React, { useState, useEffect } from "react";
 import { Mail } from "lucide-react";
 
+// Set your target date here
+const TARGET_DATE = new Date("2025-11-01T00:00:00Z");
+
+function getTimeLeft(target: Date) {
+  const now = new Date();
+  let diff = Math.max(0, target.getTime() - now.getTime());
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  diff -= days * (1000 * 60 * 60 * 24);
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  diff -= hours * (1000 * 60 * 60);
+  const minutes = Math.floor(diff / (1000 * 60));
+  diff -= minutes * (1000 * 60);
+  const seconds = Math.floor(diff / 1000);
+
+  return { days, hours, minutes, seconds };
+}
+
 const MathComingSoonPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [timeLeft, setTimeLeft] = useState({
-    days: 15,
-    hours: 8,
-    minutes: 42,
-    seconds: 30,
-  });
+  const [timeLeft, setTimeLeft] = useState(getTimeLeft(TARGET_DATE));
 
   // Countdown timer effect
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        let { days, hours, minutes, seconds } = prev;
-
-        seconds--;
-        if (seconds < 0) {
-          seconds = 59;
-          minutes--;
-          if (minutes < 0) {
-            minutes = 59;
-            hours--;
-            if (hours < 0) {
-              hours = 23;
-              days--;
-              if (days < 0) {
-                days = 0;
-                hours = 0;
-                minutes = 0;
-                seconds = 0;
-              }
-            }
-          }
-        }
-
-        return { days, hours, minutes, seconds };
-      });
+      setTimeLeft(getTimeLeft(TARGET_DATE));
     }, 1000);
 
     return () => clearInterval(timer);
