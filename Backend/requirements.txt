@@ -17,6 +17,7 @@ fonttools==4.55.4
 fpdf==1.7.2
 galpy==1.10.1
 geckodriver==0.0.1
+gunicorn-23.0.0
 h11==0.14.0
 idna==3.10
 ipykernel==6.29.5
