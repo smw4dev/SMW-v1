@@ -87,7 +87,7 @@ const Navigation = () => {
         <div className="hidden items-center justify-between py-2 lg:flex">
           <Link href="/" className="flex items-center gap-3">
             <Image
-              src="/logo.jpeg"
+              src="/logo.png"
               alt="Brand logo"
               width={140}
               height={48}
@@ -124,7 +124,7 @@ const Navigation = () => {
         <div className="flex items-center justify-between px-4 py-4 lg:hidden">
           <Link href="/">
             <Image
-              src="/logo.jpeg"
+              src="/logo.png"
               alt="logo"
               width={120}
               height={60}
@@ -162,7 +162,7 @@ const Navigation = () => {
         </button>
         <Link href="/" onClick={() => setIsMenuOpen(false)}>
           <Image
-            src="/logo.jpeg"
+            src="/logo.png"
             alt="logo"
             width={100}
             height={50}
