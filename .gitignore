@@ -9,7 +9,12 @@ build/
 .eggs/
 *.manifest
 *.spec
-
+*__init__.pyc
+*.pyo
+*.pyd
+*.log
+*__init__.py
+*_initial.py
 # Virtual environments
 venv/
 ENV/
