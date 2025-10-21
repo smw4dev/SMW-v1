@@ -1,5 +1,5 @@
 """
-Django settings for smw project with PostgreSQL support.
+Django settings for smw project (PostgreSQL, DRF, JWT, CORS, optional Celery).
 """
 
 from pathlib import Path
@@ -10,7 +10,7 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load .env file
+# Load .env from Backend/.env
 load_dotenv(BASE_DIR / ".env")
 
 # ---------------------------------------------------------------------
@@ -23,13 +23,14 @@ _allowed_hosts_env = os.getenv("DJANGO_ALLOWED_HOSTS", "").strip()
 ALLOWED_HOSTS = (
     [h.strip() for h in _allowed_hosts_env.split(",") if h.strip()]
     if _allowed_hosts_env
-    else ["127.0.0.1", "localhost"] if DEBUG else []
+    else (["127.0.0.1", "localhost"] if DEBUG else [])
 )
 
 # ---------------------------------------------------------------------
 # Applications
 # ---------------------------------------------------------------------
 INSTALLED_APPS = [
+    # Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -37,16 +38,17 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    # Third-party
     "rest_framework",
-    # local
+    "corsheaders",
+
+    # Local apps
     "authentication",
     "users",
     "admissions",
     "courses_app",
     "financials",
-
 ]
-
 
 AUTH_USER_MODEL = "authentication.User"
 
@@ -59,9 +61,12 @@ REST_FRAMEWORK = {
     ),
 }
 
-
+# ---------------------------------------------------------------------
+# Middleware
+# ---------------------------------------------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",  # keep CORS near the top
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -90,16 +95,23 @@ TEMPLATES = [
 WSGI_APPLICATION = "smw.wsgi.application"
 
 # ---------------------------------------------------------------------
-# Database
+# Database (PostgreSQL)
 # ---------------------------------------------------------------------
-# Default: PostgreSQL via DATABASE_URL, fallback to SQLite
-DATABASES = {
-    "default": dj_database_url.config(
-        env="DATABASE_URL",
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-    )
-}
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
+if DATABASE_URL:
+    DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
+else:
+    # Fallback to split env vars if DATABASE_URL is not set
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DBNAME", "smw_db"),
+            "USER": os.getenv("USER", "smw_user"),
+            "PASSWORD": os.getenv("PASSWORD", ""),
+            "HOST": os.getenv("HOST", "127.0.0.1"),
+            "PORT": os.getenv("PORT", "5432"),
+        }
+    }
 
 # ---------------------------------------------------------------------
 # Password validation
@@ -122,23 +134,30 @@ USE_TZ = True
 # ---------------------------------------------------------------------
 # Static / Media
 # ---------------------------------------------------------------------
-STATIC_URL = os.getenv("DJANGO_STATIC_URL", "static/")
-MEDIA_URL = os.getenv("DJANGO_MEDIA_URL", "media/")
+STATIC_URL = os.getenv("DJANGO_STATIC_URL", "/static/")
+MEDIA_URL = os.getenv("DJANGO_MEDIA_URL", "/media/")
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # ---------------------------------------------------------------------
-# Email
+# CORS (dev-friendly; tighten for production)
 # ---------------------------------------------------------------------
-# EMAIL_BACKEND = os.getenv(
-#     "EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
-# )
-# EMAIL_HOST = os.getenv("EMAIL_HOST", "")
-# EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
-# EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-# EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
-# EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() in ("1", "true", "yes")
+_cors = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
+if _cors:
+    CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors.split(",") if o.strip()]
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+
+# ---------------------------------------------------------------------
+# Celery (optional)
+# ---------------------------------------------------------------------
+CELERY_BROKER_URL = os.getenv("REDIS_URL", "")
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL or None
+CELERY_TIMEZONE = TIME_ZONE
 
 # ---------------------------------------------------------------------
 # Default PK

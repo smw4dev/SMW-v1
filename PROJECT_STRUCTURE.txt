@@ -1,0 +1,124 @@
+Project Structure: SMW-v1/
+--------------------------
+Options: max_depth=∞, charset=Unicode, show_hidden=False, dirs_only=False
+
+SMW-v1/
+├── Backend/
+│   admissions/
+│   │   __init__.py
+│   │   admin.py
+│   │   apps.py
+│   │   models.py
+│   │   serializers.py
+│   │   tests.py
+│   │   urls.py
+│   │   views.py
+│   authentication/
+│   │   __init__.py
+│   │   admin.py
+│   │   apps.py
+│   │   forms.py
+│   │   models.py
+│   │   permissions.py
+│   │   serializers.py
+│   │   tests.py
+│   │   throttles.py
+│   │   urls.py
+│   │   views.py
+│   courses_app/
+│   │   __init__.py
+│   │   admin.py
+│   │   apps.py
+│   │   models.py
+│   │   serializers.py
+│   │   tests.py
+│   │   urls.py
+│   │   views.py
+│   financials/
+│   │   __init__.py
+│   │   admin.py
+│   │   apps.py
+│   │   models.py
+│   │   serializers.py
+│   │   tests.py
+│   │   urls.py
+│   │   views.py
+│   smw/
+│   │   __init__.py
+│   │   asgi.py
+│   │   settings.py
+│   │   urls.py
+│   │   wsgi.py
+│   users/
+│   │   __init__.py
+│   │   admin.py
+│   │   apps.py
+│   │   models.py
+│   │   permissions.py
+│   │   serializers.py
+│   │   services.py
+│   │   tests.py
+│   │   urls.py
+│   │   views.py
+│   .env
+│   manage.py
+│   requirements.txt
+├── frontend/
+│   public/
+│   │   file.svg
+│   │   globe.svg
+│   │   hero_1.png
+│   │   hero_2.png
+│   │   logo.jpeg
+│   │   logo.png
+│   │   map.png
+│   │   map_1.png
+│   │   next.svg
+│   │   vercel.svg
+│   │   window.svg
+│   src/
+│   │   app/
+│   │   │   admission/
+│   │   │   │   page.tsx
+│   │   │   favicon.ico
+│   │   │   globals.css
+│   │   │   layout.tsx
+│   │   │   page.tsx
+│   │   components/
+│   │   │   sections/
+│   │   │   │   admission-form.tsx
+│   │   │   │   contact-cta.tsx
+│   │   │   │   course-filters.tsx
+│   │   │   │   course-grid.tsx
+│   │   │   │   find-us.tsx
+│   │   │   │   footer.tsx
+│   │   │   │   gallery.tsx
+│   │   │   │   hero.tsx
+│   │   │   │   navigation.tsx
+│   │   │   │   quick-admission-form.tsx
+│   │   │   │   services-intro.tsx
+│   │   │   │   statistics.tsx
+│   │   │   │   success-stories.tsx
+│   │   │   theme/
+│   │   │   │   ThemeProvider.tsx
+│   │   │   ui/
+│   │   │   │   button.tsx
+│   │   │   │   carousel.tsx
+│   │   │   │   dropdown-menu.tsx
+│   │   │   ComingSoon.tsx
+│   │   lib/
+│   │   │   utils.ts
+│   components.json
+│   eslint.config.mjs
+│   next.config.ts
+│   package-lock.json
+│   package.json
+│   postcss.config.mjs
+│   README.md
+│   tsconfig.json
+├── codebase.docx
+├── generate_cb.py
+├── print_structure.py
+└── README.md
+
+Summary: 17 dirs, 100 files (excluded common junk).
