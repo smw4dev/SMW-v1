@@ -473,8 +473,6 @@ input:focus-visible {
   --brand-emphasis: #0E7490;
 }
 
-
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
