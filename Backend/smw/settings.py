@@ -163,3 +163,18 @@ CELERY_TIMEZONE = TIME_ZONE
 # Default PK
 # ---------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# SSLCommerz
+SSLC_IS_LIVE = os.getenv("SSLC_IS_LIVE", "false").lower() in ("1","true","yes")
+SSLC_BASE_URL = "https://securepay.sslcommerz.com" if SSLC_IS_LIVE else "https://sandbox.sslcommerz.com"
+
+SSLC_STORE_ID = os.getenv("SSLC_STORE_ID", "")
+SSLC_STORE_PASS = os.getenv("SSLC_STORE_PASS", "")
+
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", "http://127.0.0.1:8000")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")  # already in your code; ensure present
+
+# For gateway POSTs
+CSRF_TRUSTED_ORIGINS = [
+    *[f"http://{h}", f"https://{h}"] for h in (ALLOWED_HOSTS or [])
+] + ["https://*.sslcommerz.com", "https://securepay.sslcommerz.com", "https://sandbox.sslcommerz.com"]

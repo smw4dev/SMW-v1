@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.shortcuts import get_object_or_404
+
+from Backend.smw import settings
 from .models import Payment, PaymentStatus
 from .serializers import PaymentSerializer
 from admissions.models import AdmissionApplication
@@ -30,19 +32,41 @@ class AdmissionPaymentCreate(APIView):
             return Response(PaymentSerializer(pay).data, status=status.HTTP_201_CREATED)
         return Response(s.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@method_decorator(csrf_exempt, name="dispatch")
 class PaymentIPN(APIView):
-    permission_classes = [permissions.AllowAny]  # gateway posts here
+    permission_classes = [permissions.AllowAny]
     def post(self, request):
-        # TODO: verify HMAC/signature from SSLCommerz in production
-        trx = request.data.get("tran_id")
-        status_str = request.data.get("status")  # "VALID" / "FAILED"
-        pay = get_object_or_404(Payment, meta__tran_id=trx)
-        if status_str == "VALID":
-            pay.status = PaymentStatus.SUCCESS
-            pay.gateway_trx_id = request.data.get("val_id","")
+        tran_id = request.data.get("tran_id")
+        val_id  = request.data.get("val_id")
+        status_str = (request.data.get("status") or "").upper()
+
+        pay = get_object_or_404(Payment, meta__tran_id=tran_id)
+        pay.meta.update({"ipn": request.data})
+
+        # Only treat paid when validator says VALID/VALIDATED
+        if val_id:
+            try:
+                v = validate_with_val_id(val_id)
+            except Exception as e:
+                pay.meta.update({"ipn_validation_error": str(e)})
+                pay.save(update_fields=["meta"])
+                return Response({"ok": False}, status=502)
+
+            pay.gateway_trx_id = v.get("val_id", "")
+            pay.meta.update({"validation": v})
+            if (v.get("status") or "").upper() in ("VALID", "VALIDATED"):
+                if str(v.get("risk_level")) == "1":
+                    # keep on hold if you add that state later
+                    pass
+                else:
+                    pay.status = PaymentStatus.SUCCESS
+            else:
+                pay.status = PaymentStatus.FAILED
         else:
-            pay.status = PaymentStatus.FAILED
-        pay.meta.update(request.data)
+            # fallback if gateway sent FAILED without val_id
+            if status_str == "FAILED":
+                pay.status = PaymentStatus.FAILED
+
         pay.save()
         return Response({"ok": True})
 
@@ -54,3 +78,67 @@ class MyPayments(APIView):
         else:
             qs = Payment.objects.filter(user=request.user).order_by("-id")
         return Response(PaymentSerializer(qs, many=True).data)
+
+# ------- Browser redirects from SSLCommerz --------
+
+@method_decorator(csrf_exempt, name="dispatch")
+class SSLSuccess(APIView):
+    permission_classes = [permissions.AllowAny]
+    def post(self, request):  # SSLCommerz POSTS here
+        val_id = request.data.get("val_id")
+        tran_id = request.data.get("tran_id")
+        if not val_id or not tran_id:
+            return Response({"detail": "Missing val_id/tran_id"}, status=400)
+
+        # Load payment by tran_id saved in meta
+        pay = get_object_or_404(Payment, meta__tran_id=tran_id)
+
+        # Validate with validator API
+        try:
+            v = validate_with_val_id(val_id)
+        except Exception as e:
+            return Response({"detail": "Validation failed", "error": str(e)}, status=502)
+
+        status_text = (v.get("status") or "").upper()  # "VALID", "VALIDATED", etc.
+        pay.gateway_trx_id = v.get("val_id", "")
+        pay.meta.update({"success_post": request.data, "validation": v})
+
+        if status_text in ("VALID", "VALIDATED"):
+            # risk_level=1 → hold for manual review
+            if str(v.get("risk_level")) == "1":
+                # keep as INIT or custom "ON_HOLD" if you extend enum
+                pass
+            else:
+                pay.status = PaymentStatus.SUCCESS
+        else:
+            pay.status = PaymentStatus.FAILED
+
+        pay.save()
+
+        # Redirect the user to frontend success page with a tokenized reference
+        return redirect(f"{settings.FRONTEND_URL}/payments/success?ref={tran_id}")
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class SSLFail(APIView):
+    permission_classes = [permissions.AllowAny]
+    def post(self, request):
+        tran_id = request.data.get("tran_id")
+        pay = Payment.objects.filter(meta__tran_id=tran_id).first()
+        if pay:
+            pay.status = PaymentStatus.FAILED
+            pay.meta.update({"fail_post": request.data})
+            pay.save()
+        return redirect(f"{settings.FRONTEND_URL}/payments/fail?ref={tran_id or ''}")
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class SSLCancel(APIView):
+    permission_classes = [permissions.AllowAny]
+    def post(self, request):
+        tran_id = request.data.get("tran_id")
+        pay = Payment.objects.filter(meta__tran_id=tran_id).first()
+        if pay:
+            pay.meta.update({"cancel_post": request.data})
+            pay.save()
+        return redirect(f"{settings.FRONTEND_URL}/payments/cancel?ref={tran_id or ''}")

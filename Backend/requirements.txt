@@ -24,7 +24,9 @@ filetype==1.2.0
 gunicorn==23.0.0
 idna==3.11
 kombu==5.5.4
+lxml==6.0.2
 packaging==25.0
+pathspec==0.12.1
 pillow==12.0.0
 prompt_toolkit==3.0.52
 psycopg-binary==3.2.11
@@ -33,6 +35,7 @@ PyJWT==2.10.1
 python-crontab==3.3.0
 python-dateutil==2.9.0.post0
 python-decouple==3.8
+python-docx==1.2.0
 python-dotenv==1.1.1
 redis==6.4.0
 requests==2.32.5

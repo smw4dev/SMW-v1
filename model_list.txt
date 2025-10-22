@@ -1,0 +1,165 @@
+# Django Model Inventory
+- Generated: 2025-10-22 08:00:33
+- Repo root: D:\1SMW\SMW-v1
+- Using settings: smw.settings
+
+
+## App: admin
+
+Model: admin.LogEntry
+  - id: (PK)
+  - action_time
+  - user (FK → authentication.User)
+  - content_type (FK → contenttypes.ContentType)
+  - object_id
+  - object_repr
+  - action_flag
+  - change_message
+
+## App: admissions
+
+Model: admissions.AdmissionApplication
+  - id: (PK)
+  - student_first_name_en
+  - student_last_name_en
+  - student_nick_name_en
+  - student_first_name_bn
+  - student_last_name_bn
+  - student_nick_name_bn
+  - date_of_birth
+  - sex
+  - current_class
+  - prev_result
+  - batch (FK → courses_app.Batch)
+  - student_mobile
+  - student_email
+  - home_location
+  - picture_path
+  - is_submitted
+  - is_reviewed
+  - is_approved
+  - created_user (O2O → authentication.User)
+  - school (FK → admissions.School)
+  - created_at
+
+Model: admissions.Guardian
+  - id: (PK)
+  - application (FK → admissions.AdmissionApplication)
+  - role
+  - name_en
+  - name_bn
+  - occupation
+  - contact_number
+  - email_address
+
+Model: admissions.School
+  - id: (PK)
+  - name
+  - code
+  - address
+  - contact_phone
+  - created_at
+  - updated_at
+
+## App: auth
+
+Model: auth.Group
+  - id: (PK)
+  - name
+  - permissions (M2M ↔ auth.Permission)
+
+Model: auth.Permission
+  - id: (PK)
+  - name
+  - content_type (FK → contenttypes.ContentType)
+  - codename
+
+## App: authentication
+
+Model: authentication.User
+  - id: (PK)
+  - password
+  - last_login
+  - email
+  - f_name
+  - l_name
+  - phone
+  - photo
+  - is_staff
+  - is_approved
+  - is_active
+  - is_superuser
+  - is_staff_request
+  - is_anonymous_user
+  - created_at
+  - groups (M2M ↔ auth.Group)
+  - user_permissions (M2M ↔ auth.Permission)
+
+## App: contenttypes
+
+Model: contenttypes.ContentType
+  - id: (PK)
+  - app_label
+  - model
+
+## App: courses_app
+
+Model: courses_app.Batch
+  - id: (PK)
+  - course (FK → courses_app.Course)
+  - batch_number
+  - days
+  - time_slot
+  - total_seat
+  - class_name
+  - group_name
+  - is_active
+  - created_at
+  - updated_at
+
+Model: courses_app.Course
+  - id: (PK)
+  - title
+  - description
+  - grade_level
+  - is_active
+  - created_at
+  - updated_at
+
+## App: financials
+
+Model: financials.Payment
+  - id: (PK)
+  - purpose
+  - application (FK → admissions.AdmissionApplication)
+  - user (FK → authentication.User)
+  - method
+  - amount
+  - currency
+  - status
+  - gateway_trx_id
+  - meta
+  - created_at
+  - updated_at
+
+## App: sessions
+
+Model: sessions.Session
+  - session_key
+  - session_data
+  - expire_date
+
+## App: users
+
+Model: users.UserProfile
+  - id: (PK)
+  - user (O2O → authentication.User)
+  - phone
+  - photo_url
+  - current_class
+  - group_name
+  - student_uid
+  - school (FK → admissions.School)
+  - current_batch (FK → courses_app.Batch)
+  - created_at
+  - updated_at
