@@ -11,11 +11,20 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, Download, Mail } from "lucide-react";
 import { format } from "date-fns";
 
+const batchTimingLabels: Record<string, string> = {
+  "sat-mon-thurs-morning": "Sat, Mon, Thurs - 10:00 AM - 12:00 PM",
+  "sun-tue-thu-afternoon": "Sun, Tue, Thu - 2:00 PM - 4:00 PM",
+  "fri-sat-evening": "Fri & Sat - 6:00 PM - 8:00 PM",
+  "weekend-intensive-morning": "Weekend Intensive - 8:00 AM - 11:00 AM",
+};
+
 interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
   data: {
     fullName: string;
+    nickname: string;
+    homeDistrict: string;
     dateOfBirth: Date;
     gender: string;
     email: string;
@@ -27,16 +36,17 @@ interface ConfirmationModalProps {
     motherName: string;
     motherOccupation: string;
     motherPhone: string;
-    currentClass: string;
-    previousSchool: string;
-    previousPercentage: string;
-    mathsMarks: string;
-    preferredBatch: string;
-    courseType: string;
-    startDate: Date;
-    emergencyContact: string;
-    medicalConditions?: string;
+    guardianRelation: "father" | "mother" | "other";
+    guardianContact: string;
+    jscSchool: string;
+    jscGrade: string;
+    sscSchool: string;
+    sscGrade: string;
+    classLevel: string;
+    subject: string;
+    batchTiming: string;
     hearAboutUs: string;
+    agreeTerms: boolean;
   };
   photoPreview: string | null;
 }
@@ -64,19 +74,31 @@ export default function ConfirmationModal({
     }
 
     const str = value;
-    if (key === "gender") {
-      return str.charAt(0).toUpperCase() + str.slice(1);
+    switch (key) {
+      case "gender":
+      case "guardianRelation":
+        return str.charAt(0).toUpperCase() + str.slice(1);
+      case "classLevel":
+        return str
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, (l: string) => l.toUpperCase());
+      case "subject":
+        if (str.toLowerCase() === "ict") {
+          return "ICT";
+        }
+        return str
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, (l: string) => l.toUpperCase());
+      case "batchTiming":
+        return batchTimingLabels[str] ?? str;
+      case "hearAboutUs":
+        return str
+          .split("-")
+          .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+      default:
+        return str;
     }
-    if (key === "currentClass") {
-      return str.replace("-", " ").replace(/\b\w/g, (l: string) => l.toUpperCase());
-    }
-    if (key === "preferredBatch" || key === "courseType" || key === "hearAboutUs") {
-      return str
-        .split("-")
-        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-    }
-    return str;
   };
 
   return (
@@ -160,6 +182,7 @@ export default function ConfirmationModal({
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-muted/50 p-4 rounded-lg">
                     <DetailItem label="Full Name" value={data.fullName} />
+                    <DetailItem label="Nickname" value={data.nickname} />
                     <DetailItem
                       label="Date of Birth"
                       value={formatValue("dateOfBirth", data.dateOfBirth)}
@@ -170,6 +193,10 @@ export default function ConfirmationModal({
                     />
                     <DetailItem label="Email" value={data.email} />
                     <DetailItem label="Phone" value={data.phone} />
+                    <DetailItem
+                      label="Home District"
+                      value={data.homeDistrict}
+                    />
                     <DetailItem
                       label="Address"
                       value={data.address}
@@ -206,6 +233,14 @@ export default function ConfirmationModal({
                       label="Mother's Phone"
                       value={data.motherPhone}
                     />
+                    <DetailItem
+                      label="Guardian Relation"
+                      value={formatValue("guardianRelation", data.guardianRelation)}
+                    />
+                    <DetailItem
+                      label="Guardian Contact"
+                      value={data.guardianContact}
+                    />
                   </div>
                 </motion.div>
 
@@ -216,25 +251,13 @@ export default function ConfirmationModal({
                   transition={{ delay: 0.7 }}
                 >
                   <h3 className="text-lg font-semibold mb-3 text-primary">
-                    Educational Qualifications
+                    Educational Background
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-muted/50 p-4 rounded-lg">
-                    <DetailItem
-                      label="Current Class"
-                      value={formatValue("currentClass", data.currentClass)}
-                    />
-                    <DetailItem
-                      label="Previous School"
-                      value={data.previousSchool}
-                    />
-                    <DetailItem
-                      label="Previous Percentage"
-                      value={data.previousPercentage}
-                    />
-                    <DetailItem
-                      label="Mathematics Marks"
-                      value={data.mathsMarks}
-                    />
+                    <DetailItem label="JSC School" value={data.jscSchool} />
+                    <DetailItem label="JSC Grade" value={data.jscGrade} />
+                    <DetailItem label="SSC School" value={data.sscSchool} />
+                    <DetailItem label="SSC Grade" value={data.sscGrade} />
                   </div>
                 </motion.div>
 
@@ -245,32 +268,22 @@ export default function ConfirmationModal({
                   transition={{ delay: 0.8 }}
                 >
                   <h3 className="text-lg font-semibold mb-3 text-primary">
-                    Batch Information
+                    Batch Preferences
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-muted/50 p-4 rounded-lg">
                     <DetailItem
-                      label="Preferred Batch"
-                      value={formatValue("preferredBatch", data.preferredBatch)}
+                      label="Class"
+                      value={formatValue("classLevel", data.classLevel)}
                     />
                     <DetailItem
-                      label="Course Type"
-                      value={formatValue("courseType", data.courseType)}
+                      label="Subject"
+                      value={formatValue("subject", data.subject)}
                     />
                     <DetailItem
-                      label="Start Date"
-                      value={formatValue("startDate", data.startDate)}
+                      label="Batch Timing"
+                      value={formatValue("batchTiming", data.batchTiming)}
+                      className="md:col-span-2"
                     />
-                    <DetailItem
-                      label="Emergency Contact"
-                      value={data.emergencyContact}
-                    />
-                    {data.medicalConditions && (
-                      <DetailItem
-                        label="Medical Conditions"
-                        value={data.medicalConditions}
-                        className="md:col-span-2"
-                      />
-                    )}
                     <DetailItem
                       label="How Did You Hear About Us"
                       value={formatValue("hearAboutUs", data.hearAboutUs)}

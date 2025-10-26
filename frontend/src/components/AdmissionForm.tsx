@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -22,7 +23,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -44,43 +44,81 @@ import {
 import { cn } from "@/lib/utils";
 import ConfirmationModal from "./ConfirmationModal";
 
-const formSchema = z.object({
-  // Personal Information
-  fullName: z.string().min(2, "Name must be at least 2 characters"),
-  dateOfBirth: z.date({
-    message: "Date of birth is required",
-  }),
-  gender: z.string().min(1, "Please select gender"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  address: z.string().min(5, "Address must be at least 5 characters"),
+const formSchema = z
+  .object({
+    // Personal Information
+    fullName: z.string().min(2, "Name must be at least 2 characters"),
+    nickname: z.string().optional().or(z.literal("")),
+    homeDistrict: z.string().min(2, "Please enter your home district"),
+    dateOfBirth: z.date({
+      message: "Date of birth is required",
+    }),
+    gender: z.string().min(1, "Please select gender"),
+    email: z.string().email("Invalid email address"),
+    phone: z.string().min(1, "Phone number is required"),
+    address: z.string().min(5, "Address must be at least 5 characters"),
 
-  // Parents Information
-  fatherName: z.string().min(2, "Father's name is required"),
-  fatherOccupation: z.string().min(2, "Father's occupation is required"),
-  fatherPhone: z.string().min(10, "Phone number must be at least 10 digits"),
-  motherName: z.string().min(2, "Mother's name is required"),
-  motherOccupation: z.string().min(2, "Mother's occupation is required"),
-  motherPhone: z.string().min(10, "Phone number must be at least 10 digits"),
+    // Parents Information (all mandatory)
+    fatherName: z.string().min(2, "Father's name is required"),
+    fatherOccupation: z.string().min(2, "Father's occupation is required"),
+    fatherPhone: z.string().min(1, "Phone number is required"),
+    motherName: z.string().min(2, "Mother's name is required"),
+    motherOccupation: z.string().min(2, "Mother's occupation is required"),
+    motherPhone: z.string().min(1, "Phone number is required"),
+    guardianRelation: z.enum(["father", "mother", "other"], {
+      required_error: "Please select guardian relation",
+    }),
+    guardianContact: z
+      .string()
+      .min(1, "Guardian contact is required"),
 
-  // Educational Qualifications
-  currentClass: z.string().min(1, "Please select current class"),
-  previousSchool: z.string().min(2, "Previous school name is required"),
-  previousPercentage: z.string().min(1, "Previous percentage is required"),
-  mathsMarks: z.string().min(1, "Maths marks are required"),
+    // Educational Qualifications (optional; if school filled then grade required)
+    jscSchool: z.string().optional().or(z.literal("")),
+    jscGrade: z.string().optional().or(z.literal("")),
+    sscSchool: z.string().optional().or(z.literal("")),
+    sscGrade: z.string().optional().or(z.literal("")),
 
-  // Batch Information
-  preferredBatch: z.string().min(1, "Please select preferred batch"),
-  courseType: z.string().min(1, "Please select course type"),
-  startDate: z.date({
-    message: "Start date is required",
-  }),
-
-  // Additional
-  medicalConditions: z.string().optional(),
-  emergencyContact: z.string().min(10, "Emergency contact is required"),
-  hearAboutUs: z.string().min(1, "Please tell us how you heard about us"),
-});
+    // Batch Information (mandatory selection)
+    classLevel: z.string().min(1, "Please select class"),
+    subject: z.string().min(1, "Please select subject"),
+    batchTiming: z.string().optional().or(z.literal("")),
+    hearAboutUs: z.string().optional().or(z.literal("")),
+    prevStudent: z.boolean().optional(),
+    agreeTerms: z
+      .boolean()
+      .refine((value) => value === true, "You must agree to continue"),
+  })
+  .superRefine((values, ctx) => {
+    if (values.jscSchool && values.jscSchool.trim() !== "") {
+      if (!values.jscGrade || values.jscGrade.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["jscGrade"],
+          message: "Grade is required if school is provided",
+        })
+      }
+    }
+    if (values.sscSchool && values.sscSchool.trim() !== "") {
+      if (!values.sscGrade || values.sscGrade.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["sscGrade"],
+          message: "Grade is required if school is provided",
+        })
+      }
+    }
+    // Require batch timing for classes 8-10, allow none for 11-12
+    const classesRequireBatch = ["class-8", "class-9", "class-10"]
+    if (classesRequireBatch.includes(values.classLevel)) {
+      if (!values.batchTiming || values.batchTiming.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["batchTiming"],
+          message: "Please select batch timing",
+        })
+      }
+    }
+  });
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -89,11 +127,19 @@ const sections = [
     id: "personal",
     title: "Personal Info",
     icon: User,
-    fields: ["fullName", "dateOfBirth", "gender", "email", "phone", "address"],
+    fields: [
+      "fullName",
+      "homeDistrict",
+      "dateOfBirth",
+      "gender",
+      "email",
+      "phone",
+      "address",
+    ],
   },
   {
     id: "parents",
-    title: "Parents Info",
+    title: "Parents & Guardian",
     icon: Users,
     fields: [
       "fatherName",
@@ -102,33 +148,32 @@ const sections = [
       "motherName",
       "motherOccupation",
       "motherPhone",
+      "guardianRelation",
+      "guardianContact",
     ],
   },
   {
     id: "education",
     title: "Education",
     icon: GraduationCap,
-    fields: [
-      "currentClass",
-      "previousSchool",
-      "previousPercentage",
-      "mathsMarks",
-    ],
+    fields: ["jscSchool", "jscGrade", "sscSchool", "sscGrade"],
   },
   {
     id: "batch",
-    title: "Batch & Course",
+    title: "Batch Selection",
     icon: Clock,
-    fields: [
-      "preferredBatch",
-      "courseType",
-      "startDate",
-      "emergencyContact",
-      "medicalConditions",
-      "hearAboutUs",
-    ],
+    fields: ["classLevel", "subject", "batchTiming", "agreeTerms"],
   },
 ];
+
+const inputFieldClasses =
+  "h-11 border border-brand/30 bg-white/90 focus-visible:ring-brand/40 focus-visible:ring-offset-0";
+const selectTriggerClasses =
+  "h-11 w-full rounded-md border border-brand/30 bg-white/90 pl-3 text-slate-700 focus-visible:ring-brand/40 focus-visible:ring-offset-0 data-[size=default]:h-11 data-[size=sm]:h-11";
+const textareaClasses =
+  "min-h-[90px] resize-none border border-brand/30 bg-white/90 focus-visible:ring-brand/40 focus-visible:ring-offset-0";
+const outlineButtonClasses =
+  "h-11 border-brand/30 bg-white/90 text-slate-700 hover:bg-brand/5";
 
 export default function AdmissionForm() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -141,6 +186,8 @@ export default function AdmissionForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       fullName: "",
+      nickname: "",
+      homeDistrict: "",
       email: "",
       phone: "",
       address: "",
@@ -150,19 +197,99 @@ export default function AdmissionForm() {
       motherName: "",
       motherOccupation: "",
       motherPhone: "",
-      previousSchool: "",
-      previousPercentage: "",
-      mathsMarks: "",
-      medicalConditions: "",
-      emergencyContact: "",
-      hearAboutUs: "",
+      guardianRelation: undefined,
+      guardianContact: "",
+      jscSchool: "",
+      jscGrade: "",
+      sscSchool: "",
+      sscGrade: "",
+      classLevel: undefined,
+      subject: undefined,
+      batchTiming: undefined,
+      hearAboutUs: undefined,
+      prevStudent: false,
+      agreeTerms: false,
     },
   });
 
   const watchedFields = form.watch();
+  const hasAgreedToTerms = form.watch("agreeTerms");
+  const guardianRelation = form.watch("guardianRelation");
+  const fatherPhone = form.watch("fatherPhone");
+  const motherPhone = form.watch("motherPhone");
+  const selectedClass = form.watch("classLevel");
+  const isGuardianAutoFill =
+    guardianRelation === "father" || guardianRelation === "mother";
+
+  // Dynamic options for subjects and batches based on class
+  const subjectOptions: Record<string, { value: string; label: string }[]> = {
+    "class-8": [
+      { value: "math", label: "Math" },
+      { value: "science", label: "Science" },
+    ],
+    "class-9": [
+      { value: "general-math", label: "General Math" },
+      { value: "higher-math", label: "Higher Math" },
+    ],
+    "class-10": [
+      { value: "general-math", label: "General Math" },
+      { value: "higher-math", label: "Higher Math" },
+    ],
+    "class-11": [
+      { value: "math-1st", label: "Math 1st Paper" },
+      { value: "math-2nd", label: "Math 2nd Paper" },
+    ],
+    "class-12": [
+      { value: "math-1st", label: "Math 1st Paper" },
+      { value: "math-2nd", label: "Math 2nd Paper" },
+    ],
+  };
+
+  const batchOptions: Record<string, { value: string; label: string }[]> = {
+    "class-8": [
+      { value: "c8-b1-sun-tue-thu-8am", label: "Batch 1: Sun, Tue, Thu (8am)" },
+      { value: "c8-b2-sun-tue-thu-3pm", label: "Batch 2: Sun, Tue, Thu (3pm)" },
+      { value: "c8-special-sat-mon-wed-10am", label: "Special: Sat, Mon, Wed (10am)" },
+    ],
+    "class-9": [
+      { value: "c9-b1-sun-tue-thu-9am", label: "Batch 1: Sun, Tue, Thu (9am)" },
+      { value: "c9-b2-sun-tue-thu-11am", label: "Batch 2: Sun, Tue, Thu (11am)" },
+      { value: "c9-b3-sun-tue-thu-4pm", label: "Batch 3: Sun, Tue, Thu (4pm)" },
+      { value: "c9-b4-sun-tue-thu-6pm", label: "Batch 4: Sun, Tue, Thu (6pm)" },
+      { value: "c9-special-sat-mon-wed-1230pm", label: "Special: Sat, Mon, Wed (12.30pm)" },
+    ],
+    "class-10": [
+      { value: "c10-b1-sun-tue-thu-7am", label: "Batch 1: Sun, Tue, Thu (7am)" },
+      { value: "c10-b2-sun-tue-thu-10am", label: "Batch 2: Sun, Tue, Thu (10am)" },
+      { value: "c10-b3-sun-tue-thu-1230pm", label: "Batch 3: Sun, Tue, Thu (12.30pm)" },
+      { value: "c10-b4-sun-tue-thu-5pm", label: "Batch 4: Sun, Tue, Thu (5pm)" },
+      { value: "c10-special-sat-mon-wed-11pm", label: "Special: Sat, Mon, Wed (11pm)" },
+      { value: "c10-commerce-arts-sat-mon-wed-6pm", label: "Commerce/Arts: Sat, Mon, Wed (6pm)" },
+    ],
+    "class-11": [],
+    "class-12": [],
+  };
+
+  useEffect(() => {
+    // Reset dependent fields when class changes
+    form.setValue("subject", undefined as any, {
+      shouldValidate: true,
+      shouldDirty: false,
+    });
+    form.setValue("batchTiming", undefined as any, {
+      shouldValidate: true,
+      shouldDirty: false,
+    });
+  }, [selectedClass, form]);
 
   const getSectionCompletion = (sectionFields: string[]) => {
     const filledFields = sectionFields.filter((field) => {
+      if (
+        field === "batchTiming" &&
+        (batchOptions[selectedClass as string]?.length ?? 0) === 0
+      ) {
+        return true;
+      }
       const value = watchedFields[field as keyof FormData];
       return value && value !== "";
     }).length;
@@ -191,6 +318,29 @@ export default function AdmissionForm() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (guardianRelation === "father") {
+      form.setValue("guardianContact", fatherPhone || "", {
+        shouldValidate: true,
+        shouldDirty: false,
+      });
+    } else if (guardianRelation === "mother") {
+      form.setValue("guardianContact", motherPhone || "", {
+        shouldValidate: true,
+        shouldDirty: false,
+      });
+    }
+  }, [guardianRelation, fatherPhone, motherPhone, form]);
+
+  useEffect(() => {
+    if (guardianRelation === "other") {
+      form.setValue("guardianContact", "", {
+        shouldValidate: true,
+        shouldDirty: false,
+      });
+    }
+  }, [guardianRelation, form]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -227,13 +377,13 @@ export default function AdmissionForm() {
 
   return (
     <>
-      <div className="w-full max-w-7xl mx-auto px-4 py-8">
+      <div className="mx-auto w-full max-w-6xl  px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Sidebar Navigation */}
           <aside className="lg:col-span-3">
             <div className="lg:sticky lg:top-24 space-y-4">
-              <div className="bg-card border rounded-lg p-4">
-                <h3 className="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wide">
+              <div className="rounded-lg border border-brand/20 bg-gradient-to-br from-brand/5 via-white to-white p-4 shadow-sm">
+                <h3 className="text-sm font-semibold mb-4 uppercase tracking-wide text-brand">
                   Form Progress
                 </h3>
                 <div className="space-y-3">
@@ -249,8 +399,8 @@ export default function AdmissionForm() {
                         className={cn(
                           "w-full text-left p-3 rounded-lg transition-all group",
                           isActive
-                            ? "bg-primary/10 border border-primary/20"
-                            : "hover:bg-muted/50"
+                            ? "border border-brand/40 bg-brand/10 shadow-sm"
+                            : "hover:bg-brand/5"
                         )}
                       >
                         <div className="flex items-center justify-between mb-2">
@@ -258,35 +408,31 @@ export default function AdmissionForm() {
                             <Icon
                               className={cn(
                                 "w-4 h-4",
-                                isActive
-                                  ? "text-primary"
-                                  : "text-muted-foreground"
+                                isActive ? "text-brand" : "text-slate-400"
                               )}
                             />
                             <span
                               className={cn(
                                 "text-sm font-medium",
-                                isActive
-                                  ? "text-foreground"
-                                  : "text-muted-foreground"
+                                isActive ? "text-brand" : "text-slate-500"
                               )}
                             >
                               {section.title}
                             </span>
                           </div>
                           {completion === 100 ? (
-                            <CheckCircle2 className="w-4 h-4 text-green-600" />
+                            <CheckCircle2 className="w-4 h-4 text-brand" />
                           ) : (
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-brand">
                               {completion}%
                             </span>
                           )}
                         </div>
-                        <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                        <div className="w-full h-1.5 overflow-hidden rounded-full bg-brand/10">
                           <div
                             className={cn(
                               "h-full rounded-full transition-all duration-500",
-                              completion === 100 ? "bg-green-600" : "bg-primary"
+                              completion === 100 ? "bg-brand" : "bg-brand/60"
                             )}
                             style={{ width: `${completion}%` }}
                           />
@@ -297,11 +443,11 @@ export default function AdmissionForm() {
                 </div>
               </div>
 
-              <div className="bg-muted/30 border rounded-lg p-4 space-y-2 hidden lg:block">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+              <div className="hidden rounded-lg border border-brand/20 bg-brand/5 p-4 space-y-2 shadow-sm lg:block">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-brand">
                   Quick Tips
                 </p>
-                <div className="space-y-2 text-xs text-muted-foreground">
+                <div className="space-y-2 text-xs text-slate-600">
                   <p>• All fields marked with * are required</p>
                   <p>• Upload a clear passport-size photo</p>
                   <p>• Provide accurate parent contact details</p>
@@ -316,19 +462,19 @@ export default function AdmissionForm() {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-12"
+                className="admission-form space-y-12"
               >
                 {/* Personal Information */}
                 <section id="personal" className="scroll-mt-24">
-                  <div className="flex items-center gap-3 mb-6 pb-3 border-b">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <User className="w-5 h-5 text-primary" />
+                  <div className="flex items-center gap-3 mb-6 border-b border-brand/20 pb-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10">
+                      <User className="h-5 w-5 text-brand" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-semibold">
+                      <h2 className="text-2xl font-semibold text-brand">
                         Personal Information
                       </h2>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-slate-600">
                         Tell us about yourself
                       </p>
                     </div>
@@ -336,9 +482,9 @@ export default function AdmissionForm() {
 
                   <div className="space-y-6">
                     {/* Photo Upload */}
-                    <div className="bg-muted/20 rounded-lg p-6 border-2 border-dashed">
+                    <div className="rounded-lg border-2 border-dashed border-brand/30 bg-brand/5 p-6">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                        <div className="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-border group flex-shrink-0">
+                        <div className="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-brand/30 group flex-shrink-0">
                           {photoPreview ? (
                             <>
                               <img
@@ -355,28 +501,28 @@ export default function AdmissionForm() {
                               </button>
                             </>
                           ) : (
-                            <div className="w-full h-full bg-muted flex items-center justify-center">
-                              <Upload className="w-6 h-6 text-muted-foreground" />
+                            <div className="flex h-full w-full items-center justify-center bg-brand/10">
+                              <Upload className="h-6 w-6 text-brand" />
                             </div>
                           )}
                         </div>
                         <div className="flex-1">
                           <Label
                             htmlFor="photo"
-                            className="text-sm font-medium mb-1 block"
+                            className="mb-1 block text-sm font-medium text-brand"
                           >
-                            Student Photo *
+                            Student Photo
                           </Label>
-                          <p className="text-xs text-muted-foreground mb-3">
+                          <p className="mb-3 text-xs text-slate-600">
                             Upload a recent passport-size photograph (JPG, PNG -
                             Max 2MB)
                           </p>
                           <Label
                             htmlFor="photo"
-                            className="cursor-pointer inline-block"
+                            className="inline-block cursor-pointer"
                           >
-                            <div className="px-4 py-2 bg-background border rounded-lg text-sm font-medium hover:bg-muted transition-colors inline-flex items-center gap-2">
-                              <Upload className="w-4 h-4" />
+                            <div className="inline-flex items-center gap-2 rounded-lg border border-brand/30 bg-gradient-to-r from-brand to-brand-emphasis px-4 py-2 text-sm font-medium text-brand-foreground transition-colors hover:from-brand-emphasis hover:to-brand">
+                              <Upload className="h-4 w-4" />
                               Choose Photo
                             </div>
                             <Input
@@ -397,11 +543,29 @@ export default function AdmissionForm() {
                         name="fullName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Full Name *</FormLabel>
+                            <FormLabel className="text-brand">Full Name *</FormLabel>
                             <FormControl>
                               <Input
                                 placeholder="e.g. Rahul Sharma"
-                                className="h-11"
+                                className={inputFieldClasses}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="nickname"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-brand">Nickname</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="e.g. Rahi"
+                                className={inputFieldClasses}
                                 {...field}
                               />
                             </FormControl>
@@ -415,15 +579,16 @@ export default function AdmissionForm() {
                         name="dateOfBirth"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Date of Birth *</FormLabel>
+                            <FormLabel className="text-brand">Date of Birth *</FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
                                 <FormControl>
                                   <Button
                                     variant="outline"
                                     className={cn(
-                                      "w-full h-11 pl-3 text-left font-normal",
-                                      !field.value && "text-muted-foreground"
+                                      "w-full pl-3 text-left font-normal",
+                                      outlineButtonClasses,
+                                      !field.value && "text-slate-500"
                                     )}
                                   >
                                     {field.value ? (
@@ -461,13 +626,13 @@ export default function AdmissionForm() {
                         name="gender"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Gender *</FormLabel>
+                            <FormLabel className="text-brand">Gender *</FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger className="h-11">
+                                <SelectTrigger className={selectTriggerClasses}>
                                   <SelectValue placeholder="Select gender" />
                                 </SelectTrigger>
                               </FormControl>
@@ -484,21 +649,17 @@ export default function AdmissionForm() {
 
                       <FormField
                         control={form.control}
-                        name="email"
+                        name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Email Address *</FormLabel>
+                            <FormLabel className="text-brand">Contact Number *</FormLabel>
                             <FormControl>
                               <Input
-                                type="email"
-                                placeholder="student@example.com"
-                                className="h-11"
+                                placeholder="9876543210"
+                                className={inputFieldClasses}
                                 {...field}
                               />
                             </FormControl>
-                            <FormDescription className="text-xs">
-                              We&apos;ll send admission updates here
-                            </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -506,14 +667,34 @@ export default function AdmissionForm() {
 
                       <FormField
                         control={form.control}
-                        name="phone"
+                        name="email"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Phone Number *</FormLabel>
+                            <FormLabel className="text-brand">Email Address *</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="9876543210"
-                                className="h-11"
+                                type="email"
+                                placeholder="student@example.com"
+                                className={inputFieldClasses}
+                                {...field}
+                              />
+                            </FormControl>
+                            
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="homeDistrict"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-brand">Home District *</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="e.g. Dhaka"
+                                className={inputFieldClasses}
                                 {...field}
                               />
                             </FormControl>
@@ -528,11 +709,11 @@ export default function AdmissionForm() {
                       name="address"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Complete Address *</FormLabel>
+                          <FormLabel className="text-brand">Present Address *</FormLabel>
                           <FormControl>
                             <Textarea
                               placeholder="Street, Area, City, State - PIN Code"
-                              className="resize-none min-h-[90px]"
+                              className={textareaClasses}
                               {...field}
                             />
                           </FormControl>
@@ -545,16 +726,16 @@ export default function AdmissionForm() {
 
                 {/* Parents Information */}
                 <section id="parents" className="scroll-mt-24">
-                  <div className="flex items-center gap-3 mb-6 pb-3 border-b">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Users className="w-5 h-5 text-primary" />
+                  <div className="flex items-center gap-3 mb-6 border-b border-brand/20 pb-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10">
+                      <Users className="h-5 w-5 text-brand" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-semibold">
-                        Parents Information
+                      <h2 className="text-2xl font-semibold text-brand">
+                        Parents &amp; Guardian Information
                       </h2>
-                      <p className="text-sm text-muted-foreground">
-                        Guardian contact details for communication
+                      <p className="text-sm text-slate-600">
+                        Help us reach the right guardian quickly
                       </p>
                     </div>
                   </div>
@@ -563,11 +744,11 @@ export default function AdmissionForm() {
                     {/* Father's Information */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-2 mb-4">
-                        <div className="h-px flex-1 bg-border" />
-                        <span className="text-sm font-medium text-muted-foreground px-3">
+                        <div className="h-px flex-1 bg-brand/20" />
+                        <span className="text-sm font-medium text-brand px-3">
                           Father&apos;s Details
                         </span>
-                        <div className="h-px flex-1 bg-border" />
+                        <div className="h-px flex-1 bg-brand/20" />
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
@@ -575,11 +756,11 @@ export default function AdmissionForm() {
                           name="fatherName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Father&apos;s Name *</FormLabel>
+                              <FormLabel className="text-brand">Father&apos;s Name *</FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="e.g. Rajesh Sharma"
-                                  className="h-11"
+                                  className={inputFieldClasses}
                                   {...field}
                                 />
                               </FormControl>
@@ -593,11 +774,11 @@ export default function AdmissionForm() {
                           name="fatherOccupation"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Occupation *</FormLabel>
+                              <FormLabel className="text-brand">Occupation *</FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="e.g. Business, Service"
-                                  className="h-11"
+                                  className={inputFieldClasses}
                                   {...field}
                                 />
                               </FormControl>
@@ -610,18 +791,16 @@ export default function AdmissionForm() {
                           control={form.control}
                           name="fatherPhone"
                           render={({ field }) => (
-                            <FormItem className="md:col-span-2">
-                              <FormLabel>Contact Number *</FormLabel>
+                            <FormItem>
+                              <FormLabel className="text-brand">Contact Number *</FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="9876543210"
-                                  className="h-11"
+                                  className={inputFieldClasses}
                                   {...field}
                                 />
                               </FormControl>
-                              <FormDescription className="text-xs">
-                                Primary contact for admission updates
-                              </FormDescription>
+                              
                               <FormMessage />
                             </FormItem>
                           )}
@@ -632,11 +811,11 @@ export default function AdmissionForm() {
                     {/* Mother's Information */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-2 mb-4">
-                        <div className="h-px flex-1 bg-border" />
-                        <span className="text-sm font-medium text-muted-foreground px-3">
+                        <div className="h-px flex-1 bg-brand/20" />
+                        <span className="text-sm font-medium text-brand px-3">
                           Mother&apos;s Details
                         </span>
-                        <div className="h-px flex-1 bg-border" />
+                        <div className="h-px flex-1 bg-brand/20" />
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
@@ -644,11 +823,11 @@ export default function AdmissionForm() {
                           name="motherName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Mother&apos;s Name *</FormLabel>
+                              <FormLabel className="text-brand">Mother&apos;s Name *</FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="e.g. Priya Sharma"
-                                  className="h-11"
+                                  className={inputFieldClasses}
                                   {...field}
                                 />
                               </FormControl>
@@ -662,11 +841,11 @@ export default function AdmissionForm() {
                           name="motherOccupation"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Occupation *</FormLabel>
+                              <FormLabel className="text-brand">Occupation *</FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="e.g. Homemaker, Teacher"
-                                  className="h-11"
+                                  className={inputFieldClasses}
                                   {...field}
                                 />
                               </FormControl>
@@ -679,18 +858,82 @@ export default function AdmissionForm() {
                           control={form.control}
                           name="motherPhone"
                           render={({ field }) => (
-                            <FormItem className="md:col-span-2">
-                              <FormLabel>Contact Number *</FormLabel>
+                            <FormItem>
+                              <FormLabel className="text-brand">Contact Number *</FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="9876543210"
-                                  className="h-11"
+                                  className={inputFieldClasses}
                                   {...field}
                                 />
                               </FormControl>
-                              <FormDescription className="text-xs">
-                                Alternative contact number
-                              </FormDescription>
+                              
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Guardian Information */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="h-px flex-1 bg-brand/20" />
+                        <span className="text-sm font-medium text-brand px-3">
+                          Guardian Details
+                        </span>
+                        <div className="h-px flex-1 bg-brand/20" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="guardianRelation"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-brand">Guardian Relation *</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className={selectTriggerClasses}>
+                                    <SelectValue placeholder="Select relation" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="father">Father</SelectItem>
+                                  <SelectItem value="mother">Mother</SelectItem>
+                                  <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="guardianContact"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-brand">Guardian Contact Number *</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Enter contact number"
+                                  readOnly={isGuardianAutoFill}
+                                  className={cn(
+                                    inputFieldClasses,
+                                    isGuardianAutoFill &&
+                                      "bg-slate-50 text-slate-600"
+                                  )}
+                                  {...field}
+                                />
+                              </FormControl>
+                              {/* <p className="text-xs text-slate-500">
+                                {isGuardianAutoFill
+                                  ? "This number is synced with the selected parent."
+                                  : "Please enter the contact number for the guardian."}
+                              </p> */}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -702,126 +945,129 @@ export default function AdmissionForm() {
 
                 {/* Educational Qualifications */}
                 <section id="education" className="scroll-mt-24">
-                  <div className="flex items-center gap-3 mb-6 pb-3 border-b">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <GraduationCap className="w-5 h-5 text-primary" />
+                  <div className="flex items-center gap-3 mb-6 border-b border-brand/20 pb-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10">
+                      <GraduationCap className="h-5 w-5 text-brand" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-semibold">
+                      <h2 className="text-2xl font-semibold text-brand">
                         Educational Background
                       </h2>
-                      <p className="text-sm text-muted-foreground">
-                        Your academic history helps us place you in the right
-                        batch
+                      <p className="text-sm text-slate-600">
+                        Share your JSC and SSC achievements to help us guide you better
                       </p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="currentClass"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Current/Target Class *</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="h-11">
-                                <SelectValue placeholder="Select class" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="class-6">Class 6</SelectItem>
-                              <SelectItem value="class-7">Class 7</SelectItem>
-                              <SelectItem value="class-8">Class 8</SelectItem>
-                              <SelectItem value="class-9">Class 9</SelectItem>
-                              <SelectItem value="class-10">Class 10</SelectItem>
-                              <SelectItem value="class-11">Class 11</SelectItem>
-                              <SelectItem value="class-12">Class 12</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <div className="space-y-8">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="h-px flex-1 bg-brand/20" />
+                        <span className="text-sm font-medium text-brand px-3">
+                          JSC Exam Details
+                        </span>
+                        <div className="h-px flex-1 bg-brand/20" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="jscSchool"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-brand">School</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="e.g. Sunny High School"
+                                  className={inputFieldClasses}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                    <FormField
-                      control={form.control}
-                      name="previousSchool"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Previous/Current School *</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="e.g. Delhi Public School"
-                              className="h-11"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                        <FormField
+                          control={form.control}
+                          name="jscGrade"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-brand">Grade</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="e.g. GPA 4.89 / A"
+                                  className={inputFieldClasses}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
 
-                    <FormField
-                      control={form.control}
-                      name="previousPercentage"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Last Year Overall % *</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="e.g. 85%"
-                              className="h-11"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormDescription className="text-xs">
-                            Your overall percentage in the previous class
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="h-px flex-1 bg-brand/20" />
+                        <span className="text-sm font-medium text-brand px-3">
+                          SSC Exam Details
+                        </span>
+                        <div className="h-px flex-1 bg-brand/20" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="sscSchool"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-brand">School</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="e.g. National Model School"
+                                  className={inputFieldClasses}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                    <FormField
-                      control={form.control}
-                      name="mathsMarks"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Mathematics Score *</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="e.g. 95/100 or 95%"
-                              className="h-11"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormDescription className="text-xs">
-                            Your mathematics marks from last year
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                        <FormField
+                          control={form.control}
+                          name="sscGrade"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-brand">Grade</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="e.g. GPA 5.00 / A+"
+                                  className={inputFieldClasses}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </section>
 
                 {/* Batch Information */}
                 <section id="batch" className="scroll-mt-24">
-                  <div className="flex items-center gap-3 mb-6 pb-3 border-b">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Clock className="w-5 h-5 text-primary" />
+                  <div className="flex items-center gap-3 mb-6 border-b border-brand/20 pb-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10">
+                      <Clock className="h-5 w-5 text-brand" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-semibold">
-                        Batch & Course Selection
+                      <h2 className="text-2xl font-semibold text-brand">
+                        Batch Selection
                       </h2>
-                      <p className="text-sm text-muted-foreground">
-                        Choose your preferred timing and course type
+                      <p className="text-sm text-slate-600">
+                        Choose your preferred class, subject, timing, and tell us how you heard about us
                       </p>
                     </div>
                   </div>
@@ -830,40 +1076,28 @@ export default function AdmissionForm() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <FormField
                         control={form.control}
-                        name="preferredBatch"
+                        name="classLevel"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Preferred Batch Timing *</FormLabel>
+                            <FormLabel className="text-brand">Class *</FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              value={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger className="h-11">
-                                  <SelectValue placeholder="Select timing" />
+                                <SelectTrigger className={selectTriggerClasses}>
+                                  <SelectValue placeholder="Select class" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="morning-6-8">
-                                  Morning Batch (6:00 - 8:00 AM)
-                                </SelectItem>
-                                <SelectItem value="morning-8-10">
-                                  Morning Batch (8:00 - 10:00 AM)
-                                </SelectItem>
-                                <SelectItem value="afternoon-2-4">
-                                  Afternoon Batch (2:00 - 4:00 PM)
-                                </SelectItem>
-                                <SelectItem value="evening-4-6">
-                                  Evening Batch (4:00 - 6:00 PM)
-                                </SelectItem>
-                                <SelectItem value="evening-6-8">
-                                  Evening Batch (6:00 - 8:00 PM)
-                                </SelectItem>
+                                <SelectItem value="class-8">Class 8</SelectItem>
+                                <SelectItem value="class-9">Class 9</SelectItem>
+                                <SelectItem value="class-10">Class 10</SelectItem>
+                                <SelectItem value="class-11">Class 11</SelectItem>
+                                <SelectItem value="class-12">Class 12</SelectItem>
                               </SelectContent>
                             </Select>
-                            <FormDescription className="text-xs">
-                              Choose a time that works best with your schedule
-                            </FormDescription>
+                            
                             <FormMessage />
                           </FormItem>
                         )}
@@ -871,40 +1105,29 @@ export default function AdmissionForm() {
 
                       <FormField
                         control={form.control}
-                        name="courseType"
+                        name="subject"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Course Type *</FormLabel>
+                            <FormLabel className="text-brand">Subject *</FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              value={field.value}
+                              disabled={!selectedClass}
                             >
                               <FormControl>
-                                <SelectTrigger className="h-11">
-                                  <SelectValue placeholder="Select course" />
+                                <SelectTrigger className={selectTriggerClasses}>
+                                  <SelectValue placeholder="Select subject" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="foundation">
-                                  Foundation Course
-                                </SelectItem>
-                                <SelectItem value="regular">
-                                  Regular Course
-                                </SelectItem>
-                                <SelectItem value="advanced">
-                                  Advanced Course
-                                </SelectItem>
-                                <SelectItem value="crash">
-                                  Crash Course
-                                </SelectItem>
-                                <SelectItem value="competitive">
-                                  Competitive Exam Prep
-                                </SelectItem>
+                                {(subjectOptions[selectedClass as string] || []).map((opt) => (
+                                  <SelectItem key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </SelectItem>
+                                ))}
                               </SelectContent>
                             </Select>
-                            <FormDescription className="text-xs">
-                              Based on your current skill level
-                            </FormDescription>
+                            
                             <FormMessage />
                           </FormItem>
                         )}
@@ -912,63 +1135,33 @@ export default function AdmissionForm() {
 
                       <FormField
                         control={form.control}
-                        name="startDate"
+                        name="batchTiming"
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>When do you want to start? *</FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant="outline"
-                                    className={cn(
-                                      "w-full h-11 pl-3 text-left font-normal",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    {field.value ? (
-                                      format(field.value, "PPP")
-                                    ) : (
-                                      <span>Pick a date</span>
-                                    )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent
-                                className="w-auto p-0"
-                                align="start"
-                              >
-                                <Calendar
-                                  mode="single"
-                                  selected={field.value}
-                                  onSelect={field.onChange}
-                                  disabled={(date) => date < new Date()}
-                                  initialFocus
-                                />
-                              </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="emergencyContact"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Emergency Contact *</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Alternative contact number"
-                                className="h-11"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription className="text-xs">
-                              A number we can reach in case of emergency
-                            </FormDescription>
+                          <FormItem className="md:col-span-2">
+                            <FormLabel className="text-brand">Batch Timing</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                              disabled={!selectedClass || (batchOptions[selectedClass as string]?.length ?? 0) === 0}
+                            >
+                              <FormControl>
+                                <SelectTrigger className={selectTriggerClasses}>
+                                  <SelectValue placeholder={(batchOptions[selectedClass as string]?.length ?? 0) === 0 ? "No batch available currently" : "Select schedule"} />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {(batchOptions[selectedClass as string] || []).map((opt) => (
+                                  <SelectItem key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {(batchOptions[selectedClass as string]?.length ?? 0) === 0 && selectedClass && (
+                              <p className="text-xs text-slate-600 mt-1">
+                                No batch available currently for the selected class.
+                              </p>
+                            )}
                             <FormMessage />
                           </FormItem>
                         )}
@@ -977,40 +1170,16 @@ export default function AdmissionForm() {
 
                     <FormField
                       control={form.control}
-                      name="medicalConditions"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>
-                            Any Medical Conditions? (Optional)
-                          </FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Please mention if there are any health conditions we should be aware of..."
-                              className="resize-none min-h-[90px]"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormDescription className="text-xs">
-                            This helps us provide better support (kept
-                            confidential)
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
                       name="hearAboutUs"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>How did you hear about us? *</FormLabel>
+                          <FormLabel className="text-brand">How did you hear about us?</FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger className="h-11">
+                              <SelectTrigger className={selectTriggerClasses}>
                                 <SelectValue placeholder="Select an option" />
                               </SelectTrigger>
                             </FormControl>
@@ -1033,10 +1202,36 @@ export default function AdmissionForm() {
                               <SelectItem value="other">Other</SelectItem>
                             </SelectContent>
                           </Select>
-                          <FormDescription className="text-xs">
-                            Helps us understand what&apos;s working
-                          </FormDescription>
+                          
                           <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {/* Previous student checkbox (optional) */}
+                    <FormField
+                      control={form.control}
+                      name="prevStudent"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-start gap-3 rounded-lg border border-brand/20 bg-white/80 p-4 shadow-sm">
+                            <FormControl>
+                              <Checkbox
+                                checked={!!field.value}
+                                onCheckedChange={(checked) =>
+                                  field.onChange(checked === true)
+                                }
+                                className="mt-1 border-brand/50"
+                              />
+                            </FormControl>
+                            <div className="space-y-1 text-sm">
+                              <FormLabel className="text-base text-brand">
+                                Previous student of Sunny's Math World
+                              </FormLabel>
+                              <p className="text-slate-600">
+                                Check if you studied here previously.
+                              </p>
+                            </div>
+                          </div>
                         </FormItem>
                       )}
                     />
@@ -1044,29 +1239,56 @@ export default function AdmissionForm() {
                 </section>
 
                 {/* Submit Section */}
-                <div className="pt-6 border-t">
-                  <div className="bg-muted/30 rounded-lg p-6 mb-6">
-                    <p className="text-sm text-muted-foreground text-center">
-                      By submitting this form, you agree to our terms and
-                      conditions. We&apos;ll contact you within 24-48 hours to
-                      confirm your admission and payment details.
+                <div className="pt-6 border-t border-brand/20 space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="agreeTerms"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex items-start gap-3 rounded-lg border border-brand/20 bg-white/80 p-4 shadow-sm">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={(checked) =>
+                                field.onChange(checked === true)
+                              }
+                              className="mt-1 border-brand/50"
+                            />
+                          </FormControl>
+                          <div className="space-y-1 text-sm">
+                            <FormLabel className="text-base text-brand">
+                              I agree to the terms &amp; conditions *
+                            </FormLabel>
+                            <p className="text-slate-600">
+                              I confirm that the information shared is accurate and I consent to continue to the payment step.
+                            </p>
+                          </div>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="rounded-lg border border-brand/20 bg-brand/5 p-6 text-slate-700 shadow-sm">
+                    <p className="text-center text-sm text-slate-600">
+                      Once we receive your form, our admissions team will reach out within 24-48 hours with payment instructions and the next onboarding steps.
                     </p>
                   </div>
 
                   <div className="flex justify-center">
                     <Button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !hasAgreedToTerms}
                       size="lg"
-                      className="min-w-[240px] h-12 text-base font-semibold"
+                      className="min-w-[240px] h-12 text-base font-semibold bg-gradient-to-r from-brand to-brand-emphasis text-brand-foreground shadow-lg transition-colors hover:from-brand-emphasis hover:to-brand disabled:opacity-60"
                     >
                       {isSubmitting ? (
                         <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                          Submitting Application...
+                          <div className="h-4 w-4 rounded-full border-2 border-brand-foreground border-t-transparent animate-spin" />
+                          Processing...
                         </div>
                       ) : (
-                        "Submit Admission Form"
+                        "Proceed to Payment"
                       )}
                     </Button>
                   </div>

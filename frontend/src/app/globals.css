@@ -199,6 +199,25 @@
   animation: fade-in 0.5s ease-out;
 }
 
+/* Admission form: show errors beside labels without adding row gaps */
+@layer components {
+  .admission-form [data-slot="form-item"] {
+    position: relative;
+  }
+  .admission-form [data-slot="form-message"] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 0.75rem; /* text-xs */
+    line-height: 1rem; /* leading-tight-ish */
+    max-width: 60%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+  }
+}
+
 .animate-fade-in-up {
   animation: fade-in-up 1s ease-out;
 }
