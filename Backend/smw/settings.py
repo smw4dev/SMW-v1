@@ -4,9 +4,7 @@ Django settings for smw project (PostgreSQL, DRF, JWT, CORS, optional Celery).
 
 from pathlib import Path
 import os
-
 from dotenv import load_dotenv
-import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -19,6 +17,7 @@ load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "change-me")
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 
+# ALLOWED_HOSTS from .env
 _allowed_hosts_env = os.getenv("DJANGO_ALLOWED_HOSTS", "").strip()
 ALLOWED_HOSTS = (
     [h.strip() for h in _allowed_hosts_env.split(",") if h.strip()]
@@ -95,23 +94,18 @@ TEMPLATES = [
 WSGI_APPLICATION = "smw.wsgi.application"
 
 # ---------------------------------------------------------------------
-# Database (PostgreSQL)
+# Database (PostgreSQL, separate env vars)
 # ---------------------------------------------------------------------
-DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
-if DATABASE_URL:
-    DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
-else:
-    # Fallback to split env vars if DATABASE_URL is not set
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.getenv("DBNAME", "smw_db"),
-            "USER": os.getenv("USER", "smw_user"),
-            "PASSWORD": os.getenv("PASSWORD", ""),
-            "HOST": os.getenv("HOST", "127.0.0.1"),
-            "PORT": os.getenv("PORT", "5432"),
-        }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DBNAME", "smw_db"),
+        "USER": os.getenv("DBUSER", "smw_user"),
+        "PASSWORD": os.getenv("DBPASSWORD", ""),
+        "HOST": os.getenv("DBHOST", "127.0.0.1"),
+        "PORT": os.getenv("DBPORT", "5432"),
     }
+}
 
 # ---------------------------------------------------------------------
 # Password validation
@@ -141,7 +135,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # ---------------------------------------------------------------------
-# CORS (dev-friendly; tighten for production)
+# CORS
 # ---------------------------------------------------------------------
 _cors = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
 if _cors:
@@ -155,8 +149,8 @@ else:
 # ---------------------------------------------------------------------
 # Celery (optional)
 # ---------------------------------------------------------------------
-CELERY_BROKER_URL = os.getenv("REDIS_URL", "")
-CELERY_RESULT_BACKEND = CELERY_BROKER_URL or None
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "")
 CELERY_TIMEZONE = TIME_ZONE
 
 # ---------------------------------------------------------------------
@@ -164,7 +158,9 @@ CELERY_TIMEZONE = TIME_ZONE
 # ---------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# ---------------------------------------------------------------------
 # SSLCommerz
+# ---------------------------------------------------------------------
 SSLC_IS_LIVE = os.getenv("SSLC_IS_LIVE", "false").lower() in ("1","true","yes")
 SSLC_BASE_URL = "https://securepay.sslcommerz.com" if SSLC_IS_LIVE else "https://sandbox.sslcommerz.com"
 
@@ -172,9 +168,15 @@ SSLC_STORE_ID = os.getenv("SSLC_STORE_ID", "")
 SSLC_STORE_PASS = os.getenv("SSLC_STORE_PASS", "")
 
 SITE_BASE_URL = os.getenv("SITE_BASE_URL", "http://127.0.0.1:8000")
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")  # already in your code; ensure present
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
-# For gateway POSTs
+# ---------------------------------------------------------------------
+# CSRF Trusted Origins
+# ---------------------------------------------------------------------
 CSRF_TRUSTED_ORIGINS = [
-    *[f"http://{h}", f"https://{h}"] for h in (ALLOWED_HOSTS or [])
-] + ["https://*.sslcommerz.com", "https://securepay.sslcommerz.com", "https://sandbox.sslcommerz.com"]
+    f"{scheme}{h}" for h in ALLOWED_HOSTS for scheme in ("http://", "https://")
+] + [
+    "https://*.sslcommerz.com",
+    "https://securepay.sslcommerz.com",
+    "https://sandbox.sslcommerz.com",
+]

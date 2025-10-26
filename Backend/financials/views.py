@@ -1,9 +1,11 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.shortcuts import get_object_or_404
 
-from Backend.smw import settings
+from django.conf import settings
 from .models import Payment, PaymentStatus
 from .serializers import PaymentSerializer
 from admissions.models import AdmissionApplication
