@@ -167,7 +167,7 @@ SSLC_BASE_URL = "https://securepay.sslcommerz.com" if SSLC_IS_LIVE else "https:/
 SSLC_STORE_ID = os.getenv("SSLC_STORE_ID", "")
 SSLC_STORE_PASS = os.getenv("SSLC_STORE_PASS", "")
 
-SITE_BASE_URL = os.getenv("SITE_BASE_URL", "http://127.0.0.1:8000")
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", "https://sandbox.sslcommerz.com")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 # ---------------------------------------------------------------------

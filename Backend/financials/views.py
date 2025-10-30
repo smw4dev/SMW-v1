@@ -1,5 +1,7 @@
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404, redirect
+from .utils import new_tran_id, create_ssl_session, validate_with_val_id
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -16,24 +18,55 @@ class AdmissionPaymentCreate(APIView):
     permission_classes = [permissions.IsAuthenticated]
     def post(self, request, application_id):
         app = get_object_or_404(AdmissionApplication, pk=application_id)
-        # Admin/staff can create payment for any; student can create for own created_user
+
         if not (request.user.is_superuser or request.user.is_staff or app.created_user == request.user):
             return Response({"detail": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+
+        amount = float(request.data.get("amount") or ADMISSION_FEE_DEFAULT)
+
+        # 1) Create DB row as INITIATED
         data = {
             "purpose": "ADMISSION_FEE",
             "application": app.id,
-            "user": request.user.id if request.user.is_authenticated else None,
-            "amount": float(request.data.get("amount") or ADMISSION_FEE_DEFAULT),
+            "user": request.user.id,
+            "amount": amount,
             "currency": "BDT",
             "method": request.data.get("method","SSLC"),
         }
         s = PaymentSerializer(data=data)
-        if s.is_valid():
-            pay = s.save()
-            # TODO: initiate SSLCommerz and store redirect URL / trx data in pay.meta
-            return Response(PaymentSerializer(pay).data, status=status.HTTP_201_CREATED)
-        return Response(s.errors, status=status.HTTP_400_BAD_REQUEST)
+        s.is_valid(raise_exception=True)
+        pay = s.save()
 
+        # 2) Generate tran_id and call SSLCommerz Session API
+        tran_id = new_tran_id("ADM")
+        product_name = f"Admission Fee - App #{app.id}"
+        sess = create_ssl_session(
+            total_amount=amount,
+            tran_id=tran_id,
+            cus_name=f"{app.student_first_name_en} {app.student_last_name_en}".strip(),
+            cus_email=app.student_email or request.user.email,
+            cus_phone=app.student_mobile or (request.user.phone or ""),
+            product_name=product_name,
+            product_category="Admission",
+            product_profile="service",
+        )
+
+        # 3) Persist gateway meta + tran_id
+        pay.meta = {
+            **(pay.meta or {}),
+            "tran_id": tran_id,
+            "session": sess,
+        }
+        pay.save(update_fields=["meta"])
+
+        # 4) Return what the frontend needs to redirect the user
+        if (sess.get("status") or "").upper() != "SUCCESS":
+            return Response({"detail": "SSLCommerz session failed", "gateway": sess}, status=502)
+
+        return Response({
+            "payment": PaymentSerializer(pay).data,
+            "redirect_url": sess.get("GatewayPageURL"),
+        }, status=status.HTTP_201_CREATED)
 @method_decorator(csrf_exempt, name="dispatch")
 class PaymentIPN(APIView):
     permission_classes = [permissions.AllowAny]
