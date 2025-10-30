@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Hind_Siliguri } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -10,6 +11,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const hindSiliguri = Hind_Siliguri({
+  variable: "--font-hind-siliguri",
+  subsets: ["bengali", "latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -22,12 +29,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const themeInit = `
+    (function(){
+      try {
+        var m = localStorage.getItem('theme-mode');
+        var p = localStorage.getItem('theme-palette') || 'crimson';
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var mode = (m === 'light' || m === 'dark') ? m : (prefersDark ? 'dark' : 'light');
+        var root = document.documentElement;
+        if (mode === 'dark') root.classList.add('dark'); else root.classList.remove('dark');
+        root.setAttribute('data-theme', p);
+      } catch (e) {}
+    })();
+  `;
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="en" suppressHydrationWarning className={`${hindSiliguri.variable}`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
+        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
