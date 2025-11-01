@@ -44,9 +44,9 @@ import {
 import { cn } from "@/lib/utils";
 import ConfirmationModal from "./ConfirmationModal";
 
+/* --- keep your schema/type and sections unchanged --- */
 const formSchema = z
   .object({
-    // Personal Information
     fullName: z.string().min(2, "Name must be at least 2 characters"),
     nickname: z.string().optional().or(z.literal("")),
     homeDistrict: z.string().min(2, "Please enter your home district"),
@@ -57,28 +57,18 @@ const formSchema = z
     email: z.string().email("Invalid email address"),
     phone: z.string().min(1, "Phone number is required"),
     address: z.string().min(5, "Address must be at least 5 characters"),
-
-    // Parents Information (all mandatory)
     fatherName: z.string().min(2, "Father's name is required"),
     fatherOccupation: z.string().min(2, "Father's occupation is required"),
     fatherPhone: z.string().min(1, "Phone number is required"),
     motherName: z.string().min(2, "Mother's name is required"),
     motherOccupation: z.string().min(2, "Mother's occupation is required"),
     motherPhone: z.string().min(1, "Phone number is required"),
-    guardianRelation: z.enum(["father", "mother", "other"], {
-      required_error: "Please select guardian relation",
-    }),
-    guardianContact: z
-      .string()
-      .min(1, "Guardian contact is required"),
-
-    // Educational Qualifications (optional; if school filled then grade required)
+    guardianRelation: z.enum(["father", "mother", "other"]),
+    guardianContact: z.string().min(1, "Guardian contact is required"),
     jscSchool: z.string().optional().or(z.literal("")),
     jscGrade: z.string().optional().or(z.literal("")),
     sscSchool: z.string().optional().or(z.literal("")),
     sscGrade: z.string().optional().or(z.literal("")),
-
-    // Batch Information (mandatory selection)
     classLevel: z.string().min(1, "Please select class"),
     subject: z.string().min(1, "Please select subject"),
     batchTiming: z.string().optional().or(z.literal("")),
@@ -95,7 +85,7 @@ const formSchema = z
           code: z.ZodIssueCode.custom,
           path: ["jscGrade"],
           message: "Grade is required if school is provided",
-        })
+        });
       }
     }
     if (values.sscSchool && values.sscSchool.trim() !== "") {
@@ -104,18 +94,17 @@ const formSchema = z
           code: z.ZodIssueCode.custom,
           path: ["sscGrade"],
           message: "Grade is required if school is provided",
-        })
+        });
       }
     }
-    // Require batch timing for classes 8-10, allow none for 11-12
-    const classesRequireBatch = ["class-8", "class-9", "class-10"]
+    const classesRequireBatch = ["class-8", "class-9", "class-10"];
     if (classesRequireBatch.includes(values.classLevel)) {
       if (!values.batchTiming || values.batchTiming.trim() === "") {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["batchTiming"],
           message: "Please select batch timing",
-        })
+        });
       }
     }
   });
@@ -166,15 +155,41 @@ const sections = [
   },
 ];
 
-const inputFieldClasses =
-  "h-11 border border-brand/30 bg-white/90 focus-visible:ring-brand/40 focus-visible:ring-offset-0";
-const selectTriggerClasses =
-  "h-11 w-full rounded-md border border-brand/30 bg-white/90 pl-3 text-slate-700 focus-visible:ring-brand/40 focus-visible:ring-offset-0 data-[size=default]:h-11 data-[size=sm]:h-11";
-const textareaClasses =
-  "min-h-[90px] resize-none border border-brand/30 bg-white/90 focus-visible:ring-brand/40 focus-visible:ring-offset-0";
-const outlineButtonClasses =
-  "h-11 border-brand/30 bg-white/90 text-slate-700 hover:bg-brand/5";
+/* ----------------- THEME / VISUAL CONSTANTS (polished) ----------------- */
+/* Keep structure intact; only refine tokens and classes for a crisper feel. */
+const inputFieldClasses = [
+  // size + radius
+  "h-11 rounded-lg",
+  // neutral surface with subtle depth
+  "border border-slate-300 bg-white shadow-sm",
+  // text + placeholder
+  "text-slate-800 placeholder-slate-400",
+  // focused state
+  "focus-visible:border-brand focus-visible:ring-0 focus:outline-none",
+].join(" ");
 
+const selectTriggerClasses = [
+  "h-11 w-full rounded-lg pl-3",
+  "border border-slate-300 bg-white text-slate-800",
+  "focus-visible:border-brand focus-visible:ring-0",
+  // make sure size variants still look consistent
+  "data-[size=default]:h-11 data-[size=sm]:h-11",
+].join(" ");
+
+const textareaClasses = [
+  "min-h-[96px] rounded-lg resize-none",
+  "border border-slate-300 bg-white shadow-sm",
+  "text-slate-800 placeholder-slate-400",
+  "focus-visible:border-brand focus-visible:ring-0 focus:outline-none",
+].join(" ");
+
+const outlineButtonClasses = [
+  "h-11 rounded-lg",
+  "border border-slate-300 bg-white text-slate-800",
+  "hover:bg-brand/5 focus-visible:ring-0 focus-visible:border-brand",
+].join(" ");
+
+/* ----------------- COMPONENT ----------------- */
 export default function AdmissionForm() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -203,10 +218,10 @@ export default function AdmissionForm() {
       jscGrade: "",
       sscSchool: "",
       sscGrade: "",
-      classLevel: undefined,
-      subject: undefined,
-      batchTiming: undefined,
-      hearAboutUs: undefined,
+      classLevel: "",
+      subject: "",
+      batchTiming: "",
+      hearAboutUs: "",
       prevStudent: false,
       agreeTerms: false,
     },
@@ -221,7 +236,6 @@ export default function AdmissionForm() {
   const isGuardianAutoFill =
     guardianRelation === "father" || guardianRelation === "mother";
 
-  // Dynamic options for subjects and batches based on class
   const subjectOptions: Record<string, { value: string; label: string }[]> = {
     "class-8": [
       { value: "math", label: "Math" },
@@ -249,35 +263,62 @@ export default function AdmissionForm() {
     "class-8": [
       { value: "c8-b1-sun-tue-thu-8am", label: "Batch 1: Sun, Tue, Thu (8am)" },
       { value: "c8-b2-sun-tue-thu-3pm", label: "Batch 2: Sun, Tue, Thu (3pm)" },
-      { value: "c8-special-sat-mon-wed-10am", label: "Special: Sat, Mon, Wed (10am)" },
+      {
+        value: "c8-special-sat-mon-wed-10am",
+        label: "Special: Sat, Mon, Wed (10am)",
+      },
     ],
     "class-9": [
       { value: "c9-b1-sun-tue-thu-9am", label: "Batch 1: Sun, Tue, Thu (9am)" },
-      { value: "c9-b2-sun-tue-thu-11am", label: "Batch 2: Sun, Tue, Thu (11am)" },
+      {
+        value: "c9-b2-sun-tue-thu-11am",
+        label: "Batch 2: Sun, Tue, Thu (11am)",
+      },
       { value: "c9-b3-sun-tue-thu-4pm", label: "Batch 3: Sun, Tue, Thu (4pm)" },
       { value: "c9-b4-sun-tue-thu-6pm", label: "Batch 4: Sun, Tue, Thu (6pm)" },
-      { value: "c9-special-sat-mon-wed-1230pm", label: "Special: Sat, Mon, Wed (12.30pm)" },
+      {
+        value: "c9-special-sat-mon-wed-1230pm",
+        label: "Special: Sat, Mon, Wed (12.30pm)",
+      },
     ],
     "class-10": [
-      { value: "c10-b1-sun-tue-thu-7am", label: "Batch 1: Sun, Tue, Thu (7am)" },
-      { value: "c10-b2-sun-tue-thu-10am", label: "Batch 2: Sun, Tue, Thu (10am)" },
-      { value: "c10-b3-sun-tue-thu-1230pm", label: "Batch 3: Sun, Tue, Thu (12.30pm)" },
-      { value: "c10-b4-sun-tue-thu-5pm", label: "Batch 4: Sun, Tue, Thu (5pm)" },
-      { value: "c10-special-sat-mon-wed-11pm", label: "Special: Sat, Mon, Wed (11pm)" },
-      { value: "c10-commerce-arts-sat-mon-wed-6pm", label: "Commerce/Arts: Sat, Mon, Wed (6pm)" },
+      {
+        value: "c10-b1-sun-tue-thu-7am",
+        label: "Batch 1: Sun, Tue, Thu (7am)",
+      },
+      {
+        value: "c10-b2-sun-tue-thu-10am",
+        label: "Batch 2: Sun, Tue, Thu (10am)",
+      },
+      {
+        value: "c10-b3-sun-tue-thu-1230pm",
+        label: "Batch 3: Sun, Tue, Thu (12.30pm)",
+      },
+      {
+        value: "c10-b4-sun-tue-thu-5pm",
+        label: "Batch 4: Sun, Tue, Thu (5pm)",
+      },
+      {
+        value: "c10-special-sat-mon-wed-11pm",
+        label: "Special: Sat, Mon, Wed (11pm)",
+      },
+      {
+        value: "c10-commerce-arts-sat-mon-wed-6pm",
+        label: "Commerce/Arts: Sat, Mon, Wed (6pm)",
+      },
     ],
     "class-11": [],
     "class-12": [],
   };
 
   useEffect(() => {
-    // Reset dependent fields when class changes
-    form.setValue("subject", undefined as any, {
-      shouldValidate: true,
+    // Reset dependent fields when class changes, without triggering early validation
+    form.setValue("subject", "", {
+      shouldValidate: false,
       shouldDirty: false,
     });
-    form.setValue("batchTiming", undefined as any, {
-      shouldValidate: true,
+    form.setValue("batchTiming", "", {
+      shouldValidate: false,
       shouldDirty: false,
     });
   }, [selectedClass, form]);
@@ -377,13 +418,13 @@ export default function AdmissionForm() {
 
   return (
     <>
-      <div className="mx-auto w-full max-w-6xl  px-4 py-8">
+      <div className="mx-auto w-full max-w-6xl px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Sidebar Navigation */}
           <aside className="lg:col-span-3">
             <div className="lg:sticky lg:top-24 space-y-4">
-              <div className="rounded-lg border border-brand/20 bg-gradient-to-br from-brand/5 via-white to-white p-4 shadow-sm">
-                <h3 className="text-sm font-semibold mb-4 uppercase tracking-wide text-brand">
+              <div className="rounded-2xl border border-slate-100 bg-white/95 p-5 shadow-[0_6px_24px_rgba(2,6,23,.06)] backdrop-blur">
+                <h3 className="text-sm font-semibold mb-4 uppercase tracking-wide text-slate-700">
                   Form Progress
                 </h3>
                 <div className="space-y-3">
@@ -397,10 +438,10 @@ export default function AdmissionForm() {
                         key={section.id}
                         onClick={() => scrollToSection(section.id)}
                         className={cn(
-                          "w-full text-left p-3 rounded-lg transition-all group",
+                          "w-full text-left p-3 rounded-xl transition-all group",
                           isActive
-                            ? "border border-brand/40 bg-brand/10 shadow-sm"
-                            : "hover:bg-brand/5"
+                            ? "border border-brand/30 bg-gray-50 shadow"
+                            : "hover:bg-gray-50"
                         )}
                       >
                         <div className="flex items-center justify-between mb-2">
@@ -414,7 +455,7 @@ export default function AdmissionForm() {
                             <span
                               className={cn(
                                 "text-sm font-medium",
-                                isActive ? "text-brand" : "text-slate-500"
+                                isActive ? "text-slate-800" : "text-slate-600"
                               )}
                             >
                               {section.title}
@@ -423,16 +464,16 @@ export default function AdmissionForm() {
                           {completion === 100 ? (
                             <CheckCircle2 className="w-4 h-4 text-brand" />
                           ) : (
-                            <span className="text-xs text-brand">
+                            <span className="text-xs text-slate-600">
                               {completion}%
                             </span>
                           )}
                         </div>
-                        <div className="w-full h-1.5 overflow-hidden rounded-full bg-brand/10">
+                        <div className="w-full h-1.5 overflow-hidden rounded-full bg-slate-100">
                           <div
                             className={cn(
                               "h-full rounded-full transition-all duration-500",
-                              completion === 100 ? "bg-brand" : "bg-brand/60"
+                              completion === 100 ? "bg-brand" : "bg-brand/70"
                             )}
                             style={{ width: `${completion}%` }}
                           />
@@ -443,8 +484,8 @@ export default function AdmissionForm() {
                 </div>
               </div>
 
-              <div className="hidden rounded-lg border border-brand/20 bg-brand/5 p-4 space-y-2 shadow-sm lg:block">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-brand">
+              <div className="hidden rounded-2xl border border-slate-100 bg-white/95 p-5 space-y-2 shadow-[0_6px_24px_rgba(2,6,23,.06)] backdrop-blur lg:block">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-700">
                   Quick Tips
                 </p>
                 <div className="space-y-2 text-xs text-slate-600">
@@ -466,13 +507,13 @@ export default function AdmissionForm() {
               >
                 {/* Personal Information */}
                 <section id="personal" className="scroll-mt-24">
-                  <div className="flex items-center gap-3 mb-6 border-b border-brand/20 pb-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10">
+                  <div className="flex items-center gap-3 mb-6 pb-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white border border-slate-100 shadow-sm">
                       <User className="h-5 w-5 text-brand" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-semibold text-brand">
-                        Personal Information
+                      <h2 className="text-2xl font-semibold text-slate-800">
+                        <span className="text-brand">Personal Information</span>
                       </h2>
                       <p className="text-sm text-slate-600">
                         Tell us about yourself
@@ -480,11 +521,11 @@ export default function AdmissionForm() {
                     </div>
                   </div>
 
-                  <div className="space-y-6">
+                  <div className="rounded-2xl border border-slate-100 bg-white/95 p-6 space-y-6 shadow-[0_6px_24px_rgba(2,6,23,.06)] backdrop-blur">
                     {/* Photo Upload */}
-                    <div className="rounded-lg border-2 border-dashed border-brand/30 bg-brand/5 p-6">
+                    <div className="rounded-xl border-2 border-dashed border-slate-300 bg-white p-6">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                        <div className="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-brand/30 group flex-shrink-0">
+                        <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-slate-300 group flex-shrink-0 bg-gray-50">
                           {photoPreview ? (
                             <>
                               <img
@@ -501,15 +542,15 @@ export default function AdmissionForm() {
                               </button>
                             </>
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-brand/10">
-                              <Upload className="h-6 w-6 text-brand" />
+                            <div className="flex h-full w-full items-center justify-center">
+                              <Upload className="h-6 w-6 text-slate-500" />
                             </div>
                           )}
                         </div>
                         <div className="flex-1">
                           <Label
                             htmlFor="photo"
-                            className="mb-1 block text-sm font-medium text-brand"
+                            className="mb-1 block text-sm font-medium text-slate-800"
                           >
                             Student Photo
                           </Label>
@@ -521,8 +562,8 @@ export default function AdmissionForm() {
                             htmlFor="photo"
                             className="inline-block cursor-pointer"
                           >
-                            <div className="inline-flex items-center gap-2 rounded-lg border border-brand/30 bg-gradient-to-r from-brand to-brand-emphasis px-4 py-2 text-sm font-medium text-brand-foreground transition-colors hover:from-brand-emphasis hover:to-brand">
-                              <Upload className="h-4 w-4" />
+                            <div className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-800 transition-colors hover:bg-gray-50">
+                              <Upload className="h-4 w-4 text-slate-600" />
                               Choose Photo
                             </div>
                             <Input
@@ -543,7 +584,9 @@ export default function AdmissionForm() {
                         name="fullName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-brand">Full Name *</FormLabel>
+                            <FormLabel className="text-slate-800">
+                              Full Name *
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 placeholder="e.g. Rahul Sharma"
@@ -561,7 +604,9 @@ export default function AdmissionForm() {
                         name="nickname"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-brand">Nickname</FormLabel>
+                            <FormLabel className="text-slate-800">
+                              Nickname
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 placeholder="e.g. Rahi"
@@ -579,7 +624,9 @@ export default function AdmissionForm() {
                         name="dateOfBirth"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-brand">Date of Birth *</FormLabel>
+                            <FormLabel className="text-slate-800">
+                              Date of Birth *
+                            </FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
                                 <FormControl>
@@ -596,7 +643,7 @@ export default function AdmissionForm() {
                                     ) : (
                                       <span>Pick a date</span>
                                     )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-60" />
                                   </Button>
                                 </FormControl>
                               </PopoverTrigger>
@@ -626,7 +673,9 @@ export default function AdmissionForm() {
                         name="gender"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-brand">Gender *</FormLabel>
+                            <FormLabel className="text-slate-800">
+                              Gender *
+                            </FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
@@ -652,7 +701,9 @@ export default function AdmissionForm() {
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-brand">Contact Number *</FormLabel>
+                            <FormLabel className="text-slate-800">
+                              Contact Number *
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 placeholder="9876543210"
@@ -670,7 +721,9 @@ export default function AdmissionForm() {
                         name="email"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-brand">Email Address *</FormLabel>
+                            <FormLabel className="text-slate-800">
+                              Email Address *
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 type="email"
@@ -679,7 +732,6 @@ export default function AdmissionForm() {
                                 {...field}
                               />
                             </FormControl>
-                            
                             <FormMessage />
                           </FormItem>
                         )}
@@ -690,7 +742,9 @@ export default function AdmissionForm() {
                         name="homeDistrict"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-brand">Home District *</FormLabel>
+                            <FormLabel className="text-slate-800">
+                              Home District *
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 placeholder="e.g. Dhaka"
@@ -709,7 +763,9 @@ export default function AdmissionForm() {
                       name="address"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-brand">Present Address *</FormLabel>
+                          <FormLabel className="text-slate-800">
+                            Present Address *
+                          </FormLabel>
                           <FormControl>
                             <Textarea
                               placeholder="Street, Area, City, State - PIN Code"
@@ -726,13 +782,15 @@ export default function AdmissionForm() {
 
                 {/* Parents Information */}
                 <section id="parents" className="scroll-mt-24">
-                  <div className="flex items-center gap-3 mb-6 border-b border-brand/20 pb-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10">
+                  <div className="flex items-center gap-3 mb-6 pb-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white border border-gray-100 shadow-sm">
                       <Users className="h-5 w-5 text-brand" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-semibold text-brand">
-                        Parents &amp; Guardian Information
+                      <h2 className="text-2xl font-semibold text-slate-800">
+                        <span className="text-brand">
+                          Parents &amp; Guardian Information
+                        </span>
                       </h2>
                       <p className="text-sm text-slate-600">
                         Help us reach the right guardian quickly
@@ -740,15 +798,13 @@ export default function AdmissionForm() {
                     </div>
                   </div>
 
-                  <div className="space-y-8">
+                  <div className="rounded-xl border border-gray-200 bg-white p-6 space-y-6">
                     {/* Father's Information */}
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="h-px flex-1 bg-brand/20" />
-                        <span className="text-sm font-medium text-brand px-3">
+                    <div className="rounded-xl border border-slate-100 bg-white p-4">
+                      <div className="mb-3">
+                        <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-slate-700">
                           Father&apos;s Details
                         </span>
-                        <div className="h-px flex-1 bg-brand/20" />
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
@@ -756,7 +812,9 @@ export default function AdmissionForm() {
                           name="fatherName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-brand">Father&apos;s Name *</FormLabel>
+                              <FormLabel className="text-slate-800">
+                                Father&apos;s Name *
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="e.g. Rajesh Sharma"
@@ -774,7 +832,9 @@ export default function AdmissionForm() {
                           name="fatherOccupation"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-brand">Occupation *</FormLabel>
+                              <FormLabel className="text-slate-800">
+                                Occupation *
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="e.g. Business, Service"
@@ -792,7 +852,9 @@ export default function AdmissionForm() {
                           name="fatherPhone"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-brand">Contact Number *</FormLabel>
+                              <FormLabel className="text-slate-800">
+                                Contact Number *
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="9876543210"
@@ -800,7 +862,6 @@ export default function AdmissionForm() {
                                   {...field}
                                 />
                               </FormControl>
-                              
                               <FormMessage />
                             </FormItem>
                           )}
@@ -809,13 +870,11 @@ export default function AdmissionForm() {
                     </div>
 
                     {/* Mother's Information */}
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="h-px flex-1 bg-brand/20" />
-                        <span className="text-sm font-medium text-brand px-3">
+                    <div className="rounded-xl border border-slate-100 bg-white p-4">
+                      <div className="mb-3">
+                        <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-slate-700">
                           Mother&apos;s Details
                         </span>
-                        <div className="h-px flex-1 bg-brand/20" />
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
@@ -823,7 +882,9 @@ export default function AdmissionForm() {
                           name="motherName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-brand">Mother&apos;s Name *</FormLabel>
+                              <FormLabel className="text-slate-800">
+                                Mother&apos;s Name *
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="e.g. Priya Sharma"
@@ -841,7 +902,9 @@ export default function AdmissionForm() {
                           name="motherOccupation"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-brand">Occupation *</FormLabel>
+                              <FormLabel className="text-slate-800">
+                                Occupation *
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="e.g. Homemaker, Teacher"
@@ -859,7 +922,9 @@ export default function AdmissionForm() {
                           name="motherPhone"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-brand">Contact Number *</FormLabel>
+                              <FormLabel className="text-slate-800">
+                                Contact Number *
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="9876543210"
@@ -867,7 +932,6 @@ export default function AdmissionForm() {
                                   {...field}
                                 />
                               </FormControl>
-                              
                               <FormMessage />
                             </FormItem>
                           )}
@@ -876,13 +940,11 @@ export default function AdmissionForm() {
                     </div>
 
                     {/* Guardian Information */}
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="h-px flex-1 bg-brand/20" />
-                        <span className="text-sm font-medium text-brand px-3">
+                    <div className="rounded-xl border border-slate-100 bg-white p-4">
+                      <div className="mb-3">
+                        <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-slate-700">
                           Guardian Details
                         </span>
-                        <div className="h-px flex-1 bg-brand/20" />
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
@@ -890,13 +952,17 @@ export default function AdmissionForm() {
                           name="guardianRelation"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-brand">Guardian Relation *</FormLabel>
+                              <FormLabel className="text-slate-800">
+                                Guardian Relation *
+                              </FormLabel>
                               <Select
                                 onValueChange={field.onChange}
                                 value={field.value}
                               >
                                 <FormControl>
-                                  <SelectTrigger className={selectTriggerClasses}>
+                                  <SelectTrigger
+                                    className={selectTriggerClasses}
+                                  >
                                     <SelectValue placeholder="Select relation" />
                                   </SelectTrigger>
                                 </FormControl>
@@ -916,7 +982,9 @@ export default function AdmissionForm() {
                           name="guardianContact"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-brand">Guardian Contact Number *</FormLabel>
+                              <FormLabel className="text-slate-800">
+                                Guardian Contact Number *
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="Enter contact number"
@@ -924,16 +992,11 @@ export default function AdmissionForm() {
                                   className={cn(
                                     inputFieldClasses,
                                     isGuardianAutoFill &&
-                                      "bg-slate-50 text-slate-600"
+                                      "bg-gray-50 text-slate-600"
                                   )}
                                   {...field}
                                 />
                               </FormControl>
-                              {/* <p className="text-xs text-slate-500">
-                                {isGuardianAutoFill
-                                  ? "This number is synced with the selected parent."
-                                  : "Please enter the contact number for the guardian."}
-                              </p> */}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -945,28 +1008,29 @@ export default function AdmissionForm() {
 
                 {/* Educational Qualifications */}
                 <section id="education" className="scroll-mt-24">
-                  <div className="flex items-center gap-3 mb-6 border-b border-brand/20 pb-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10">
+                  <div className="flex items-center gap-3 mb-6 pb-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white border border-gray-100 shadow-sm">
                       <GraduationCap className="h-5 w-5 text-brand" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-semibold text-brand">
-                        Educational Background
+                      <h2 className="text-2xl font-semibold text-slate-800">
+                        <span className="text-brand">
+                          Educational Background
+                        </span>
                       </h2>
                       <p className="text-sm text-slate-600">
-                        Share your JSC and SSC achievements to help us guide you better
+                        Share your JSC and SSC achievements to help us guide you
+                        better
                       </p>
                     </div>
                   </div>
 
-                  <div className="space-y-8">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="h-px flex-1 bg-brand/20" />
-                        <span className="text-sm font-medium text-brand px-3">
+                  <div className="rounded-2xl border border-slate-100 bg-white/95 p-6 space-y-6 shadow-[0_6px_24px_rgba(2,6,23,.06)] backdrop-blur">
+                    <div className="rounded-xl border border-slate-100 bg-white p-4">
+                      <div className="mb-3">
+                        <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-slate-700">
                           JSC Exam Details
                         </span>
-                        <div className="h-px flex-1 bg-brand/20" />
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
@@ -974,7 +1038,9 @@ export default function AdmissionForm() {
                           name="jscSchool"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-brand">School</FormLabel>
+                              <FormLabel className="text-slate-800">
+                                School
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="e.g. Sunny High School"
@@ -992,7 +1058,9 @@ export default function AdmissionForm() {
                           name="jscGrade"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-brand">Grade</FormLabel>
+                              <FormLabel className="text-slate-800">
+                                Grade
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="e.g. GPA 4.89 / A"
@@ -1007,13 +1075,11 @@ export default function AdmissionForm() {
                       </div>
                     </div>
 
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="h-px flex-1 bg-brand/20" />
-                        <span className="text-sm font-medium text-brand px-3">
+                    <div className="rounded-lg border border-gray-200 bg-white p-4">
+                      <div className="mb-3">
+                        <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-slate-700">
                           SSC Exam Details
                         </span>
-                        <div className="h-px flex-1 bg-brand/20" />
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
@@ -1021,7 +1087,9 @@ export default function AdmissionForm() {
                           name="sscSchool"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-brand">School</FormLabel>
+                              <FormLabel className="text-slate-800">
+                                School
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="e.g. National Model School"
@@ -1039,7 +1107,9 @@ export default function AdmissionForm() {
                           name="sscGrade"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-brand">Grade</FormLabel>
+                              <FormLabel className="text-slate-800">
+                                Grade
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="e.g. GPA 5.00 / A+"
@@ -1058,28 +1128,31 @@ export default function AdmissionForm() {
 
                 {/* Batch Information */}
                 <section id="batch" className="scroll-mt-24">
-                  <div className="flex items-center gap-3 mb-6 border-b border-brand/20 pb-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10">
+                  <div className="flex items-center gap-3 mb-6 pb-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white border border-gray-100 shadow-sm">
                       <Clock className="h-5 w-5 text-brand" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-semibold text-brand">
-                        Batch Selection
+                      <h2 className="text-2xl font-semibold text-slate-800">
+                        <span className="text-brand">Batch Selection</span>
                       </h2>
                       <p className="text-sm text-slate-600">
-                        Choose your preferred class, subject, timing, and tell us how you heard about us
+                        Choose your preferred class, subject, timing, and tell
+                        us how you heard about us
                       </p>
                     </div>
                   </div>
 
-                  <div className="space-y-6">
+                  <div className="rounded-2xl border border-slate-100 bg-white/95 p-6 space-y-6 shadow-[0_6px_24px_rgba(2,6,23,.06)] backdrop-blur">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <FormField
                         control={form.control}
                         name="classLevel"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-brand">Class *</FormLabel>
+                            <FormLabel className="text-slate-800">
+                              Class *
+                            </FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               value={field.value}
@@ -1092,12 +1165,17 @@ export default function AdmissionForm() {
                               <SelectContent>
                                 <SelectItem value="class-8">Class 8</SelectItem>
                                 <SelectItem value="class-9">Class 9</SelectItem>
-                                <SelectItem value="class-10">Class 10</SelectItem>
-                                <SelectItem value="class-11">Class 11</SelectItem>
-                                <SelectItem value="class-12">Class 12</SelectItem>
+                                <SelectItem value="class-10">
+                                  Class 10
+                                </SelectItem>
+                                <SelectItem value="class-11">
+                                  Class 11
+                                </SelectItem>
+                                <SelectItem value="class-12">
+                                  Class 12
+                                </SelectItem>
                               </SelectContent>
                             </Select>
-                            
                             <FormMessage />
                           </FormItem>
                         )}
@@ -1108,7 +1186,9 @@ export default function AdmissionForm() {
                         name="subject"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-brand">Subject *</FormLabel>
+                            <FormLabel className="text-slate-800">
+                              Subject *
+                            </FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               value={field.value}
@@ -1120,14 +1200,15 @@ export default function AdmissionForm() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {(subjectOptions[selectedClass as string] || []).map((opt) => (
+                                {(
+                                  subjectOptions[selectedClass as string] || []
+                                ).map((opt) => (
                                   <SelectItem key={opt.value} value={opt.value}>
                                     {opt.label}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
-                            
                             <FormMessage />
                           </FormItem>
                         )}
@@ -1138,30 +1219,48 @@ export default function AdmissionForm() {
                         name="batchTiming"
                         render={({ field }) => (
                           <FormItem className="md:col-span-2">
-                            <FormLabel className="text-brand">Batch Timing</FormLabel>
+                            <FormLabel className="text-slate-800">
+                              Batch Timing
+                            </FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               value={field.value}
-                              disabled={!selectedClass || (batchOptions[selectedClass as string]?.length ?? 0) === 0}
+                              disabled={
+                                !selectedClass ||
+                                (batchOptions[selectedClass as string]
+                                  ?.length ?? 0) === 0
+                              }
                             >
                               <FormControl>
                                 <SelectTrigger className={selectTriggerClasses}>
-                                  <SelectValue placeholder={(batchOptions[selectedClass as string]?.length ?? 0) === 0 ? "No batch available currently" : "Select schedule"} />
+                                  <SelectValue
+                                    placeholder={
+                                      (batchOptions[selectedClass as string]
+                                        ?.length ?? 0) === 0
+                                        ? "No batch available currently"
+                                        : "Select schedule"
+                                    }
+                                  />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {(batchOptions[selectedClass as string] || []).map((opt) => (
+                                {(
+                                  batchOptions[selectedClass as string] || []
+                                ).map((opt) => (
                                   <SelectItem key={opt.value} value={opt.value}>
                                     {opt.label}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
-                            {(batchOptions[selectedClass as string]?.length ?? 0) === 0 && selectedClass && (
-                              <p className="text-xs text-slate-600 mt-1">
-                                No batch available currently for the selected class.
-                              </p>
-                            )}
+                            {(batchOptions[selectedClass as string]?.length ??
+                              0) === 0 &&
+                              selectedClass && (
+                                <p className="text-xs text-slate-600 mt-1">
+                                  No batch available currently for the selected
+                                  class.
+                                </p>
+                              )}
                             <FormMessage />
                           </FormItem>
                         )}
@@ -1173,7 +1272,9 @@ export default function AdmissionForm() {
                       name="hearAboutUs"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-brand">How did you hear about us?</FormLabel>
+                          <FormLabel className="text-slate-800">
+                            How did you hear about us?
+                          </FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             value={field.value}
@@ -1202,7 +1303,6 @@ export default function AdmissionForm() {
                               <SelectItem value="other">Other</SelectItem>
                             </SelectContent>
                           </Select>
-                          
                           <FormMessage />
                         </FormItem>
                       )}
@@ -1213,19 +1313,19 @@ export default function AdmissionForm() {
                       name="prevStudent"
                       render={({ field }) => (
                         <FormItem>
-                          <div className="flex items-start gap-3 rounded-lg border border-brand/20 bg-white/80 p-4 shadow-sm">
+                          <div className="flex items-start gap-3 rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
                             <FormControl>
                               <Checkbox
                                 checked={!!field.value}
                                 onCheckedChange={(checked) =>
                                   field.onChange(checked === true)
                                 }
-                                className="mt-1 border-brand/50"
+                                className="mt-1"
                               />
                             </FormControl>
                             <div className="space-y-1 text-sm">
-                              <FormLabel className="text-base text-brand">
-                                Previous student of Sunny's Math World
+                              <FormLabel className="text-base text-slate-800">
+                                Previous student of Sunny&apos;s Math World
                               </FormLabel>
                               <p className="text-slate-600">
                                 Check if you studied here previously.
@@ -1239,28 +1339,29 @@ export default function AdmissionForm() {
                 </section>
 
                 {/* Submit Section */}
-                <div className="pt-6 border-t border-brand/20 space-y-6">
+                <div className="pt-6 border-t border-slate-200 space-y-6">
                   <FormField
                     control={form.control}
                     name="agreeTerms"
                     render={({ field }) => (
                       <FormItem>
-                        <div className="flex items-start gap-3 rounded-lg border border-brand/20 bg-white/80 p-4 shadow-sm">
+                        <div className="flex items-start gap-3 rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
                           <FormControl>
                             <Checkbox
                               checked={field.value}
                               onCheckedChange={(checked) =>
                                 field.onChange(checked === true)
                               }
-                              className="mt-1 border-brand/50"
+                              className="mt-1"
                             />
                           </FormControl>
                           <div className="space-y-1 text-sm">
-                            <FormLabel className="text-base text-brand">
+                            <FormLabel className="text-base text-slate-800">
                               I agree to the terms &amp; conditions *
                             </FormLabel>
                             <p className="text-slate-600">
-                              I confirm that the information shared is accurate and I consent to continue to the payment step.
+                              I confirm that the information shared is accurate
+                              and I consent to continue to the payment step.
                             </p>
                           </div>
                         </div>
@@ -1269,9 +1370,11 @@ export default function AdmissionForm() {
                     )}
                   />
 
-                  <div className="rounded-lg border border-brand/20 bg-brand/5 p-6 text-slate-700 shadow-sm">
+                  <div className="rounded-2xl border border-slate-100 bg-gray-50 p-6 text-slate-700 shadow-sm">
                     <p className="text-center text-sm text-slate-600">
-                      Once we receive your form, our admissions team will reach out within 24-48 hours with payment instructions and the next onboarding steps.
+                      Once we receive your form, our admissions team will reach
+                      out within 24-48 hours with payment instructions and the
+                      next onboarding steps.
                     </p>
                   </div>
 
@@ -1280,7 +1383,7 @@ export default function AdmissionForm() {
                       type="submit"
                       disabled={isSubmitting || !hasAgreedToTerms}
                       size="lg"
-                      className="min-w-[240px] h-12 text-base font-semibold bg-gradient-to-r from-brand to-brand-emphasis text-brand-foreground shadow-lg transition-colors hover:from-brand-emphasis hover:to-brand disabled:opacity-60"
+                      className="min-w-[240px] h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-brand to-brand-emphasis text-brand-foreground shadow-lg transition-colors hover:from-brand-emphasis hover:to-brand disabled:opacity-60"
                     >
                       {isSubmitting ? (
                         <div className="flex items-center gap-2">
@@ -1303,7 +1406,16 @@ export default function AdmissionForm() {
         <ConfirmationModal
           isOpen={showConfirmation}
           onClose={() => setShowConfirmation(false)}
-          data={submittedData}
+          data={{
+            ...submittedData,
+            nickname: submittedData.nickname ?? "",
+            jscSchool: submittedData.jscSchool ?? "",
+            jscGrade: submittedData.jscGrade ?? "",
+            sscSchool: submittedData.sscSchool ?? "",
+            sscGrade: submittedData.sscGrade ?? "",
+            batchTiming: submittedData.batchTiming ?? "",
+            hearAboutUs: submittedData.hearAboutUs ?? "",
+          }}
           photoPreview={photoPreview}
         />
       )}
