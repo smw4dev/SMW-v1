@@ -216,6 +216,14 @@
     text-overflow: ellipsis;
     text-align: right;
   }
+  /* Soften focus visuals inside the admission form */
+  .admission-form [data-slot="input"]:focus-visible,
+  .admission-form [data-slot="textarea"]:focus-visible,
+  .admission-form [data-slot="select-trigger"]:focus-visible,
+  .admission-form [data-slot="button"]:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
 }
 
 .animate-fade-in-up {
@@ -499,4 +507,19 @@ input:focus-visible {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Admission form: remove outer ring on focus for a cleaner, card-like feel */
+.admission-form input:focus,
+.admission-form input:focus-visible,
+.admission-form textarea:focus,
+.admission-form textarea:focus-visible,
+.admission-form [data-slot="input"]:focus,
+.admission-form [data-slot="input"]:focus-visible,
+.admission-form [data-slot="textarea"]:focus,
+.admission-form [data-slot="textarea"]:focus-visible,
+.admission-form [data-slot="select-trigger"]:focus-visible,
+.admission-form [data-slot="button"]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important; /* neutralize Tailwind ring */
 }
