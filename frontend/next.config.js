@@ -6,6 +6,18 @@ const nextConfig = {
   },
   // optional: smaller server bundle for pm2
   output: 'standalone',
+  images: {
+    domains: [
+      "images.pexels.com",
+      "pexels.com",
+      "slelguoygbfzlpylpxfs.supabase.co",
+      "assets.retinabd.org",
+      "assets.retinabd.site",
+      "retinabd.org",
+      "shop.retinabd.org",
+    ],
+  },
+  experimental: {},
 };
 
 module.exports = nextConfig;
