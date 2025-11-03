@@ -65,7 +65,6 @@ jobs:
           rm -rf deploy && mkdir -p deploy/.next/standalone/.next deploy/public
           cp -r .next/standalone/* deploy/.next/standalone/
           cp -r public/* deploy/public/ || true
-          # Next requires .next/static alongside standalone/.next/
           cp -r .next/static deploy/.next/standalone/.next/static
 
       # ---------- SYNC CODE / ARTIFACTS TO SERVER ----------
@@ -105,7 +104,6 @@ jobs:
             echo "=== Backend: install deps, migrate, collectstatic ==="
             cd /var/www/html/SMW-v1/Backend
 
-            # Ensure venv exists
             if [ ! -d "venv" ]; then
               python3 -m venv venv
             fi
@@ -124,7 +122,6 @@ jobs:
             echo "=== Frontend: pm2 start/restart ==="
             cd /var/www/html/SMW-v1/frontend
 
-            # Ensure required Next static path exists (safety)
             mkdir -p .next/standalone/.next
             if [ -d ".next/static" ] && [ ! -d ".next/standalone/.next/static" ]; then
               cp -r .next/static .next/standalone/.next/static
@@ -149,13 +146,16 @@ jobs:
 
       # ---------- OPTIONAL: Cloudflare purge after deploy ----------
       - name: Purge Cloudflare cache (optional)
-        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ZONE_ID != '' }}
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CF_ZONE:  ${{ secrets.CLOUDFLARE_ZONE_ID }}
         run: |
-          echo "Purging Cloudflare cache for zone $CF_ZONE …"
-          curl -fsSL -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache" \
-            -H "Authorization: Bearer $CF_TOKEN" \
-            -H "Content-Type: application/json" \
-            --data '{"purge_everything":true}'
+          if [ -n "$CF_TOKEN" ] && [ -n "$CF_ZONE" ]; then
+            echo "Purging Cloudflare cache for zone $CF_ZONE …"
+            curl -fsSL -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache" \
+              -H "Authorization: Bearer $CF_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data '{"purge_everything":true}'
+          else
+            echo "Skipping Cloudflare purge (token/zone not set)."
+          fi
