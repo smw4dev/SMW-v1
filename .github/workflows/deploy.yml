@@ -1,5 +1,7 @@
 name: SMW Fullstack Deploy
 
+
+
 on:
   push:
     branches: [ main ]
