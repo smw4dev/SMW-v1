@@ -71,7 +71,7 @@ jobs:
       - name: Rsync Backend to server
         uses: burnett01/rsync-deployments@6.0.0
         with:
-          switches: -avz --delete --exclude='venv' --exclude='__pycache__' --exclude='*.pyc'
+          switches: -avz --delete --exclude='.env' --exclude='venv' --exclude='__pycache__' --exclude='*.pyc'
           path: Backend/
           remote_path: /var/www/html/SMW-v1/Backend/
           remote_host: ${{ secrets.SSH_HOST }}
