@@ -1,161 +1,59 @@
-name: SMW Fullstack Deploy
+name: Deploy SMW (Backend + Frontend)
 
 on:
   push:
-    branches: [ main ]
-    paths:
-      - "Backend/**"
-      - "frontend/**"
-      - ".github/workflows/deploy.yml"
-  workflow_dispatch:
+    branches: [ dev, main ]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-
-    env:
-      NEXT_PUBLIC_API_BASE: https://sunnysir.com/smw/api
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # ---------- BACKEND: Python ----------
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('Backend/requirements.txt') }}
-          restore-keys: ${{ runner.os }}-pip-
-
-      # ---------- FRONTEND: Node ----------
-      - name: Use Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-node-
-
-      - name: Install Frontend deps
-        working-directory: frontend
-        run: npm ci
-
-      - name: Build Frontend (standalone)
-        working-directory: frontend
-        env:
-          NODE_ENV: production
-          NEXT_PUBLIC_API_BASE: ${{ env.NEXT_PUBLIC_API_BASE }}
-        run: |
-          # next.config.js must include:  module.exports = { output: 'standalone', basePath: '/smw', ... }
-          npm run build
-
-      - name: Package Frontend artifacts
-        working-directory: frontend
-        run: |
-          rm -rf deploy && mkdir -p deploy/.next/standalone/.next deploy/public
-          cp -r .next/standalone/* deploy/.next/standalone/
-          cp -r public/* deploy/public/ || true
-          cp -r .next/static deploy/.next/standalone/.next/static
-
-      # ---------- SYNC CODE / ARTIFACTS TO SERVER ----------
-      - name: Rsync Backend to server
-        uses: burnett01/rsync-deployments@6.0.0
-        with:
-          switches: -avz --delete --exclude='.env' --exclude='venv' --exclude='__pycache__' --exclude='*.pyc'
-          path: Backend/
-          remote_path: /var/www/html/SMW-v1/Backend/
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_user: ${{ secrets.SSH_USER }}
-          remote_key: ${{ secrets.SSH_KEY }}
-          remote_port: ${{ secrets.SSH_PORT }}
-
-      - name: Rsync Frontend build to server
-        uses: burnett01/rsync-deployments@6.0.0
-        with:
-          switches: -avz --delete
-          path: frontend/deploy/
-          remote_path: /var/www/html/SMW-v1/frontend/
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_user: ${{ secrets.SSH_USER }}
-          remote_key: ${{ secrets.SSH_KEY }}
-          remote_port: ${{ secrets.SSH_PORT }}
-
-      # ---------- SERVER SIDE: install, migrate, restart ----------
-      - name: Server deploy steps (Django + pm2 + Nginx)
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
           script: |
-            set -e
+            set -euo pipefail
 
-            echo "=== Backend: install deps, migrate, collectstatic ==="
-            cd /var/www/html/SMW-v1/Backend
+            PROJECT_ROOT="${{ secrets.PROJECT_ROOT }}"
+            BACKEND_DIR="${{ secrets.BACKEND_DIR }}"
+            FRONTEND_DIR="${{ secrets.FRONTEND_DIR }}"
+            PM2_NAME="${{ secrets.PM2_NAME }}"
+            GUNICORN="${{ secrets.GUNICORN_SERVICE }}"
+            PYTHON_BIN="${{ secrets.PYTHON_BIN:-/usr/bin/python3 }}"
 
-            if [ ! -d "venv" ]; then
-              python3 -m venv venv
-            fi
-            . venv/bin/activate
-            python -m pip install --upgrade pip
+            echo "→ Pull"
+            cd "$PROJECT_ROOT"
+            BRANCH="${GITHUB_REF_NAME:-${{ github.ref_name }}}"
+            git fetch --all --prune
+            git reset --hard "origin/${BRANCH}"
+
+            echo "→ Backend"
+            cd "$PROJECT_ROOT/$BACKEND_DIR"
+            $PYTHON_BIN -m venv .venv || true
+            source .venv/bin/activate
+            pip install --upgrade pip wheel
             pip install -r requirements.txt
-
-            export DJANGO_SETTINGS_MODULE=smw.settings
             python manage.py migrate --noinput
             python manage.py collectstatic --noinput
 
-            echo "Restarting Gunicorn service..."
-            systemctl restart smw-backend
-            systemctl status smw-backend --no-pager || true
+            echo "→ Gunicorn restart"
+            systemctl restart "$GUNICORN"
+            systemctl is-active --quiet "$GUNICORN" || (journalctl -u "$GUNICORN" -n 120 --no-pager; exit 1)
 
-            echo "=== Frontend: pm2 start/restart ==="
-            cd /var/www/html/SMW-v1/frontend
+            echo "→ Frontend build"
+            cd "$PROJECT_ROOT/$FRONTEND_DIR"
+            (command -v npm >/dev/null && npm ci) || npm install
+            npm run build
 
-            mkdir -p .next/standalone/.next
-            if [ -d ".next/static" ] && [ ! -d ".next/standalone/.next/static" ]; then
-              cp -r .next/static .next/standalone/.next/static
-            fi
-
-            if pm2 describe frontend > /dev/null; then
-              pm2 restart frontend --update-env
-            else
-              pm2 start "node .next/standalone/server.js" --name frontend \
-                --cwd /var/www/html/SMW-v1/frontend \
-                --interpreter none -- \
-                --hostname 127.0.0.1 --port 3000
-            fi
+            echo "→ PM2 (standalone)"
+            pm2 describe "$PM2_NAME" >/dev/null 2>&1 \
+              && pm2 restart "$PM2_NAME" --update-env \
+              || pm2 start "node .next/standalone/server.js" --name "$PM2_NAME" -- --port 3000 --hostname 127.0.0.1
             pm2 save
 
-            echo "=== Nginx reload ==="
-            nginx -t && systemctl reload nginx
-
-            echo "=== Health checks (local) ==="
-            curl -fsSI http://127.0.0.1:8001/admin/login/ >/dev/null || true
-            curl -fsSI http://127.0.0.1:3000/ >/dev/null || true
-
-      # ---------- OPTIONAL: Cloudflare purge after deploy ----------
-      - name: Purge Cloudflare cache (optional)
-        env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CF_ZONE:  ${{ secrets.CLOUDFLARE_ZONE_ID }}
-        run: |
-          if [ -n "$CF_TOKEN" ] && [ -n "$CF_ZONE" ]; then
-            echo "Purging Cloudflare cache for zone $CF_ZONE …"
-            curl -fsSL -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache" \
-              -H "Authorization: Bearer $CF_TOKEN" \
-              -H "Content-Type: application/json" \
-              --data '{"purge_everything":true}'
-          else
-            echo "Skipping Cloudflare purge (token/zone not set)."
-          fi
+            echo "✓ Deploy done"
