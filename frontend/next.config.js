@@ -5,16 +5,16 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   // optional: smaller server bundle for pm2
-  output: 'standalone',
+  output: "standalone",
   images: {
     domains: [
       "images.pexels.com",
       "pexels.com",
       "slelguoygbfzlpylpxfs.supabase.co",
-      "assets.retinabd.org",
-      "assets.retinabd.site",
-      "retinabd.org",
-      "shop.retinabd.org",
+      "assets.example.com",
+      "assets..site",
+      "example.com",
+      "shop.example.com",
     ],
   },
   experimental: {},

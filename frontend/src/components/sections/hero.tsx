@@ -22,11 +22,11 @@ const PromotionalBanner = () => {
     <div className="max-w-6xl w-full bg-gradient-to-r from-brand to-brand-emphasis text-white py-3 px-4 shadow-md mt-4 sm:mt-6 rounded-md">
       <div className="mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 overflow-hidden">
         <a
-          href="https://shop.retinabd.org/"
+          href="https://shop.example.com/"
           className="text-sm sm:text-base flex-grow text-center sm:text-left transition-transform duration-500"
         >
-          🎉 বিশেষ ছাড়ে ঘরে বসে রেটিনার প্রকাশনা কিনুন এখনই! ডাইজেস্ট |
-          প্রশ্নব্যংক | গাইড | অর্ডার করতে ক্লিক করুন
+          🎉 বিশেষ ছাড়ে ঘরে বসে র প্রকাশনা কিনুন এখনই! ডাইজেস্ট | প্রশ্নব্যংক |
+          গাইড | অর্ডার করতে ক্লিক করুন
         </a>
         <button
           onClick={() => setIsOpen(false)}

@@ -52,13 +52,13 @@ const STORAGE_PALETTE_KEY = "theme-palette";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mode, setModeState] = useState<ThemeMode>("light");
-  const [palette, setPaletteState] = useState<ThemePalette>("crimson");
+  const [palette, setPaletteState] = useState<ThemePalette>("emerald");
 
   // Initialize from storage or system
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const storedMode = (localStorage.getItem(STORAGE_MODE_KEY) as ThemeMode | null) ?? getSystemMode();
-    const storedPalette = (localStorage.getItem(STORAGE_PALETTE_KEY) as ThemePalette | null) ?? "crimson";
+    const storedMode = (localStorage.getItem(STORAGE_MODE_KEY) as ThemeMode | null) ?? "light";
+    const storedPalette = (localStorage.getItem(STORAGE_PALETTE_KEY) as ThemePalette | null) ?? "emerald";
     setModeState(storedMode);
     setPaletteState(storedPalette);
   }, []);

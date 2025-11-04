@@ -33,9 +33,8 @@ export default function RootLayout({
     (function(){
       try {
         var m = localStorage.getItem('theme-mode');
-        var p = localStorage.getItem('theme-palette') || 'crimson';
-        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        var mode = (m === 'light' || m === 'dark') ? m : (prefersDark ? 'dark' : 'light');
+        var p = localStorage.getItem('theme-palette') || 'emerald';
+        var mode = (m === 'light' || m === 'dark') ? m : 'light';
         var root = document.documentElement;
         if (mode === 'dark') root.classList.add('dark'); else root.classList.remove('dark');
         root.setAttribute('data-theme', p);
@@ -43,7 +42,7 @@ export default function RootLayout({
     })();
   `;
   return (
-    <html lang="en" suppressHydrationWarning className={`${hindSiliguri.variable}`}>
+    <html lang="en" suppressHydrationWarning data-theme="emerald" className={`${hindSiliguri.variable}`}>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
         <ThemeProvider>

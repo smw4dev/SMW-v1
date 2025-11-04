@@ -14,7 +14,7 @@ type Story = {
 const stories: Story[] = [
   {
     id: 1,
-    image: "https://retinabd.org/images/doctor/2nd.jpg",
+    image: "https://example.com/images/doctor/2nd.jpg",
     name: "Samiha Nazifa Ahasan,",
     excerpt:
       "I am currently pursuing the BSc (Hons) in Computing Systems program at Ulster University in the UK. Thanks to Mentors' Study Abroad for guidance...",
@@ -23,7 +23,7 @@ const stories: Story[] = [
   {
     id: 2,
     image:
-      "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833-retinabd-org/assets/images/3rd-30.jpg",
+      "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833--org/assets/images/3rd-30.jpg",
     name: "Ayman Fayyaz,",
     excerpt:
       "My journey to study Bachelor of Information Technology (Cyber Security) at Macquarie University was made possible by Mentors' Study Abroad...",
@@ -31,7 +31,7 @@ const stories: Story[] = [
   },
   {
     id: 3,
-    image: "https://retinabd.org/images/doctor/4th.jpg",
+    image: "https://example.com/images/doctor/4th.jpg",
     name: "Tasnuva Bashar Tanni (PTE),",
     excerpt:
       "I chose the PTE program to migrate to Australia. I am happy to have scored an 86 overall in PTE. This achievement was only possible because o...",

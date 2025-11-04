@@ -9,17 +9,17 @@ type Feature =
 const features: Feature[] = [
   {
     type: "image",
-    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833-retinabd-org/assets/icons/offline-class-1.png?",
+    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833--org/assets/icons/offline-class-1.png?",
     text: "মাস্টার ক্লাস (অফলাইন)",
   },
   {
     type: "image",
-    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833-retinabd-org/assets/icons/online-class-2.png?",
+    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833--org/assets/icons/online-class-2.png?",
     text: "মাস্টার ক্লাস (অনলাইন)",
   },
   {
     type: "image",
-    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833-retinabd-org/assets/icons/exam1-3.png?",
+    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833--org/assets/icons/exam1-3.png?",
     text: "মেডিকেল ভর্তি পরীক্ষার স্ট্যান্ডার্ড প্রশ্নে পরীক্ষা (১ম পর্যায়)",
   },
   {
@@ -29,7 +29,7 @@ const features: Feature[] = [
   },
   {
     type: "image",
-    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833-retinabd-org/assets/icons/exam1-3.png?",
+    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833--org/assets/icons/exam1-3.png?",
     text: "স্পেশাল পরীক্ষাসমূহ",
   },
   {
@@ -39,7 +39,7 @@ const features: Feature[] = [
   },
   {
     type: "image",
-    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833-retinabd-org/assets/icons/mentoring-7.png?",
+    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833--org/assets/icons/mentoring-7.png?",
     text: "Medical Mentor Support",
   },
   {
@@ -49,23 +49,23 @@ const features: Feature[] = [
   },
   {
     type: "image",
-    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833-retinabd-org/assets/icons/customer-service1-9.png?",
+    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833--org/assets/icons/customer-service1-9.png?",
     text: "Q&A",
   },
   {
     type: "image",
-    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833-retinabd-org/assets/icons/scoring-10.png?",
+    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833--org/assets/icons/scoring-10.png?",
     text: "কেন্দ্রীয় মেধাতালিকা",
   },
   {
     type: "image",
-    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833-retinabd-org/assets/icons/help-11.png?",
+    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833--org/assets/icons/help-11.png?",
     text: "LMS Service",
   },
   {
     type: "image",
-    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833-retinabd-org/assets/icons/smartphone-12.png?",
-    text: "Retina App",
+    src: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833--org/assets/icons/smartphone-12.png?",
+    text: "Test App",
   },
 ];
 

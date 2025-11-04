@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Phone } from "lucide-react";
-import { ThemeSwitcher } from "@/components/theme/ThemeProvider";
+// Theme switcher is temporarily hidden from navigation
 
 interface NavLink {
   href: string;
@@ -116,7 +116,7 @@ const Navigation = () => {
                 Admission
               </button>
             </div>
-            <ThemeSwitcher />
+            {/** ThemeSwitcher hidden for now */}
           </div>
         </div>
 
@@ -133,7 +133,7 @@ const Navigation = () => {
           </Link>
           <div className="flex items-center gap-2">
             <button className="rounded-lg border-2 border-solid border-brand bg-white px-3 py-2 text-sm font-medium text-brand transition-colors hover:bg-brand hover:text-brand-foreground">
-              Retina LMS
+              Test LMS
             </button>
             <button
               className="inline-flex h-8 w-8 items-center justify-center rounded-lg p-2 text-sm text-gray-500"

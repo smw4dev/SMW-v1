@@ -13,7 +13,7 @@ const Footer = () => {
                 height={64}
                 width={160}
                 src="/logo.png?"
-                alt="Retina Logo"
+                alt="Test Logo"
                 className="h-42 w-auto"
               />
             </Link>
@@ -34,7 +34,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/retina-ending-program"
+                  href="/Test-ending-program"
                   className="text-brand-foreground hover:underline"
                 >
                   শিক্ষক হিসেবে যোগ দিন
@@ -66,7 +66,7 @@ const Footer = () => {
             <ul className="mt-4 space-y-2 text-base">
               <li>
                 <a
-                  href="https://shop.retinabd.org/"
+                  href="https://shop.example.com/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-brand-foreground hover:underline"
@@ -76,7 +76,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://result.retinabd.org/"
+                  href="https://result.example.com/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-brand-foreground hover:underline"
@@ -112,7 +112,7 @@ const Footer = () => {
             </p>
             <div className="mt-4 flex space-x-4">
               <a
-                href="https://www.facebook.com/RetinaBd"
+                href="https://www.facebook.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-brand-foreground hover:opacity-80"
@@ -121,7 +121,7 @@ const Footer = () => {
                 <span className="sr-only">Facebook</span>
               </a>
               <a
-                href="https://www.instagram.com/retinabd.official"
+                href="https://www.instagram.com/.official"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-brand-foreground hover:opacity-80"
@@ -130,7 +130,7 @@ const Footer = () => {
                 <span className="sr-only">Instagram</span>
               </a>
               <a
-                href="https://www.threads.net/@retinabd.official"
+                href="https://www.threads.net/@.official"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-brand-foreground hover:opacity-80"
@@ -139,7 +139,7 @@ const Footer = () => {
                 <span className="sr-only">Threads</span>
               </a>
               <a
-                href="https://www.youtube.com/@RetinaBd"
+                href="https://www.youtube.com/@"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-brand-foreground hover:opacity-80"
@@ -152,9 +152,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-12 pt-8 border-t border-brand-foreground/20 text-center">
-          <p className="text-base text-brand-foreground">
-            কপিরাইট © ১৯৮০-২০২৫ রেটিনা
-          </p>
+          <p className="text-base text-brand-foreground">কপিরাইট © ১৯৮০-২০২৫</p>
         </div>
       </div>
     </footer>

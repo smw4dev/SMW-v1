@@ -16,7 +16,7 @@ interface Course {
 const courseData: Course[] = [
   {
     id: 1,
-    imageUrl: "https://assets.retinabd.org/directory/777262092678.png",
+    imageUrl: "https://assets.example.com/directory/777262092678.png",
     title: "৬ষ্ঠ শ্রেণি ব্যাচ",
     features: [
       { text: "সাপ্তাহিক ৩টি ক্লাস" },
@@ -30,7 +30,7 @@ const courseData: Course[] = [
   },
   {
     id: 2,
-    imageUrl: "https://assets.retinabd.org/directory/230627062826.png",
+    imageUrl: "https://assets.example.com/directory/230627062826.png",
     title: "৭ম শ্রেণি ব্যাচ",
     features: [
       { text: "সাপ্তাহিক ৩টি ক্লাস" },
@@ -44,7 +44,7 @@ const courseData: Course[] = [
   },
   {
     id: 3,
-    imageUrl: "https://assets.retinabd.org/directory/478798258587.png",
+    imageUrl: "https://assets.example.com/directory/478798258587.png",
     title: "৮ম শ্রেণি ব্যাচ",
     features: [
       { text: "সাপ্তাহিক ৩টি ক্লাস" },
@@ -59,7 +59,7 @@ const courseData: Course[] = [
   {
     id: 4,
     imageUrl:
-      "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833-retinabd-org/assets/images/160843126220-12.png?",
+      "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833--org/assets/images/160843126220-12.png?",
     title: "৯ম শ্রেণি ব্যাচ",
     features: [
       { text: "সাপ্তাহিক ৪টি ক্লাস" },
@@ -73,7 +73,7 @@ const courseData: Course[] = [
   },
   {
     id: 5,
-    imageUrl: "https://assets.retinabd.org/directory/325899351696.jpeg",
+    imageUrl: "https://assets.example.com/directory/325899351696.jpeg",
     title: "১০ম শ্রেণি ব্যাচ",
     features: [
       { text: "সাপ্তাহিক ৪টি ক্লাস" },
@@ -87,7 +87,7 @@ const courseData: Course[] = [
   },
   {
     id: 6,
-    imageUrl: "https://assets.retinabd.org/directory/777262092678.png",
+    imageUrl: "https://assets.example.com/directory/777262092678.png",
     title: "HSC (১১–১২) ব্যাচ",
     features: [
       { text: "টার্গেটেড সিলেবাস কভারেজ" },
@@ -109,7 +109,7 @@ const CourseCard = ({ course }: { course: Course }) => (
           alt="icon"
           width={24}
           height={24}
-          src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833-retinabd-org/assets/images/next-148421-course-icon.png?"
+          src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833--org/assets/images/next-148421-course-icon.png?"
         />
       </div>
     </div>
