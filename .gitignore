@@ -80,3 +80,5 @@ docker-compose.override.yml
 # === PostgreSQL dumps ===
 *.sql
 *.dump
+Backend/.env
+Backend/dfadf

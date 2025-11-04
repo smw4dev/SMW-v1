@@ -66,9 +66,16 @@ if _proxy_hdr:
     except ValueError:
         pass  # ignore malformed
 
+# Reverse proxy friendliness (Nginx/Cloudflare)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# App is mounted under a subpath via Nginx
+FORCE_SCRIPT_NAME = "/smw/api"
+
 # ---------------------------------------------------------------------
 # Applications
 # ---------------------------------------------------------------------
+
 INSTALLED_APPS = [
     # Django
     "django.contrib.admin",
@@ -179,8 +186,8 @@ USE_TZ = True
 # ---------------------------------------------------------------------
 # Static / Media
 # ---------------------------------------------------------------------
-STATIC_URL = os.getenv("DJANGO_STATIC_URL", "/static/")
-MEDIA_URL = os.getenv("DJANGO_MEDIA_URL", "/media/")
+STATIC_URL = os.getenv("DJANGO_STATIC_URL", "/smw/api/static/")
+MEDIA_URL = os.getenv("DJANGO_MEDIA_URL", "/smw/api/media/")
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
 
