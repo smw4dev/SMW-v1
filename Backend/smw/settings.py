@@ -7,52 +7,64 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
-from urllib.parse import urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 # ---------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------
+def _get_bool(name: str, default: str = "false") -> bool:
+    return os.getenv(name, default).strip().lower() in ("1", "true", "yes", "on")
+
+def _get_csv(name: str, default: str = "") -> list[str]:
+    raw = os.getenv(name, default)
+    return [x.strip() for x in raw.split(",") if x.strip()]
+
+def _pick_first(name: str, default: str = "") -> str:
+    vals = _get_csv(name, default)
+    return vals[0] if vals else default
+
+# ---------------------------------------------------------------------
 # Core / Security
 # ---------------------------------------------------------------------
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "change-me")
-DEBUG = os.getenv("DJANGO_DEBUG", "false").lower() in ("1", "true", "yes")
+DEBUG = _get_bool("DJANGO_DEBUG", "false")
 
 # Allowed hosts
 _allowed_hosts_env = os.getenv("DJANGO_ALLOWED_HOSTS", "").strip()
-ALLOWED_HOSTS = (
-    [h.strip() for h in _allowed_hosts_env.split(",") if h.strip()]
-    if _allowed_hosts_env
-    else (["127.0.0.1", "localhost"] if DEBUG else [])
-)
+ALLOWED_HOSTS = _get_csv("DJANGO_ALLOWED_HOSTS") if _allowed_hosts_env else (["127.0.0.1", "localhost"] if DEBUG else [])
 
 # CSRF trusted origins (explicit env wins; else derive from ALLOWED_HOSTS)
 _csrf_env = os.getenv("CSRF_TRUSTED_ORIGINS", "").strip()
 if _csrf_env:
-    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_env.split(",") if o.strip()]
+    CSRF_TRUSTED_ORIGINS = _get_csv("CSRF_TRUSTED_ORIGINS")
 else:
     CSRF_TRUSTED_ORIGINS = [f"https://{h}" for h in ALLOWED_HOSTS if h not in ("127.0.0.1", "localhost")] + [
         "https://securepay.sslcommerz.com",
         "https://sandbox.sslcommerz.com",
-        "https://*.sslcommerz.com",
     ]
 
-# Production security toggles (safe defaults; can relax in dev via env)
-SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "true").lower() in ("1", "true", "yes")
-SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "true").lower() in ("1", "true", "yes")
-CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", "true").lower() in ("1", "true", "yes")
-SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000"))
-SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv("SECURE_HSTS_INCLUDE_SUBDOMAINS", "true").lower() in ("1", "true", "yes")
-SECURE_HSTS_PRELOAD = os.getenv("SECURE_HSTS_PRELOAD", "true").lower() in ("1", "true", "yes")
+# Security toggles (relaxed in DEBUG)
+SECURE_SSL_REDIRECT = _get_bool("SECURE_SSL_REDIRECT", "false" if DEBUG else "true")
+SESSION_COOKIE_SECURE = _get_bool("SESSION_COOKIE_SECURE", "false" if DEBUG else "true")
+CSRF_COOKIE_SECURE = _get_bool("CSRF_COOKIE_SECURE", "false" if DEBUG else "true")
+SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "0" if DEBUG else "31536000"))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = _get_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", "false" if DEBUG else "true")
+SECURE_HSTS_PRELOAD = _get_bool("SECURE_HSTS_PRELOAD", "false" if DEBUG else "true")
 SECURE_REFERRER_POLICY = os.getenv("SECURE_REFERRER_POLICY", "strict-origin-when-cross-origin")
 
+# Reverse proxy friendliness (Nginx/Cloudflare)
+USE_X_FORWARDED_HOST = True
+# If you want to force HTTPS detection via proxy header, either set this env:
+#   SECURE_PROXY_SSL_HEADER="HTTP_X_FORWARDED_PROTO,https"
 _proxy_hdr = os.getenv("SECURE_PROXY_SSL_HEADER", "")
 if _proxy_hdr:
     try:
         name, value = [x.strip() for x in _proxy_hdr.split(",", 1)]
         SECURE_PROXY_SSL_HEADER = (name, value)
     except ValueError:
-        pass  # ignore malformed; better to fail open than crash at import
+        pass  # ignore malformed
 
 # ---------------------------------------------------------------------
 # Applications
@@ -92,7 +104,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-# JWT lifetimes configurable via env
 JWT_ACCESS_TTL_MIN = int(os.getenv("JWT_ACCESS_TTL_MIN", "60"))
 JWT_REFRESH_TTL_DAYS = int(os.getenv("JWT_REFRESH_TTL_DAYS", "7"))
 SIMPLE_JWT = {
@@ -134,50 +145,18 @@ TEMPLATES = [
 WSGI_APPLICATION = "smw.wsgi.application"
 
 # ---------------------------------------------------------------------
-# Database
-# Prefer DATABASE_URL; fallback to discrete vars
+# Database (SPLIT VARS ONLY — no DATABASE_URL)
 # ---------------------------------------------------------------------
-DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
-if DATABASE_URL:
-    # Minimal parser to support postgres/mysql/sqlite URLs without dj_database_url
-    parsed = urlparse(DATABASE_URL)
-    if parsed.scheme.startswith("sqlite"):
-        DATABASES = {
-            "default": {
-                "ENGINE": "django.db.backends.sqlite3",
-                "NAME": parsed.path if parsed.path else BASE_DIR / "db.sqlite3",
-            }
-        }
-    else:
-        ENGINE_MAP = {
-            "postgres": "django.db.backends.postgresql",
-            "postgresql": "django.db.backends.postgresql",
-            "pgsql": "django.db.backends.postgresql",
-            "mysql": "django.db.backends.mysql",
-        }
-        ENGINE = ENGINE_MAP.get(parsed.scheme, "django.db.backends.postgresql")
-        DB_NAME = parsed.path.lstrip("/")
-        DATABASES = {
-            "default": {
-                "ENGINE": ENGINE,
-                "NAME": DB_NAME,
-                "USER": parsed.username or "",
-                "PASSWORD": parsed.password or "",
-                "HOST": parsed.hostname or "127.0.0.1",
-                "PORT": str(parsed.port or ""),
-            }
-        }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.getenv("DBNAME", "smw_db"),
-            "USER": os.getenv("DBUSER", "postgres"),
-            "PASSWORD": os.getenv("DBPASSWORD", ""),
-            "HOST": os.getenv("DBHOST", "127.0.0.1"),
-            "PORT": os.getenv("DBPORT", "5432"),
-        }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DBNAME", "smw_db"),
+        "USER": os.getenv("DBUSER", "postgres"),
+        "PASSWORD": os.getenv("DBPASSWORD", ""),
+        "HOST": os.getenv("DBHOST", "127.0.0.1"),
+        "PORT": os.getenv("DBPORT", "5432"),
     }
+}
 
 # ---------------------------------------------------------------------
 # Password validation
@@ -208,10 +187,8 @@ MEDIA_ROOT = BASE_DIR / "media"
 # ---------------------------------------------------------------------
 # CORS
 # ---------------------------------------------------------------------
-_cors = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
-CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors.split(",") if o.strip()] if _cors else []
-_cors_regex = os.getenv("CORS_ALLOWED_ORIGIN_REGEXES", "").strip()
-CORS_ALLOWED_ORIGIN_REGEXES = [r.strip() for r in _cors_regex.split(",") if r.strip()] if _cors_regex else []
+CORS_ALLOWED_ORIGINS = _get_csv("CORS_ALLOWED_ORIGINS")
+CORS_ALLOWED_ORIGIN_REGEXES = _get_csv("CORS_ALLOWED_ORIGIN_REGEXES")
 CORS_ALLOW_CREDENTIALS = True
 
 # ---------------------------------------------------------------------
@@ -224,12 +201,15 @@ CELERY_TIMEZONE = TIME_ZONE
 # ---------------------------------------------------------------------
 # Email (optional)
 # ---------------------------------------------------------------------
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend" if DEBUG else "django.core.mail.backends.smtp.EmailBackend")
+EMAIL_BACKEND = os.getenv(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.console.EmailBackend" if DEBUG else "django.core.mail.backends.smtp.EmailBackend",
+)
 EMAIL_HOST = os.getenv("EMAIL_HOST", "")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "true").lower() in ("1", "true", "yes")
+EMAIL_USE_TLS = _get_bool("EMAIL_USE_TLS", "true")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "webmaster@localhost")
 
 # ---------------------------------------------------------------------
@@ -240,20 +220,25 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ---------------------------------------------------------------------
 # SSLCommerz
 # ---------------------------------------------------------------------
-SSLC_IS_LIVE = os.getenv("SSLC_IS_LIVE", "false").lower() in ("1", "true", "yes")
-SSLC_BASE_URL = "https://securepay.sslcommerz.com" if SSLC_IS_LIVE else "https://sandbox.sslcommerz.com"
+SSLC_IS_LIVE = _get_bool("SSLC_IS_LIVE", "false")
+# Allow manual override of base URL if provided; else choose by SSLC_IS_LIVE
+SSLC_BASE_URL = os.getenv(
+    "SSLC_API_URL",
+    "https://securepay.sslcommerz.com" if SSLC_IS_LIVE else "https://sandbox.sslcommerz.com",
+)
 SSLC_STORE_ID = os.getenv("SSLC_STORE_ID", "")
 SSLC_STORE_PASS = os.getenv("SSLC_STORE_PASS", "")
 
-SITE_BASE_URL = os.getenv("SITE_BASE_URL", "http://127.0.0.1:8000")
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
+# If these accidentally contain commas, pick the first
+SITE_BASE_URL = _pick_first("SITE_BASE_URL", "http://127.0.0.1:8000")
+FRONTEND_URL = _pick_first("FRONTEND_URL", "http://127.0.0.1:3000")
 
 SSLC_SUCCESS_PATH = os.getenv("SSLC_SUCCESS_PATH", "/payments/ssl/success/")
-SSLC_FAIL_PATH    = os.getenv("SSLC_FAIL_PATH", "/payments/ssl/fail/")
-SSLC_CANCEL_PATH  = os.getenv("SSLC_CANCEL_PATH", "/payments/ssl/cancel/")
-SSLC_IPN_PATH     = os.getenv("SSLC_IPN_PATH", "/api/payments/ipn/sslcommerz/")
+SSLC_FAIL_PATH    = os.getenv("SSLC_FAIL_PATH",    "/payments/ssl/fail/")
+SSLC_CANCEL_PATH  = os.getenv("SSLC_CANCEL_PATH",  "/payments/ssl/cancel/")
+SSLC_IPN_PATH     = os.getenv("SSLC_IPN_PATH",     "/api/payments/ipn/sslcommerz/")
 
-# Fully-qualified callback URLs you can pass to create/init txn
+# Fully-qualified callback URLs
 SSLC_SUCCESS_URL = f"{SITE_BASE_URL.rstrip('/')}{SSLC_SUCCESS_PATH}"
 SSLC_FAIL_URL    = f"{SITE_BASE_URL.rstrip('/')}{SSLC_FAIL_PATH}"
 SSLC_CANCEL_URL  = f"{SITE_BASE_URL.rstrip('/')}{SSLC_CANCEL_PATH}"
@@ -275,4 +260,3 @@ LOGGING = {
     },
     "root": {"handlers": ["console"], "level": DJANGO_LOG_LEVEL},
 }
-
