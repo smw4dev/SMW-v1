@@ -25,8 +25,7 @@ const PromotionalBanner = () => {
           href="https://shop.example.com/"
           className="text-sm sm:text-base flex-grow text-center sm:text-left transition-transform duration-500"
         >
-          🎉 বিশেষ ছাড়ে ঘরে বসে র প্রকাশনা কিনুন এখনই! ডাইজেস্ট | প্রশ্নব্যংক |
-          গাইড | অর্ডার করতে ক্লিক করুন
+          🎉 বিশেষ ছাড়ে এখনই কোচিংয়ে ভর্তি হয়ে তোমার প্রস্তুতি শুরু করো!
         </a>
         <button
           onClick={() => setIsOpen(false)}
@@ -41,7 +40,11 @@ const PromotionalBanner = () => {
 };
 
 const HeroSection = () => {
-  const carouselImages = ["/hero_2.png"];
+  const carouselImages = [
+    "https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80",
+  ];
 
   const plugin = useRef(Autoplay({ delay: 3000, stopOnInteraction: true }));
 
@@ -54,11 +57,11 @@ const HeroSection = () => {
             <div className="w-full flex flex-col gap-5">
               <div className="w-full">
                 <h1 className="text-2xl text-center lg:text-left sm:text-6xl lg:text-[3rem] lg:leading-[1.2] sm:pt-0 font-bold mb-4 text-black">
-                  <span>তোমার স্বপ্নগুলো সত্যি হোক</span>
-                  <span className="ml-2 text-brand">আমাদের সাথে</span>
+                  <span>স্বপ্নপূরণের যাত্রা শুরু হোক</span>
+                  <span className="ml-2 text-brand">আমাদের সাথে!</span>
                 </h1>
                 <p className="text-sm text-center lg:text-left sm:text-xl lg:text-2xl text-black mb-2">
-                  রেটاমেডিকেল এন্ড ডেন্টাল এ্যাডমিশন কোচিংয়ে আপনাকে স্বাগতম !
+                  প্রতিটি পদক্ষেপে আত্মবিশ্বাস রাখো, সাফল্য তোমারই হবে।
                 </p>
               </div>
               <div className="grid grid-cols-1 gap-2 text-sm lg:text-lg">
@@ -121,7 +124,7 @@ const HeroSection = () => {
                       <div>
                         <Image
                           src={src}
-                          alt="Podcast host recording"
+                          alt="Students collaborating in class"
                           width={600}
                           height={450}
                           className="rounded-2xl cursor-grab object-cover w-full h-full"

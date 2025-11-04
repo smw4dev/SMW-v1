@@ -8,6 +8,7 @@ const nextConfig = {
   output: "standalone",
   images: {
     domains: [
+      "images.unsplash.com",
       "images.pexels.com",
       "pexels.com",
       "slelguoygbfzlpylpxfs.supabase.co",

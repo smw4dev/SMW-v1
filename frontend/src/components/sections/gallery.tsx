@@ -3,87 +3,90 @@
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
 
-// Source images (grouped as before, but used flat in the grid)
+const unsplash = (id: string) =>
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=80`;
+
+// Curated image sets from Unsplash (royalty-free) to showcase different events
 const galleryData = [
   {
     title: "মেডিকেল টপ ২০",
     images: [
-      "https://example.com/images/topResult/Test-top2.jpg",
-      "https://example.com/images/topResult/Test-top3.jpg",
-      "https://example.com/images/topResult/Test-top4.jpg",
-      "https://example.com/images/topResult/Test-top5.jpg",
+      unsplash("photo-1523580846011-d3a5bc25702b"),
+      unsplash("photo-1519452575417-564c1401ecc0"),
+      unsplash("photo-1522202176988-66273c2fd55f"),
+      unsplash("photo-1516321497487-e288fb19713f"),
     ],
   },
   {
     title: "ডেন্টাল টপ ২০",
     images: [
-      "https://example.com/images/dental/Test-dental1.jpg",
-      "https://example.com/images/dental/Test-dental2.jpg",
-      "https://example.com/images/dental/Test-dental3.jpg",
-      "https://example.com/images/dental/Test-dental4.jpg",
+      unsplash("photo-1517486808906-6ca8b3f04846"),
+      unsplash("photo-1509062522246-3755977927d7"),
+      unsplash("photo-1504439468489-c8920d796a29"),
+      unsplash("photo-1491841550275-ad7854e35ca6"),
     ],
   },
   {
     title: " গ্রান্ড সেলিব্রেশন",
     images: [
-      "https://example.com/images/grandCelebration/Test-grand-1.jpg",
-      "https://example.com/images/grandCelebration/Test-grand-2.jpg",
-      "https://example.com/images/grandCelebration/Test-grand-3.jpg",
-      "https://example.com/images/grandCelebration/Test-grand-4.jpg",
+      unsplash("photo-1427504494785-3a9ca7044f45"),
+      unsplash("photo-1524178232363-1fb2b075b655"),
+      unsplash("photo-1523240795612-9a054b0db644"),
+      unsplash("photo-1532012197267-da84d127e765"),
     ],
   },
   {
     title: " পুরস্কার বিতরণী",
     images: [
-      "https://example.com/images/prize/prize-1.jpg",
-      "https://example.com/images/prize/prize-2.jpg",
-      "https://example.com/images/prize/prize-3.jpg",
-      "https://example.com/images/prize/prize-4.jpg",
+      unsplash("photo-1543269865-cbf427effbad"),
+      unsplash("photo-1544717305-2782549b5136"),
+      unsplash("photo-1571260899304-425eee4c7efc"),
+      unsplash("photo-1527613426441-4da17471b66d"),
     ],
   },
   {
     title: " ডক্টরস হান্ট",
     images: [
-      "https://example.com/images/doctorhunt/doctor-hunt1.jpg",
-      "https://example.com/images/doctorhunt/doctor-hunt2.jpg",
-      "https://example.com/images/doctorhunt/doctor-hunt3.jpg",
-      "https://example.com/images/doctorhunt/doctor-hunt4.jpg",
+      unsplash("photo-1497633762265-9d179a990aa6"),
+      unsplash("photo-1522071820081-009f0129c71c"),
+      unsplash("photo-1516841273335-e39b37888115"),
+      unsplash("photo-1524995997946-a1c2e315a42f"),
     ],
   },
   {
     title: " স্টার",
     images: [
-      "https://example.com/images/Teststar/TestStar1.jpg",
-      "https://example.com/images/Teststar/TestStar2.jpg",
-      "https://example.com/images/Teststar/TestStar3.jpg",
-      "https://example.com/images/Teststar/TestStar4.jpg",
+      unsplash("photo-1503676260728-1c00da094a0b"),
+      unsplash("photo-1516321318423-f06f85e504b3"),
+      unsplash("photo-1549057446-9f5c6ac91a04"),
+      unsplash("photo-1579684385127-1ef15d508118"),
     ],
   },
   {
     title: "বায়োলজি অলিম্পিয়াড",
     images: [
-      "https://example.com/images/biologyOlimpiad/biology1.jpg",
-      "https://example.com/images/biologyOlimpiad/biology2.jpg",
-      "https://example.com/images/biologyOlimpiad/biology3.jpg",
-      "https://example.com/images/biologyOlimpiad/biology4.jpg",
+      unsplash("photo-1516979187457-637abb4f9353"),
+      unsplash("photo-1501504905252-473c47e087f8"),
+      unsplash("photo-1521737604893-d14cc237f11d"),
+      unsplash("photo-1576091160550-2173dba999ef"),
     ],
   },
   {
     title: " রিস্টার্ট সেলিব্রেশন",
     images: [
-      "https://example.com/images/TestRestart/Test-restart1.jpg",
-      "https://example.com/images/TestRestart/Test-restart2.jpg",
-      "https://example.com/images/TestRestart/Test-restart3.jpg",
-      "https://example.com/images/TestRestart/Test-restart4.jpg",
+      unsplash("photo-1481627834876-b7833e8f5570"),
+      unsplash("photo-1488190211105-8b0e65b80b4e"),
+      unsplash("photo-1454165804606-c3d57bc86b40"),
+      unsplash("photo-1513258496099-48168024aec0"),
     ],
   },
   {
     title: " বিদায়ী প্রোগ্রাম",
     images: [
-      "https://example.com/images/endingprogram/ending-program1.jpg",
-      "https://example.com/images/endingprogram/ending-program2.jpg",
-      "https://example.com/images/endingprogram/ending-program3.jpg",
-      "https://example.com/images/endingprogram/ending-program4.jpg",
+      unsplash("photo-1513542789411-b6a5d4f31634"),
+      unsplash("photo-1516534775068-ba3e7458af70"),
+      unsplash("photo-1495968283540-e1df41995ba6"),
+      unsplash("photo-1503676382389-4809596d5290"),
     ],
   },
 ];

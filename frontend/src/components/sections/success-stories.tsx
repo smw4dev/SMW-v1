@@ -14,7 +14,8 @@ type Story = {
 const stories: Story[] = [
   {
     id: 1,
-    image: "https://example.com/images/doctor/2nd.jpg",
+    image:
+      "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=800&q=80",
     name: "Samiha Nazifa Ahasan,",
     excerpt:
       "I am currently pursuing the BSc (Hons) in Computing Systems program at Ulster University in the UK. Thanks to Mentors' Study Abroad for guidance...",
@@ -31,7 +32,8 @@ const stories: Story[] = [
   },
   {
     id: 3,
-    image: "https://example.com/images/doctor/4th.jpg",
+    image:
+      "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80",
     name: "Tasnuva Bashar Tanni (PTE),",
     excerpt:
       "I chose the PTE program to migrate to Australia. I am happy to have scored an 86 overall in PTE. This achievement was only possible because o...",
