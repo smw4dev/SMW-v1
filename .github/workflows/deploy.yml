@@ -2,7 +2,7 @@ name: Deploy SMW (Backend + Frontend)
 
 on:
   push:
-    branches: [ dev, main ]
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -24,7 +24,8 @@ jobs:
             FRONTEND_DIR="${{ secrets.FRONTEND_DIR }}"
             PM2_NAME="${{ secrets.PM2_NAME }}"
             GUNICORN="${{ secrets.GUNICORN_SERVICE }}"
-            PYTHON_BIN="${{ secrets.PYTHON_BIN:-/usr/bin/python3 }}"
+            PYTHON_BIN="${{ secrets.PYTHON_BIN }}"
+            : "${PYTHON_BIN:=/usr/bin/python3}"   # default if secret unset
 
             echo "→ Pull"
             cd "$PROJECT_ROOT"
@@ -34,7 +35,8 @@ jobs:
 
             echo "→ Backend"
             cd "$PROJECT_ROOT/$BACKEND_DIR"
-            $PYTHON_BIN -m venv .venv || true
+            "$PYTHON_BIN" -m venv .venv || true
+            # shellcheck disable=SC1091
             source .venv/bin/activate
             pip install --upgrade pip wheel
             pip install -r requirements.txt
@@ -47,13 +49,19 @@ jobs:
 
             echo "→ Frontend build"
             cd "$PROJECT_ROOT/$FRONTEND_DIR"
-            (command -v npm >/dev/null && npm ci) || npm install
+            if command -v npm >/dev/null 2>&1; then
+              if [ -f package-lock.json ]; then npm ci; else npm install; fi
+            else
+              echo "npm not found" >&2; exit 1
+            fi
             npm run build
 
             echo "→ PM2 (standalone)"
-            pm2 describe "$PM2_NAME" >/dev/null 2>&1 \
-              && pm2 restart "$PM2_NAME" --update-env \
-              || pm2 start "node .next/standalone/server.js" --name "$PM2_NAME" -- --port 3000 --hostname 127.0.0.1
+            if pm2 describe "$PM2_NAME" >/dev/null 2>&1; then
+              pm2 restart "$PM2_NAME" --update-env
+            else
+              pm2 start "node .next/standalone/server.js" --name "$PM2_NAME" -- --port 3000 --hostname 127.0.0.1
+            fi
             pm2 save
 
             echo "✓ Deploy done"
