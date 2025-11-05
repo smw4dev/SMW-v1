@@ -16,7 +16,8 @@ interface Course {
 const courseData: Course[] = [
   {
     id: 1,
-    imageUrl: "https://assets.retinabd.org/directory/777262092678.png",
+    imageUrl:
+      "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
     title: "৬ষ্ঠ শ্রেণি ব্যাচ",
     features: [
       { text: "সাপ্তাহিক ৩টি ক্লাস" },
@@ -30,7 +31,8 @@ const courseData: Course[] = [
   },
   {
     id: 2,
-    imageUrl: "https://assets.retinabd.org/directory/230627062826.png",
+    imageUrl:
+      "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?auto=format&fit=crop&w=1200&q=80",
     title: "৭ম শ্রেণি ব্যাচ",
     features: [
       { text: "সাপ্তাহিক ৩টি ক্লাস" },
@@ -44,7 +46,8 @@ const courseData: Course[] = [
   },
   {
     id: 3,
-    imageUrl: "https://assets.retinabd.org/directory/478798258587.png",
+    imageUrl:
+      "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=1200&q=80",
     title: "৮ম শ্রেণি ব্যাচ",
     features: [
       { text: "সাপ্তাহিক ৩টি ক্লাস" },
@@ -59,7 +62,7 @@ const courseData: Course[] = [
   {
     id: 4,
     imageUrl:
-      "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833-retinabd-org/assets/images/160843126220-12.png?",
+      "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
     title: "৯ম শ্রেণি ব্যাচ",
     features: [
       { text: "সাপ্তাহিক ৪টি ক্লাস" },
@@ -73,7 +76,8 @@ const courseData: Course[] = [
   },
   {
     id: 5,
-    imageUrl: "https://assets.retinabd.org/directory/325899351696.jpeg",
+    imageUrl:
+      "https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=1200&q=80",
     title: "১০ম শ্রেণি ব্যাচ",
     features: [
       { text: "সাপ্তাহিক ৪টি ক্লাস" },
@@ -87,7 +91,8 @@ const courseData: Course[] = [
   },
   {
     id: 6,
-    imageUrl: "https://assets.retinabd.org/directory/777262092678.png",
+    imageUrl:
+      "https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1200&q=80",
     title: "HSC (১১–১২) ব্যাচ",
     features: [
       { text: "টার্গেটেড সিলেবাস কভারেজ" },
@@ -109,7 +114,7 @@ const CourseCard = ({ course }: { course: Course }) => (
           alt="icon"
           width={24}
           height={24}
-          src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833-retinabd-org/assets/images/next-148421-course-icon.png?"
+          src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/d5ba9f8f-2bda-4373-89b4-3653bf841833--org/assets/images/next-148421-course-icon.png?"
         />
       </div>
     </div>

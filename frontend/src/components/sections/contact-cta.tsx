@@ -52,20 +52,20 @@ const ContactCta = () => {
 
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <a
-                href="https://www.facebook.com/RetinaBd"
+                href="https://www.facebook.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-lg bg-[#e9f2ff] px-4 py-2 text-black font-medium hover:bg-[#dbe8ff] transition-colors"
               >
-                <Facebook className="h-5 w-5" /> রেটিনা ফেসবুক পেজ
+                <Facebook className="h-5 w-5" /> ফেসবুক পেজ
               </a>
               <a
-                href="https://www.youtube.com/@RetinaBd"
+                href="https://www.youtube.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-lg bg-[#fde7ee] px-4 py-2 text-black font-medium hover:bg-[#f9d6e3] transition-colors"
               >
-                <Youtube className="h-5 w-5" /> রেটিনা ইউটিউব চ্যানেল
+                <Youtube className="h-5 w-5" /> ইউটিউব চ্যানেল
               </a>
             </div>
           </div>
