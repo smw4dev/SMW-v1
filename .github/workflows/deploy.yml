@@ -1,24 +1,48 @@
-name: Deploy SMW to Droplet
+name: Deploy SMW (main)
 
 on:
   push:
-    branches: [main]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to droplet
+      - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.SERVER_HOST }}           # e.g. 165.232.191.83
-          username: ${{ secrets.SERVER_USER }}       # ishan
-          key: ${{ secrets.SERVER_SSH_KEY }}         # private key matching ~/.ssh/smw_deploy.pub on server
-          port: ${{ secrets.SERVER_SSH_PORT || 22 }}
+          host: ${{ secrets.SERVER_HOST }}       # e.g., 165.232.191.83
+          username: ${{ secrets.SERVER_USER }}   # e.g., ishan
+          key: ${{ secrets.SERVER_SSH_KEY }}     # private key text
+          port: ${{ secrets.SERVER_SSH_PORT }}   # e.g., 22
           script_stop: true
+          timeout: 30m
+          command_timeout: 30m
           script: |
             set -euo pipefail
+
+            ORIGIN_IP="${{ secrets.SERVER_HOST }}"      # assuming this is the server IP
+            FRONT_URL="https://sunnysir.com/"
+            ADMIN_URL="https://sunnysir.com/api/admin/login/"
+            ORIGIN_FRONT_URL="${FRONT_URL}"
+            ORIGIN_ADMIN_URL="${ADMIN_URL}"
+
+            curl_ok() { curl -fsS -H 'Accept: text/html,*/*;q=0.1' -o /dev/null "$@"; }
+
+            retry() {
+              # retry <max_tries> <sleep_seconds> <cmd...>
+              local tries="$1"; shift
+              local sleep_s="$1"; shift
+              local n=1
+              until "$@"; do
+                if [ "$n" -ge "$tries" ]; then return 1; fi
+                echo "retry $n/$tries: sleeping ${sleep_s}s" >&2
+                sleep "$sleep_s"
+                n=$((n+1))
+                sleep_s=$(( sleep_s < 15 ? sleep_s+1 : sleep_s ))
+              done
+            }
 
             echo "→ Pull latest code (main)"
             cd /var/www/html/SMW-v1
@@ -33,17 +57,27 @@ jobs:
             python manage.py collectstatic --noinput
             deactivate
 
-            echo "→ Restart Gunicorn + Nginx"
+            echo "→ Restart Gunicorn + reload Nginx"
             sudo -n systemctl restart gunicorn-smw
             sudo -n systemctl reload nginx
+            sudo -n systemctl is-active --quiet gunicorn-smw
 
-            echo "→ Optional: reload Next.js via PM2 (skip if not needed)"
+            echo "→ Reload Next.js via PM2 (if present)"
             if command -v pm2 >/dev/null 2>&1; then
               pm2 reload smw-frontend || true
+              pm2 list || true
             fi
 
-            echo "→ Health checks"
-            curl -fsS -o /dev/null https://sunnysir.com/ || (echo "frontend failed" && exit 1)
-            curl -fsS -o /dev/null https://sunnysir.com/api/admin/login/ || (echo "admin failed" && exit 1)
+            echo "→ Local health (loopback)"
+            retry 30 2 curl_ok http://127.0.0.1:8001/admin/login/
+            retry 30 2 curl_ok http://127.0.0.1:3000/
 
-            echo "✓ Deploy done"
+            echo "→ Origin health (bypass Cloudflare)"
+            retry 30 2 curl_ok --resolve sunnysir.com:443:${ORIGIN_IP} "${ORIGIN_FRONT_URL}"
+            retry 30 2 curl_ok --resolve sunnysir.com:443:${ORIGIN_IP} "${ORIGIN_ADMIN_URL}"
+
+            echo "→ Edge health (via Cloudflare)"
+            retry 30 2 curl_ok "${FRONT_URL}"
+            retry 30 2 curl_ok "${ADMIN_URL}"
+
+            echo "✓ Deploy complete"
