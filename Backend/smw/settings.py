@@ -33,7 +33,9 @@ DEBUG = _get_bool("DJANGO_DEBUG", "false")
 
 # Allowed hosts
 _allowed_hosts_env = os.getenv("DJANGO_ALLOWED_HOSTS", "").strip()
-ALLOWED_HOSTS = _get_csv("DJANGO_ALLOWED_HOSTS") if _allowed_hosts_env else (["127.0.0.1", "localhost"] if DEBUG else [])
+ALLOWED_HOSTS = _get_csv("DJANGO_ALLOWED_HOSTS") if _allowed_hosts_env else (
+    ["127.0.0.1", "localhost"] if DEBUG else []
+)
 
 # CSRF trusted origins (explicit env wins; else derive from ALLOWED_HOSTS)
 _csrf_env = os.getenv("CSRF_TRUSTED_ORIGINS", "").strip()
@@ -56,26 +58,12 @@ SECURE_REFERRER_POLICY = os.getenv("SECURE_REFERRER_POLICY", "strict-origin-when
 
 # Reverse proxy friendliness (Nginx/Cloudflare)
 USE_X_FORWARDED_HOST = True
-# If you want to force HTTPS detection via proxy header, either set this env:
-#   SECURE_PROXY_SSL_HEADER="HTTP_X_FORWARDED_PROTO,https"
-_proxy_hdr = os.getenv("SECURE_PROXY_SSL_HEADER", "")
-if _proxy_hdr:
-    try:
-        name, value = [x.strip() for x in _proxy_hdr.split(",", 1)]
-        SECURE_PROXY_SSL_HEADER = (name, value)
-    except ValueError:
-        pass  # ignore malformed
-
-# Reverse proxy friendliness (Nginx/Cloudflare)
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-# App is mounted under a subpath via Nginx
-FORCE_SCRIPT_NAME = "/smw/api"
 
 # ---------------------------------------------------------------------
 # Applications
 # ---------------------------------------------------------------------
-
 INSTALLED_APPS = [
     # Django
     "django.contrib.admin",
@@ -152,7 +140,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "smw.wsgi.application"
 
 # ---------------------------------------------------------------------
-# Database (SPLIT VARS ONLY — no DATABASE_URL)
+# Database (split vars only — no DATABASE_URL)
 # ---------------------------------------------------------------------
 DATABASES = {
     "default": {
@@ -184,10 +172,10 @@ USE_I18N = True
 USE_TZ = True
 
 # ---------------------------------------------------------------------
-# Static / Media
+# Static / Media  (edge paths are /api/static/ and /api/media/)
 # ---------------------------------------------------------------------
-STATIC_URL = os.getenv("DJANGO_STATIC_URL", "/smw/api/static/")
-MEDIA_URL = os.getenv("DJANGO_MEDIA_URL", "/smw/api/media/")
+STATIC_URL = os.getenv("DJANGO_STATIC_URL", "/api/static/")
+MEDIA_URL = os.getenv("DJANGO_MEDIA_URL", "/api/media/")
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
 
@@ -228,7 +216,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # SSLCommerz
 # ---------------------------------------------------------------------
 SSLC_IS_LIVE = _get_bool("SSLC_IS_LIVE", "false")
-# Allow manual override of base URL if provided; else choose by SSLC_IS_LIVE
 SSLC_BASE_URL = os.getenv(
     "SSLC_API_URL",
     "https://securepay.sslcommerz.com" if SSLC_IS_LIVE else "https://sandbox.sslcommerz.com",
@@ -236,7 +223,6 @@ SSLC_BASE_URL = os.getenv(
 SSLC_STORE_ID = os.getenv("SSLC_STORE_ID", "")
 SSLC_STORE_PASS = os.getenv("SSLC_STORE_PASS", "")
 
-# If these accidentally contain commas, pick the first
 SITE_BASE_URL = _pick_first("SITE_BASE_URL", "http://127.0.0.1:8000")
 FRONTEND_URL = _pick_first("FRONTEND_URL", "http://127.0.0.1:3000")
 
@@ -250,6 +236,12 @@ SSLC_SUCCESS_URL = f"{SITE_BASE_URL.rstrip('/')}{SSLC_SUCCESS_PATH}"
 SSLC_FAIL_URL    = f"{SITE_BASE_URL.rstrip('/')}{SSLC_FAIL_PATH}"
 SSLC_CANCEL_URL  = f"{SITE_BASE_URL.rstrip('/')}{SSLC_CANCEL_PATH}"
 SSLC_IPN_URL     = f"{SITE_BASE_URL.rstrip('/')}{SSLC_IPN_PATH}"
+
+# ---------------------------------------------------------------------
+# Auth UX
+# ---------------------------------------------------------------------
+# Keep Django admin login at /admin/login/ (will appear at /api/admin/login/ via Nginx)
+LOGIN_URL = "/admin/login/"
 
 # ---------------------------------------------------------------------
 # Logging
