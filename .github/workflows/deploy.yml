@@ -1,59 +1,58 @@
-name: Deploy SMW (Backend + Frontend)
+name: Deploy SMW to Droplet
 
 on:
   push:
-    branches: [ dev, main ]
+    branches: [ "main" ]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-smw
+  cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
       - name: Deploy over SSH
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT || 22 }}
           script: |
             set -euo pipefail
 
-            PROJECT_ROOT="${{ secrets.PROJECT_ROOT }}"
-            BACKEND_DIR="${{ secrets.BACKEND_DIR }}"
-            FRONTEND_DIR="${{ secrets.FRONTEND_DIR }}"
-            PM2_NAME="${{ secrets.PM2_NAME }}"
-            GUNICORN="${{ secrets.GUNICORN_SERVICE }}"
-            PYTHON_BIN="${{ secrets.PYTHON_BIN:-/usr/bin/python3 }}"
+            echo "→ Pull latest code (main)"
+            cd /var/www/html/SMW-v1
+            git fetch origin main
+            git reset --hard origin/main
 
-            echo "→ Pull"
-            cd "$PROJECT_ROOT"
-            BRANCH="${GITHUB_REF_NAME:-${{ github.ref_name }}}"
-            git fetch --all --prune
-            git reset --hard "origin/${BRANCH}"
-
-            echo "→ Backend"
-            cd "$PROJECT_ROOT/$BACKEND_DIR"
-            $PYTHON_BIN -m venv .venv || true
-            source .venv/bin/activate
-            pip install --upgrade pip wheel
+            echo "→ Backend: deps/migrate/static"
+            cd Backend
+            python3 -m venv .venv || true
+            . .venv/bin/activate
+            pip install -U pip wheel
             pip install -r requirements.txt
             python manage.py migrate --noinput
             python manage.py collectstatic --noinput
+            deactivate
 
-            echo "→ Gunicorn restart"
-            systemctl restart "$GUNICORN"
-            systemctl is-active --quiet "$GUNICORN" || (journalctl -u "$GUNICORN" -n 120 --no-pager; exit 1)
+            echo "→ Restart Gunicorn"
+            sudo systemctl restart gunicorn-smw
 
-            echo "→ Frontend build"
-            cd "$PROJECT_ROOT/$FRONTEND_DIR"
-            (command -v npm >/dev/null && npm ci) || npm install
+            echo "→ Frontend: build & restart PM2"
+            cd ../frontend
+            npm ci
             npm run build
-
-            echo "→ PM2 (standalone)"
-            pm2 describe "$PM2_NAME" >/dev/null 2>&1 \
-              && pm2 restart "$PM2_NAME" --update-env \
-              || pm2 start "node .next/standalone/server.js" --name "$PM2_NAME" -- --port 3000 --hostname 127.0.0.1
+            if pm2 describe smw-frontend >/dev/null 2>&1; then
+              pm2 restart smw-frontend
+            else
+              pm2 start "npm start" --name smw-frontend
+            fi
             pm2 save
 
-            echo "✓ Deploy done"
+            echo "→ Nginx sanity"
+            sudo nginx -t && sudo systemctl reload nginx || true
+
+            echo "✅ Deploy finished"
