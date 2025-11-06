@@ -12,26 +12,22 @@ jobs:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.SERVER_HOST }}       # e.g., 165.232.191.83
-          username: ${{ secrets.SERVER_USER }}   # e.g., ishan
-          key: ${{ secrets.SERVER_SSH_KEY }}     # private key text
-          port: ${{ secrets.SERVER_SSH_PORT }}   # e.g., 22
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT }}
           script_stop: true
           timeout: 30m
           command_timeout: 30m
           script: |
             set -euo pipefail
 
-            ORIGIN_IP="${{ secrets.SERVER_HOST }}"      # assuming this is the server IP
+            ORIGIN_IP="${{ secrets.SERVER_HOST }}"
             FRONT_URL="https://sunnysir.com/"
             ADMIN_URL="https://sunnysir.com/api/admin/login/"
-            ORIGIN_FRONT_URL="${FRONT_URL}"
-            ORIGIN_ADMIN_URL="${ADMIN_URL}"
 
             curl_ok() { curl -fsS -H 'Accept: text/html,*/*;q=0.1' -o /dev/null "$@"; }
-
             retry() {
-              # retry <max_tries> <sleep_seconds> <cmd...>
               local tries="$1"; shift
               local sleep_s="$1"; shift
               local n=1
@@ -46,6 +42,8 @@ jobs:
 
             echo "→ Pull latest code (main)"
             cd /var/www/html/SMW-v1
+            # make sure git is happy with this working dir under sudo/ssh
+            git config --global --add safe.directory /var/www/html/SMW-v1
             git fetch origin main
             git reset --hard origin/main
 
@@ -73,11 +71,42 @@ jobs:
             retry 30 2 curl_ok http://127.0.0.1:3000/
 
             echo "→ Origin health (bypass Cloudflare)"
-            retry 30 2 curl_ok --resolve sunnysir.com:443:${ORIGIN_IP} "${ORIGIN_FRONT_URL}"
-            retry 30 2 curl_ok --resolve sunnysir.com:443:${ORIGIN_IP} "${ORIGIN_ADMIN_URL}"
+            retry 30 2 curl_ok --resolve sunnysir.com:443:${ORIGIN_IP} "${FRONT_URL}"
+            retry 30 2 curl_ok --resolve sunnysir.com:443:${ORIGIN_IP} "${ADMIN_URL}"
 
             echo "→ Edge health (via Cloudflare)"
             retry 30 2 curl_ok "${FRONT_URL}"
             retry 30 2 curl_ok "${ADMIN_URL}"
 
             echo "✓ Deploy complete"
+
+      - name: Purge Cloudflare cache (everything)
+        if: success()
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CF_API_TOKEN:-}" ] || [ -z "${CF_ZONE_ID:-}" ]; then
+            echo "Cloudflare secrets not set; skipping purge."
+            exit 0
+          fi
+          echo "→ Purging Cloudflare cache for zone ${CF_ZONE_ID}…"
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${CF_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+            --data '{"purge_everything": true}'
+          echo "✓ Cloudflare cache purged."
+
+      - name: (Optional) Warm key pages
+        if: success()
+        run: |
+          set -euo pipefail
+          for url in \
+            "https://sunnysir.com/" \
+            "https://sunnysir.com/api/admin/login/"; do
+            echo "→ warming $url"
+            curl -fsS -o /dev/null "$url"
+          done
+          echo "✓ Warmed"
