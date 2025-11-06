@@ -2,24 +2,21 @@ name: Deploy SMW to Droplet
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   workflow_dispatch:
-
-concurrency:
-  group: deploy-smw
-  cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy over SSH
+      - name: Deploy to droplet
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          host: ${{ secrets.SERVER_HOST }}           # e.g. 165.232.191.83
+          username: ${{ secrets.SERVER_USER }}       # ishan
+          key: ${{ secrets.SERVER_SSH_KEY }}         # private key matching ~/.ssh/smw_deploy.pub on server
           port: ${{ secrets.SERVER_SSH_PORT || 22 }}
+          script_stop: true
           script: |
             set -euo pipefail
 
@@ -30,29 +27,23 @@ jobs:
 
             echo "→ Backend: deps/migrate/static"
             cd Backend
-            python3 -m venv .venv || true
             . .venv/bin/activate
-            pip install -U pip wheel
             pip install -r requirements.txt
             python manage.py migrate --noinput
             python manage.py collectstatic --noinput
             deactivate
 
-            echo "→ Restart Gunicorn"
-            sudo systemctl restart gunicorn-smw
+            echo "→ Restart Gunicorn + Nginx"
+            sudo -n systemctl restart gunicorn-smw
+            sudo -n systemctl reload nginx
 
-            echo "→ Frontend: build & restart PM2"
-            cd ../frontend
-            npm ci
-            npm run build
-            if pm2 describe smw-frontend >/dev/null 2>&1; then
-              pm2 restart smw-frontend
-            else
-              pm2 start "npm start" --name smw-frontend
+            echo "→ Optional: reload Next.js via PM2 (skip if not needed)"
+            if command -v pm2 >/dev/null 2>&1; then
+              pm2 reload smw-frontend || true
             fi
-            pm2 save
 
-            echo "→ Nginx sanity"
-            sudo nginx -t && sudo systemctl reload nginx || true
+            echo "→ Health checks"
+            curl -fsS -o /dev/null https://sunnysir.com/ || (echo "frontend failed" && exit 1)
+            curl -fsS -o /dev/null https://sunnysir.com/api/admin/login/ || (echo "admin failed" && exit 1)
 
-            echo "✅ Deploy finished"
+            echo "✓ Deploy done"
