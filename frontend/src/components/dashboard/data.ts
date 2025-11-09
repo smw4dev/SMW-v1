@@ -352,6 +352,153 @@ export const usersTable = [
   },
 ]
 
+export type PaymentRecord = {
+  id: number
+  invoice: string
+  studentId: string
+  studentName: string
+  studentEmail: string
+  avatar: string
+  amount: number
+  date: string
+  status: string
+  method: string
+  reference: string
+}
+
+export const paymentsTable: PaymentRecord[] = [
+  {
+    id: 101,
+    invoice: "INV-2024-001",
+    studentId: "ST-2001",
+    studentName: "Arif Hossain",
+    studentEmail: "arif.hossain@example.com",
+    avatar: "https://i.pravatar.cc/150?u=pay_user_1",
+    amount: 1450,
+    date: "2024-11-05",
+    status: "paid",
+    method: "bKash",
+    reference: "TXN-34981",
+  },
+  {
+    id: 102,
+    invoice: "INV-2024-002",
+    studentId: "ST-2004",
+    studentName: "Nafisa Rahman",
+    studentEmail: "nafisa.rahman@example.com",
+    avatar: "https://i.pravatar.cc/150?u=pay_user_2",
+    amount: 1325,
+    date: "2024-11-04",
+    status: "paid",
+    method: "Nagad",
+    reference: "TXN-34975",
+  },
+  {
+    id: 103,
+    invoice: "INV-2024-003",
+    studentId: "ST-2012",
+    studentName: "Ishan Ahmed",
+    studentEmail: "ishan.ahmed@example.com",
+    avatar: "https://i.pravatar.cc/150?u=pay_user_3",
+    amount: 980,
+    date: "2024-11-03",
+    status: "pending",
+    method: "Bank Transfer",
+    reference: "TXN-34960",
+  },
+  {
+    id: 104,
+    invoice: "INV-2024-004",
+    studentId: "ST-1998",
+    studentName: "Tasnim Haque",
+    studentEmail: "tasnim.haque@example.com",
+    avatar: "https://i.pravatar.cc/150?u=pay_user_4",
+    amount: 1580,
+    date: "2024-11-01",
+    status: "overdue",
+    method: "Card",
+    reference: "TXN-34925",
+  },
+  {
+    id: 105,
+    invoice: "INV-2024-005",
+    studentId: "ST-1985",
+    studentName: "Mahmud Hasan",
+    studentEmail: "mahmud.hasan@example.com",
+    avatar: "https://i.pravatar.cc/150?u=pay_user_5",
+    amount: 1200,
+    date: "2024-10-28",
+    status: "paid",
+    method: "Rocket",
+    reference: "TXN-34888",
+  },
+  {
+    id: 106,
+    invoice: "INV-2024-006",
+    studentId: "ST-1992",
+    studentName: "Sadia Karim",
+    studentEmail: "sadia.karim@example.com",
+    avatar: "https://i.pravatar.cc/150?u=pay_user_6",
+    amount: 1325,
+    date: "2024-10-27",
+    status: "pending",
+    method: "Card",
+    reference: "TXN-34874",
+  },
+  {
+    id: 107,
+    invoice: "INV-2024-007",
+    studentId: "ST-2018",
+    studentName: "Rehan Chowdhury",
+    studentEmail: "rehan.chowdhury@example.com",
+    avatar: "https://i.pravatar.cc/150?u=pay_user_7",
+    amount: 990,
+    date: "2024-10-25",
+    status: "paid",
+    method: "Nagad",
+    reference: "TXN-34830",
+  },
+  {
+    id: 108,
+    invoice: "INV-2024-008",
+    studentId: "ST-2020",
+    studentName: "Maira Jahan",
+    studentEmail: "maira.jahan@example.com",
+    avatar: "https://i.pravatar.cc/150?u=pay_user_8",
+    amount: 1100,
+    date: "2024-10-23",
+    status: "overdue",
+    method: "bKash",
+    reference: "TXN-34792",
+  },
+  {
+    id: 109,
+    invoice: "INV-2024-009",
+    studentId: "ST-2008",
+    studentName: "Faiaz Rahim",
+    studentEmail: "faiaz.rahim@example.com",
+    avatar: "https://i.pravatar.cc/150?u=pay_user_9",
+    amount: 1420,
+    date: "2024-10-20",
+    status: "paid",
+    method: "Bank Transfer",
+    reference: "TXN-34740",
+  },
+  {
+    id: 110,
+    invoice: "INV-2024-010",
+    studentId: "ST-1979",
+    studentName: "Nadim Khan",
+    studentEmail: "nadim.khan@example.com",
+    avatar: "https://i.pravatar.cc/150?u=pay_user_10",
+    amount: 1250,
+    date: "2024-10-18",
+    status: "failed",
+    method: "Card",
+    reference: "TXN-34712",
+  },
+]
+
 export const chartData = [
   { year: "1991", series1: 31, series2: 11 },
   { year: "1992", series1: 40, series2: 32 },

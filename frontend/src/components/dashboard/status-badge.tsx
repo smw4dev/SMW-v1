@@ -11,6 +11,14 @@ const STATUS_STYLES: Record<string, string> = {
     'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
   vacation:
     'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  paid:
+    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+  pending:
+    'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  overdue:
+    'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+  failed:
+    'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
 }
 
 type StatusBadgeProps = {
