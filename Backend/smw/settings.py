@@ -1,8 +1,3 @@
-"""
-Django settings for smw project (PostgreSQL, DRF, JWT, CORS, optional Celery).
-12-factor: prefer env for everything; sensible fallbacks for dev.
-"""
-
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -83,6 +78,7 @@ INSTALLED_APPS = [
     "admissions",
     "courses_app",
     "financials",
+    "payments",
 ]
 
 AUTH_USER_MODEL = "authentication.User"
@@ -97,6 +93,12 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.AllowAny",
     ),
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "20/min",   # tune as needed
+    },
 }
 
 JWT_ACCESS_TTL_MIN = int(os.getenv("JWT_ACCESS_TTL_MIN", "60"))
@@ -216,6 +218,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # SSLCommerz
 # ---------------------------------------------------------------------
 SSLC_IS_LIVE = _get_bool("SSLC_IS_LIVE", "false")
+SSLC_API_URL     = os.getenv("SSLC_API_URL", "https://sandbox.sslcommerz.com")
+
 SSLC_BASE_URL = os.getenv(
     "SSLC_API_URL",
     "https://securepay.sslcommerz.com" if SSLC_IS_LIVE else "https://sandbox.sslcommerz.com",
@@ -224,6 +228,8 @@ SSLC_STORE_ID = os.getenv("SSLC_STORE_ID", "")
 SSLC_STORE_PASS = os.getenv("SSLC_STORE_PASS", "")
 
 SITE_BASE_URL = _pick_first("SITE_BASE_URL", "http://127.0.0.1:8000")
+API_BASE_URL  = os.getenv("API_BASE_URL",  SITE_BASE_URL + "/api")
+
 FRONTEND_URL = _pick_first("FRONTEND_URL", "http://127.0.0.1:3000")
 
 SSLC_SUCCESS_PATH = os.getenv("SSLC_SUCCESS_PATH", "/payments/ssl/success/")

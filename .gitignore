@@ -9,14 +9,12 @@ build/
 .eggs/
 *.manifest
 *.spec
-<<<<<<< HEAD
 *__init__.pyc
 *.pyo
 *.pyd
 *.log
 *__init__.py
 *_initial.py
-=======
 __init__.py
 *_initial.py
 *.log
@@ -25,7 +23,6 @@ __init__.py
 *.pyo
 *.pyd
 
->>>>>>> 9030f7b5cc8d5d08c447ebc9421745466711e5d6
 # Virtual environments
 venv/
 ENV/
