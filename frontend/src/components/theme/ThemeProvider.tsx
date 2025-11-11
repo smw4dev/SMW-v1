@@ -49,16 +49,30 @@ function getSystemMode(): ThemeMode {
 
 const STORAGE_MODE_KEY = "theme-mode";
 const STORAGE_PALETTE_KEY = "theme-palette";
+const DEFAULT_MODE: ThemeMode = "light";
+const DEFAULT_PALETTE: ThemePalette = "emerald";
+
+function readStoredMode(): ThemeMode {
+  if (typeof window === "undefined") return DEFAULT_MODE;
+  const stored = localStorage.getItem(STORAGE_MODE_KEY);
+  return stored === "dark" ? "dark" : DEFAULT_MODE;
+}
+
+function readStoredPalette(): ThemePalette {
+  if (typeof window === "undefined") return DEFAULT_PALETTE;
+  const stored = localStorage.getItem(STORAGE_PALETTE_KEY) as ThemePalette | null;
+  return stored ?? DEFAULT_PALETTE;
+}
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [mode, setModeState] = useState<ThemeMode>("light");
-  const [palette, setPaletteState] = useState<ThemePalette>("emerald");
+  const [mode, setModeState] = useState<ThemeMode>(() => readStoredMode());
+  const [palette, setPaletteState] = useState<ThemePalette>(() => readStoredPalette());
 
   // Initialize from storage or system
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const storedMode = (localStorage.getItem(STORAGE_MODE_KEY) as ThemeMode | null) ?? "light";
-    const storedPalette = (localStorage.getItem(STORAGE_PALETTE_KEY) as ThemePalette | null) ?? "emerald";
+    const storedMode = readStoredMode();
+    const storedPalette = readStoredPalette();
     setModeState(storedMode);
     setPaletteState(storedPalette);
   }, []);
@@ -72,6 +86,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // palette via data attribute (affects brand tokens)
     root.setAttribute("data-theme", palette);
   }, [mode, palette]);
+
+  // Reset document theme when dashboard layout (provider) unmounts
+  useEffect(() => {
+    return () => {
+      if (typeof document === "undefined") return;
+      const root = document.documentElement;
+      root.classList.remove("dark");
+      root.setAttribute("data-theme", DEFAULT_PALETTE);
+    };
+  }, []);
 
   const setMode = useCallback((next: ThemeMode) => {
     setModeState(next);

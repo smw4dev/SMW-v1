@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { usePathname } from 'next/navigation'
 
+import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import { DashboardNavbar } from './dashboard-navbar'
 import { DashboardOverview } from './dashboard-overview'
 import { DashboardSidebar } from './dashboard-sidebar'
@@ -42,26 +43,28 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [])
 
   return (
-    <div className="bg-muted/10 text-foreground relative flex min-h-screen w-full">
-      <DashboardSidebar
-        open={sidebarOpen}
-        onClose={handleSidebarClose}
-        pathname={pathname}
-      />
-      <div className="relative flex min-h-screen flex-1 flex-col">
-        <DashboardNavbar onToggleSidebar={handleToggleSidebar} />
-        <main className="bg-background flex-1 overflow-y-auto px-4 py-6 md:px-8 lg:px-12">
-          {children ?? <DashboardOverview />}
-        </main>
-      </div>
-      {sidebarOpen ? (
-        <button
-          aria-label="Close sidebar overlay"
-          onClick={handleSidebarClose}
-          className="bg-slate-900/60 fixed inset-0 z-40 md:hidden"
-          type="button"
+    <ThemeProvider>
+      <div className="bg-muted/10 text-foreground relative flex min-h-screen w-full">
+        <DashboardSidebar
+          open={sidebarOpen}
+          onClose={handleSidebarClose}
+          pathname={pathname}
         />
-      ) : null}
-    </div>
+        <div className="relative flex min-h-screen flex-1 flex-col">
+          <DashboardNavbar onToggleSidebar={handleToggleSidebar} />
+          <main className="bg-background flex-1 overflow-y-auto px-4 py-6 md:px-8 lg:px-12">
+            {children ?? <DashboardOverview />}
+          </main>
+        </div>
+        {sidebarOpen ? (
+          <button
+            aria-label="Close sidebar overlay"
+            onClick={handleSidebarClose}
+            className="bg-slate-900/60 fixed inset-0 z-40 md:hidden"
+            type="button"
+          />
+        ) : null}
+      </div>
+    </ThemeProvider>
   )
 }

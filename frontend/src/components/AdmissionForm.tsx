@@ -70,6 +70,7 @@ const formSchema = z
     sscSchool: z.string().optional().or(z.literal("")),
     sscGrade: z.string().optional().or(z.literal("")),
     classLevel: z.string().min(1, "Please select class"),
+    group: z.string().optional().or(z.literal("")),
     subject: z.string().min(1, "Please select subject"),
     batchTiming: z.string().optional().or(z.literal("")),
     hearAboutUs: z.string().optional().or(z.literal("")),
@@ -94,6 +95,15 @@ const formSchema = z
           code: z.ZodIssueCode.custom,
           path: ["sscGrade"],
           message: "Grade is required if school is provided",
+        });
+      }
+    }
+    if (values.classLevel !== "class-8") {
+      if (!values.group || values.group.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["group"],
+          message: "Please select group",
         });
       }
     }
@@ -151,7 +161,7 @@ const sections = [
     id: "batch",
     title: "Batch Selection",
     icon: Clock,
-    fields: ["classLevel", "subject", "batchTiming", "agreeTerms"],
+    fields: ["classLevel", "group", "subject", "batchTiming", "agreeTerms"],
   },
 ];
 
@@ -219,6 +229,7 @@ export default function AdmissionForm() {
       sscSchool: "",
       sscGrade: "",
       classLevel: "",
+      group: "",
       subject: "",
       batchTiming: "",
       hearAboutUs: "",
@@ -233,21 +244,31 @@ export default function AdmissionForm() {
   const fatherPhone = form.watch("fatherPhone");
   const motherPhone = form.watch("motherPhone");
   const selectedClass = form.watch("classLevel");
+  const isClassEight = selectedClass === "class-8";
   const isGuardianAutoFill =
     guardianRelation === "father" || guardianRelation === "mother";
 
   const subjectOptions: Record<string, { value: string; label: string }[]> = {
     "class-8": [
-      { value: "math", label: "Math" },
+      { value: "mathematics", label: "Mathematics" },
       { value: "science", label: "Science" },
+      { value: "math-science", label: "Mathematics & Science" },
     ],
     "class-9": [
-      { value: "general-math", label: "General Math" },
-      { value: "higher-math", label: "Higher Math" },
+      { value: "mathematics", label: "Mathematics" },
+      { value: "higher-mathematics", label: "Higher Mathematics" },
+      {
+        value: "math-higher-mathematic",
+        label: "Mathematics & Higher Mathematic",
+      },
     ],
     "class-10": [
-      { value: "general-math", label: "General Math" },
-      { value: "higher-math", label: "Higher Math" },
+      { value: "mathematics", label: "Mathematics" },
+      { value: "higher-mathematics", label: "Higher Mathematics" },
+      {
+        value: "math-higher-mathematic",
+        label: "Mathematics & Higher Mathematic",
+      },
     ],
     "class-11": [
       { value: "math-1st", label: "Math 1st Paper" },
@@ -258,6 +279,12 @@ export default function AdmissionForm() {
       { value: "math-2nd", label: "Math 2nd Paper" },
     ],
   };
+
+  const groupOptions = [
+    { value: "science", label: "Science" },
+    { value: "commerce", label: "Commerce" },
+    { value: "humanities", label: "Humanities" },
+  ];
 
   const batchOptions: Record<string, { value: string; label: string }[]> = {
     "class-8": [
@@ -313,6 +340,10 @@ export default function AdmissionForm() {
 
   useEffect(() => {
     // Reset dependent fields when class changes, without triggering early validation
+    form.setValue("group", "", {
+      shouldValidate: false,
+      shouldDirty: false,
+    });
     form.setValue("subject", "", {
       shouldValidate: false,
       shouldDirty: false,
@@ -329,6 +360,9 @@ export default function AdmissionForm() {
         field === "batchTiming" &&
         (batchOptions[selectedClass as string]?.length ?? 0) === 0
       ) {
+        return true;
+      }
+      if (field === "group" && selectedClass === "class-8") {
         return true;
       }
       const value = watchedFields[field as keyof FormData];
@@ -1183,6 +1217,45 @@ export default function AdmissionForm() {
 
                       <FormField
                         control={form.control}
+                        name="group"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-slate-800">
+                              Group {isClassEight ? "(Not required)" : "*"}
+                            </FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                              disabled={!selectedClass || isClassEight}
+                            >
+                              <FormControl>
+                                <SelectTrigger className={selectTriggerClasses}>
+                                  <SelectValue
+                                    placeholder={
+                                      !selectedClass
+                                        ? "Select class first"
+                                        : isClassEight
+                                          ? "Not applicable for Class 8"
+                                          : "Select group"
+                                    }
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {groupOptions.map((opt) => (
+                                  <SelectItem key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
                         name="subject"
                         render={({ field }) => (
                           <FormItem>
@@ -1218,7 +1291,7 @@ export default function AdmissionForm() {
                         control={form.control}
                         name="batchTiming"
                         render={({ field }) => (
-                          <FormItem className="md:col-span-2">
+                          <FormItem>
                             <FormLabel className="text-slate-800">
                               Batch Timing
                             </FormLabel>

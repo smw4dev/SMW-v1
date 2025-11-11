@@ -11,6 +11,7 @@ const nextConfig = {
       "images.unsplash.com",
       "images.pexels.com",
       "pexels.com",
+      "i.pravatar.cc",
       "slelguoygbfzlpylpxfs.supabase.co",
       "assets.example.com",
       "assets..site",

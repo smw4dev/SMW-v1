@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from 'react'
 import {
   Download,
   Home,
@@ -10,6 +11,7 @@ import {
   Eye,
   Pencil,
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 import { ActionIconButton } from './action-icon-button'
 import { AddUserDialog } from './add-user-dialog'
@@ -20,79 +22,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 
 type Student = (typeof usersTable)[number]
-
-const studentColumns: DashboardTableColumn<Student>[] = [
-  {
-    id: 'name',
-    header: 'Name',
-    render: (user) => (
-      <div className="flex items-center gap-3">
-        <Avatar className="h-10 w-10 ring-2 ring-background">
-          <AvatarImage src={user.avatar} alt={user.name} />
-          <AvatarFallback>{initials(user.name)}</AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col">
-          <span className="text-base font-semibold">{user.name}</span>
-          <a
-            href={`mailto:${user.email}`}
-            className="text-muted-foreground text-xs underline-offset-2 hover:underline"
-          >
-            {user.email}
-          </a>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'studentId',
-    header: 'Student ID',
-    render: (user) => <span className="text-sm font-medium">{user.id}</span>,
-  },
-  {
-    id: 'contact',
-    header: 'Contact No',
-    render: (user) => <span className="text-sm font-medium">{user.contactNo ?? '-'}</span>,
-  },
-  {
-    id: 'class',
-    header: 'Class',
-    render: (user) => <span className="text-sm font-medium">{user.studentClass ?? '-'}</span>,
-  },
-  {
-    id: 'batch',
-    header: 'Batch',
-    render: (user) => <span className="text-sm font-medium">{user.batch ?? '-'}</span>,
-  },
-  {
-    id: 'status',
-    header: 'Status',
-    render: (user) => <StatusBadge status={user.status} />,
-  },
-  {
-    id: 'actions',
-    header: 'Actions',
-    align: 'right',
-    headerClassName: 'text-right',
-    cellClassName: 'text-right',
-    render: (user) => (
-      <div className="flex items-center justify-end gap-2">
-        <ActionIconButton variant="ghost" aria-label={`View student ${user.name}`}>
-          <Eye className="h-4 w-4" />
-        </ActionIconButton>
-        <ActionIconButton variant="ghost" aria-label={`Edit student ${user.name}`}>
-          <Pencil className="h-4 w-4" />
-        </ActionIconButton>
-        <ActionIconButton
-          variant="destructive"
-          aria-label={`Delete student ${user.name}`}
-          className="border-pink-500/50 text-pink-500 dark:text-pink-400"
-        >
-          <Trash2 className="h-4 w-4" />
-        </ActionIconButton>
-      </div>
-    ),
-  },
-]
 
 export function StudentsPage() {
   return (
@@ -183,15 +112,100 @@ function Toolbar() {
 }
 
 function StudentsTable() {
+  const router = useRouter()
+  const columns = React.useMemo(
+    () => createStudentColumns((student) => router.push(`/dashboard/students/${student.id}`)),
+    [router],
+  )
+
   return (
     <DashboardDataTable
       data={usersTable}
-      columns={studentColumns}
+      columns={columns}
       selectable
       selectionLabel="students"
       getRowLabel={(student) => student.name}
     />
   )
+}
+
+function createStudentColumns(onView: (student: Student) => void): DashboardTableColumn<Student>[] {
+  return [
+    {
+      id: 'name',
+      header: 'Name',
+      render: (user) => (
+        <div className="flex items-center gap-3">
+          <Avatar className="h-10 w-10 ring-2 ring-background">
+            <AvatarImage src={user.avatar} alt={user.name} />
+            <AvatarFallback>{initials(user.name)}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <span className="text-base font-semibold">{user.name}</span>
+            <a
+              href={`mailto:${user.email}`}
+              className="text-muted-foreground text-xs underline-offset-2 hover:underline"
+            >
+              {user.email}
+            </a>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'studentId',
+      header: 'Student ID',
+      render: (user) => <span className="text-sm font-medium">{user.id}</span>,
+    },
+    {
+      id: 'contact',
+      header: 'Contact No',
+      render: (user) => <span className="text-sm font-medium">{user.contactNo ?? '-'}</span>,
+    },
+    {
+      id: 'class',
+      header: 'Class',
+      render: (user) => <span className="text-sm font-medium">{user.studentClass ?? '-'}</span>,
+    },
+    {
+      id: 'batch',
+      header: 'Batch',
+      render: (user) => <span className="text-sm font-medium">{user.batch ?? '-'}</span>,
+    },
+    {
+      id: 'status',
+      header: 'Status',
+      render: (user) => <StatusBadge status={user.status} />,
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      align: 'right',
+      headerClassName: 'text-right',
+      cellClassName: 'text-right',
+      render: (user) => (
+        <div className="flex items-center justify-end gap-2">
+          <ActionIconButton
+            variant="ghost"
+            aria-label={`View student ${user.name}`}
+            onClick={() => onView(user)}
+          >
+            <Eye className="h-4 w-4" />
+          </ActionIconButton>
+          <ActionIconButton variant="ghost" aria-label={`Edit student ${user.name}`}>
+            <Pencil className="h-4 w-4" />
+          </ActionIconButton>
+          <ActionIconButton
+            variant="destructive"
+            aria-label={`Delete student ${user.name}`}
+            className="border-pink-500/50 text-pink-500 dark:text-pink-400"
+          >
+            <Trash2 className="h-4 w-4" />
+          </ActionIconButton>
+        </div>
+      ),
+    },
+  ]
 }
 
 function initials(name: string) {

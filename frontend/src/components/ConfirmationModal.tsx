@@ -43,6 +43,7 @@ interface ConfirmationModalProps {
     sscSchool: string;
     sscGrade: string;
     classLevel: string;
+    group: string;
     subject: string;
     batchTiming: string;
     hearAboutUs: string;
@@ -82,6 +83,10 @@ export default function ConfirmationModal({
         return str
           .replace(/-/g, " ")
           .replace(/\b\w/g, (l: string) => l.toUpperCase());
+      case "group":
+        return str
+          ? str.charAt(0).toUpperCase() + str.slice(1)
+          : "Not Applicable";
       case "subject":
         if (str.toLowerCase() === "ict") {
           return "ICT";
@@ -274,6 +279,10 @@ export default function ConfirmationModal({
                     <DetailItem
                       label="Class"
                       value={formatValue("classLevel", data.classLevel)}
+                    />
+                    <DetailItem
+                      label="Group"
+                      value={formatValue("group", data.group)}
                     />
                     <DetailItem
                       label="Subject"
