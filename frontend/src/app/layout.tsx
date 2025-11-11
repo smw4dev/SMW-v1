@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Hind_Siliguri } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,12 +31,59 @@ export default function RootLayout({
   const themeInit = `
     (function(){
       try {
+        var root = document.documentElement;
+        var path = window.location.pathname || '';
+        var inDashboard = path.startsWith('/dashboard');
+        if (!inDashboard) {
+          root.classList.remove('dark');
+          root.setAttribute('data-theme', 'emerald');
+          return;
+        }
         var m = localStorage.getItem('theme-mode');
         var p = localStorage.getItem('theme-palette') || 'emerald';
         var mode = (m === 'light' || m === 'dark') ? m : 'light';
-        var root = document.documentElement;
-        if (mode === 'dark') root.classList.add('dark'); else root.classList.remove('dark');
+        root.classList.toggle('dark', mode === 'dark');
         root.setAttribute('data-theme', p);
+      } catch (e) {}
+    })();
+  `;
+
+  const scrollbarInit = `
+    (function(){
+      try {
+        var css = 'body[data-scroll-locked]{overflow-y:visible !important;padding-right:0 !important;margin-right:0 !important;padding-left:0 !important;margin-left:0 !important;}';
+        var styleId = 'scrollbar-stable-style';
+        var ensureStyle = function(){
+          var head = document.head;
+          if (!head) return;
+          var style = document.getElementById(styleId);
+          if (!style) {
+            style = document.createElement('style');
+            style.id = styleId;
+            style.appendChild(document.createTextNode(css));
+          }
+          head.appendChild(style);
+        };
+        var observeBody = function(body){
+          if (!body) return;
+          new MutationObserver(function(mutations){
+            for (var i = 0; i < mutations.length; i++) {
+              if (mutations[i].type === 'attributes') {
+                ensureStyle();
+                break;
+              }
+            }
+          }).observe(body, { attributes: true, attributeFilter: ['data-scroll-locked'] });
+        };
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function(){
+            ensureStyle();
+            observeBody(document.body);
+          });
+        } else {
+          ensureStyle();
+          observeBody(document.body);
+        }
       } catch (e) {}
     })();
   `;
@@ -45,9 +91,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning data-theme="emerald" className={`${hindSiliguri.variable}`}>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        <script dangerouslySetInnerHTML={{ __html: scrollbarInit }} />
+        {children}
       </body>
     </html>
   );

@@ -230,22 +230,38 @@
   animation: fade-in-up 1s ease-out;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+/* Global scrollbar: brand-colored, modern, cross-browser */
+/* Firefox */
+:root {
+  scrollbar-width: thin;
+  scrollbar-gutter: stable both-edges;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track, var(--muted));
 }
 
-::-webkit-scrollbar-track {
-  background: #1e293b;
+/* WebKit */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #06b6d4;
-  border-radius: 4px;
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 9999px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #0891b2;
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 9999px;
+  border: 2px solid transparent; /* creates padding */
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--scrollbar-corner);
 }
 
 /* Smooth scrolling */
@@ -285,18 +301,25 @@ input:focus-visible {
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
+  /* Sidebar in light mode: slightly darker than background for separation */
+  --sidebar: oklch(0.965 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-border: oklch(0.9 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   /* Brand defaults (Crimson) */
   --brand: #780A0A;
   --brand-foreground: #ffffff;
   --brand-emphasis: #921313;
+  /* Scrollbar tokens */
+  --scrollbar-track: var(--muted);
+  --scrollbar-track: color-mix(in oklch, var(--background) 92%, var(--foreground) 8%);
+  --scrollbar-thumb: var(--brand);
+  --scrollbar-thumb-hover: var(--brand-emphasis);
+  --scrollbar-corner: transparent;
   /* Semantic defaults */
   --success: #22c55e; /* Tailwind emerald-500 */
   --success-foreground: #ffffff;
@@ -338,6 +361,12 @@ input:focus-visible {
   --brand: #780A0A;
   --brand-foreground: #ffffff;
   --brand-emphasis: #a01515;
+  /* Scrollbar tokens (darker track in dark mode) */
+  --scrollbar-track: var(--muted);
+  --scrollbar-track: color-mix(in oklch, var(--background) 86%, var(--foreground) 14%);
+  --scrollbar-thumb: var(--brand);
+  --scrollbar-thumb-hover: var(--brand-emphasis);
+  --scrollbar-corner: transparent;
   /* Semantic */
   --success: #22c55e;
   --success-foreground: #052e16;
@@ -504,8 +533,14 @@ input:focus-visible {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    scrollbar-gutter: stable;
+    overflow-y: scroll;
+  }
   body {
     @apply bg-background text-foreground;
+    min-height: 100%;
+    overflow-y: visible;
   }
 }
 

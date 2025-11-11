@@ -166,14 +166,15 @@ const GallerySection = () => {
           className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center"
           aria-modal
           role="dialog"
+          onClick={close}
         >
-          {/* Background click to close */}
-          <div className="absolute inset-0" onClick={close} />
-
           {/* Close button */}
           <button
             aria-label="Close"
-            onClick={close}
+            onClick={(e) => {
+              e.stopPropagation();
+              close();
+            }}
             className="absolute top-4 right-4 text-white/80 hover:text-white p-2"
           >
             <X className="w-7 h-7" />
@@ -201,22 +202,14 @@ const GallerySection = () => {
             <ChevronRight className="w-9 h-9" />
           </button>
 
-          {/* Image container */}
-          <div
-            className="relative max-w-6xl w-full px-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="relative h-[78vh] animate-fade-in">
-              <Image
-                key={current}
-                src={allImages[current]}
-                alt={`gallery-large-${current + 1}`}
-                fill
-                className="object-contain select-none"
-                sizes="100vw"
-                priority
-              />
-            </div>
+          {/* Image container - shrink to image so clicks outside close */}
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <img
+              key={current}
+              src={allImages[current]}
+              alt={`gallery-large-${current + 1}`}
+              className="max-h-[96vh] max-w-[96vw] object-contain select-none rounded-md animate-fade-in"
+            />
             <div className="absolute bottom-4 right-6 text-white/80 text-sm">
               {current + 1} of {allImages.length}
             </div>

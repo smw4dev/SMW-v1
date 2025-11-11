@@ -18,7 +18,7 @@ const navLinks: NavLink[] = [
   { href: "/#batch", label: "ব্যাচ" },
   { href: "/#service", label: "সেবা সমূহ" },
   { href: "/#gallery", label: "গ্যালারি" },
-  { href: "/#admission", label: "অ্যাডমিশন" },
+  { href: "/admission", label: "অ্যাডমিশন" },
 ];
 
 const Navigation = () => {
@@ -112,9 +112,12 @@ const Navigation = () => {
               >
                 লগইন
               </Link>
-              <button className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-lg border-2 border-solid border-brand bg-white px-3 py-2 text-sm font-medium text-brand shadow transition-colors hover:bg-brand hover:text-brand-foreground disabled:pointer-events-none disabled:opacity-50">
+              <Link
+                href="/admission"
+                className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-lg border-2 border-solid border-brand bg-white px-3 py-2 text-sm font-medium text-brand shadow transition-colors hover:bg-brand hover:text-brand-foreground disabled:pointer-events-none disabled:opacity-50"
+              >
                 Admission
-              </button>
+              </Link>
             </div>
             {/** ThemeSwitcher hidden for now */}
           </div>
