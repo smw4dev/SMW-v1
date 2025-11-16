@@ -8,7 +8,7 @@ SEX_CHOICES = (("M","Male"),("F","Female"),("O","Other"))
 
 class School(models.Model):
     name = models.CharField(max_length=150)
-    code = models.CharField(max_length=16, unique=True)  # goes into student_uid
+    code = models.CharField(max_length=16, unique=True)
     address = models.CharField(max_length=255, blank=True)
     contact_phone = models.CharField(max_length=32, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -16,7 +16,7 @@ class School(models.Model):
     def __str__(self): return f"{self.name} ({self.code})"
 
 class AdmissionApplication(models.Model):
-    # Student names EN/BN
+
     student_first_name_en = models.CharField(max_length=120)
     student_last_name_en  = models.CharField(max_length=120)
     student_nick_name_en  = models.CharField(max_length=120, blank=True, null=True)
@@ -26,7 +26,7 @@ class AdmissionApplication(models.Model):
 
     date_of_birth = models.DateField()
     sex = models.CharField(max_length=1, choices=SEX_CHOICES)
-    current_class = models.CharField(max_length=50)  # "Class 8/9/10"
+    current_class = models.CharField(max_length=50)
     prev_result = models.CharField(max_length=120, blank=True, null=True)
 
     batch = models.ForeignKey(Batch, on_delete=models.PROTECT, related_name="applications")
@@ -36,13 +36,12 @@ class AdmissionApplication(models.Model):
     home_location  = models.TextField(blank=True, null=True)
     picture_path   = models.CharField(max_length=255, blank=True, null=True)
 
-    # workflow
     is_submitted = models.BooleanField(default=True)
     is_reviewed  = models.BooleanField(default=False)
     is_approved  = models.BooleanField(default=False)
 
     is_paid = models.BooleanField(default=False)
-    # links
+
     created_user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="admission_application"
     )
@@ -53,7 +52,7 @@ class AdmissionApplication(models.Model):
 
 class Guardian(models.Model):
     application = models.ForeignKey(AdmissionApplication, on_delete=models.CASCADE, related_name="guardians")
-    role = models.CharField(max_length=10)  # FATHER | MOTHER
+    role = models.CharField(max_length=10)
     name_en = models.CharField(max_length=150)
     name_bn = models.CharField(max_length=150, blank=True, null=True)
     occupation = models.CharField(max_length=150, blank=True, null=True)
