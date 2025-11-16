@@ -9,13 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar } from "@/components/ui/calendar";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Form,
   FormControl,
@@ -24,12 +23,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { format } from "date-fns";
 import {
   CalendarIcon,
@@ -40,6 +33,7 @@ import {
   Clock,
   X,
   CheckCircle2,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ConfirmationModal from "./ConfirmationModal";
@@ -178,12 +172,11 @@ const inputFieldClasses = [
   "focus-visible:border-brand focus-visible:ring-0 focus:outline-none",
 ].join(" ");
 
-const selectTriggerClasses = [
-  "h-11 w-full rounded-lg pl-3",
+const selectFieldClasses = [
+  "peer h-11 w-full rounded-lg appearance-none",
   "border border-slate-300 bg-white text-slate-800",
-  "focus-visible:border-brand focus-visible:ring-0",
-  // make sure size variants still look consistent
-  "data-[size=default]:h-11 data-[size=sm]:h-11",
+  "pl-3 pr-10 focus-visible:border-brand focus-visible:ring-0",
+  "disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed",
 ].join(" ");
 
 const textareaClasses = [
@@ -198,6 +191,15 @@ const outlineButtonClasses = [
   "border border-slate-300 bg-white text-slate-800",
   "hover:bg-brand/5 focus-visible:ring-0 focus-visible:border-brand",
 ].join(" ");
+
+const DropdownChevron = () => (
+  <span
+    aria-hidden="true"
+    className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-slate-500 peer-disabled:text-slate-400"
+  >
+    <ChevronDown className="h-4 w-4" />
+  </span>
+);
 
 /* ----------------- COMPONENT ----------------- */
 export default function AdmissionForm() {
@@ -455,7 +457,7 @@ export default function AdmissionForm() {
       <div className="mx-auto w-full max-w-6xl px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Sidebar Navigation */}
-          <aside className="lg:col-span-3">
+          <aside className="lg:col-span-3 relative z-[60]">
             <div className="lg:sticky lg:top-24 space-y-4">
               <div className="rounded-2xl border border-slate-100 bg-white/95 p-5 shadow-[0_6px_24px_rgba(2,6,23,.06)] backdrop-blur">
                 <h3 className="text-sm font-semibold mb-4 uppercase tracking-wide text-slate-700">
@@ -710,21 +712,26 @@ export default function AdmissionForm() {
                             <FormLabel className="text-slate-800">
                               Gender *
                             </FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger className={selectTriggerClasses}>
-                                  <SelectValue placeholder="Select gender" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="male">Male</SelectItem>
-                                <SelectItem value="female">Female</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <FormControl>
+                              <div className="relative">
+                                <select
+                                  {...field}
+                                  className={selectFieldClasses}
+                                  value={field.value || ""}
+                                  onChange={(event) =>
+                                    field.onChange(event.target.value)
+                                  }
+                                >
+                                  <option value="" disabled>
+                                    Select gender
+                                  </option>
+                                  <option value="male">Male</option>
+                                  <option value="female">Female</option>
+                                  <option value="other">Other</option>
+                                </select>
+                                <DropdownChevron />
+                              </div>
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -989,23 +996,26 @@ export default function AdmissionForm() {
                               <FormLabel className="text-slate-800">
                                 Guardian Relation *
                               </FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                value={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger
-                                    className={selectTriggerClasses}
+                              <FormControl>
+                                <div className="relative">
+                                  <select
+                                    {...field}
+                                    className={selectFieldClasses}
+                                    value={field.value ?? ""}
+                                    onChange={(event) =>
+                                      field.onChange(event.target.value)
+                                    }
                                   >
-                                    <SelectValue placeholder="Select relation" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="father">Father</SelectItem>
-                                  <SelectItem value="mother">Mother</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>
+                                    <option value="" disabled>
+                                      Select relation
+                                    </option>
+                                    <option value="father">Father</option>
+                                    <option value="mother">Mother</option>
+                                    <option value="other">Other</option>
+                                  </select>
+                                  <DropdownChevron />
+                                </div>
+                              </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1187,29 +1197,28 @@ export default function AdmissionForm() {
                             <FormLabel className="text-slate-800">
                               Class *
                             </FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger className={selectTriggerClasses}>
-                                  <SelectValue placeholder="Select class" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="class-8">Class 8</SelectItem>
-                                <SelectItem value="class-9">Class 9</SelectItem>
-                                <SelectItem value="class-10">
-                                  Class 10
-                                </SelectItem>
-                                <SelectItem value="class-11">
-                                  Class 11
-                                </SelectItem>
-                                <SelectItem value="class-12">
-                                  Class 12
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <FormControl>
+                              <div className="relative">
+                                <select
+                                  {...field}
+                                  className={selectFieldClasses}
+                                  value={field.value || ""}
+                                  onChange={(event) =>
+                                    field.onChange(event.target.value)
+                                  }
+                                >
+                                  <option value="" disabled>
+                                    Select class
+                                  </option>
+                                  <option value="class-8">Class 8</option>
+                                  <option value="class-9">Class 9</option>
+                                  <option value="class-10">Class 10</option>
+                                  <option value="class-11">Class 11</option>
+                                  <option value="class-12">Class 12</option>
+                                </select>
+                                <DropdownChevron />
+                              </div>
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -1223,32 +1232,33 @@ export default function AdmissionForm() {
                             <FormLabel className="text-slate-800">
                               Group {isClassEight ? "(Not required)" : "*"}
                             </FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                              disabled={!selectedClass || isClassEight}
-                            >
-                              <FormControl>
-                                <SelectTrigger className={selectTriggerClasses}>
-                                  <SelectValue
-                                    placeholder={
-                                      !selectedClass
-                                        ? "Select class first"
-                                        : isClassEight
-                                          ? "Not applicable for Class 8"
-                                          : "Select group"
-                                    }
-                                  />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {groupOptions.map((opt) => (
-                                  <SelectItem key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            <FormControl>
+                              <div className="relative">
+                                <select
+                                  {...field}
+                                  className={selectFieldClasses}
+                                  value={field.value || ""}
+                                  onChange={(event) =>
+                                    field.onChange(event.target.value)
+                                  }
+                                  disabled={!selectedClass || isClassEight}
+                                >
+                                  <option value="" disabled>
+                                    {!selectedClass
+                                      ? "Select class first"
+                                      : isClassEight
+                                        ? "Not applicable for Class 8"
+                                        : "Select group"}
+                                  </option>
+                                  {groupOptions.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                      {opt.label}
+                                    </option>
+                                  ))}
+                                </select>
+                                <DropdownChevron />
+                              </div>
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -1262,26 +1272,33 @@ export default function AdmissionForm() {
                             <FormLabel className="text-slate-800">
                               Subject *
                             </FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                              disabled={!selectedClass}
-                            >
-                              <FormControl>
-                                <SelectTrigger className={selectTriggerClasses}>
-                                  <SelectValue placeholder="Select subject" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {(
-                                  subjectOptions[selectedClass as string] || []
-                                ).map((opt) => (
-                                  <SelectItem key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            <FormControl>
+                              <div className="relative">
+                                <select
+                                  {...field}
+                                  className={selectFieldClasses}
+                                  value={field.value || ""}
+                                  onChange={(event) =>
+                                    field.onChange(event.target.value)
+                                  }
+                                  disabled={!selectedClass}
+                                >
+                                  <option value="" disabled>
+                                    {selectedClass
+                                      ? "Select subject"
+                                      : "Select class first"}
+                                  </option>
+                                  {(subjectOptions[selectedClass as string] ||
+                                    []
+                                  ).map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                      {opt.label}
+                                    </option>
+                                  ))}
+                                </select>
+                                <DropdownChevron />
+                              </div>
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -1295,37 +1312,40 @@ export default function AdmissionForm() {
                             <FormLabel className="text-slate-800">
                               Batch Timing
                             </FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                              disabled={
-                                !selectedClass ||
-                                (batchOptions[selectedClass as string]
-                                  ?.length ?? 0) === 0
-                              }
-                            >
-                              <FormControl>
-                                <SelectTrigger className={selectTriggerClasses}>
-                                  <SelectValue
-                                    placeholder={
-                                      (batchOptions[selectedClass as string]
-                                        ?.length ?? 0) === 0
+                            <FormControl>
+                              <div className="relative">
+                                <select
+                                  {...field}
+                                  className={selectFieldClasses}
+                                  value={field.value || ""}
+                                  onChange={(event) =>
+                                    field.onChange(event.target.value)
+                                  }
+                                  disabled={
+                                    !selectedClass ||
+                                    (batchOptions[selectedClass as string]
+                                      ?.length ?? 0) === 0
+                                  }
+                                >
+                                  <option value="" disabled>
+                                    {(batchOptions[selectedClass as string]
+                                      ?.length ?? 0) === 0
+                                      ? selectedClass
                                         ? "No batch available currently"
-                                        : "Select schedule"
-                                    }
-                                  />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {(
-                                  batchOptions[selectedClass as string] || []
-                                ).map((opt) => (
-                                  <SelectItem key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                                        : "Select class first"
+                                      : "Select schedule"}
+                                  </option>
+                                  {(batchOptions[selectedClass as string] ||
+                                    []
+                                  ).map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                      {opt.label}
+                                    </option>
+                                  ))}
+                                </select>
+                                <DropdownChevron />
+                              </div>
+                            </FormControl>
                             {(batchOptions[selectedClass as string]?.length ??
                               0) === 0 &&
                               selectedClass && (
@@ -1348,34 +1368,37 @@ export default function AdmissionForm() {
                           <FormLabel className="text-slate-800">
                             How did you hear about us?
                           </FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className={selectTriggerClasses}>
-                                <SelectValue placeholder="Select an option" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="friends">
-                                Friends or Family Recommendation
-                              </SelectItem>
-                              <SelectItem value="social-media">
-                                Social Media (Facebook, Instagram)
-                              </SelectItem>
-                              <SelectItem value="newspaper">
-                                Newspaper Advertisement
-                              </SelectItem>
-                              <SelectItem value="website">
-                                Website / Google Search
-                              </SelectItem>
-                              <SelectItem value="student">
-                                Current Student Reference
-                              </SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <div className="relative">
+                              <select
+                                {...field}
+                                className={selectFieldClasses}
+                                value={field.value || ""}
+                                onChange={(event) =>
+                                  field.onChange(event.target.value)
+                                }
+                              >
+                                <option value="">Select an option</option>
+                                <option value="friends">
+                                  Friends or Family Recommendation
+                                </option>
+                                <option value="social-media">
+                                  Social Media (Facebook, Instagram)
+                                </option>
+                                <option value="newspaper">
+                                  Newspaper Advertisement
+                                </option>
+                                <option value="website">
+                                  Website / Google Search
+                                </option>
+                                <option value="student">
+                                  Current Student Reference
+                                </option>
+                                <option value="other">Other</option>
+                              </select>
+                              <DropdownChevron />
+                            </div>
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}

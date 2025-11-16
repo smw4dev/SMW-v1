@@ -1,4 +1,5 @@
 from pathlib import Path
+from decimal import Decimal
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
@@ -6,6 +7,8 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
+ADMISSION_FEE_BDT = Decimal(os.getenv("ADMISSION_FEE_BDT", "4625.00"))
+SEAT_HOLD_MINUTES = int(os.getenv("SEAT_HOLD_MINUTES", "10"))
 # ---------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------
