@@ -114,7 +114,7 @@ function Toolbar() {
 function StudentsTable() {
   const router = useRouter()
   const columns = React.useMemo(
-    () => createStudentColumns((student) => router.push(`/dashboard/students/${student.id}`)),
+    () => createStudentColumns((student) => router.push(`/admin/students/${student.id}`)),
     [router],
   )
 

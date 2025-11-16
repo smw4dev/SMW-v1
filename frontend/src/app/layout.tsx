@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Hind_Siliguri } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +34,7 @@ export default function RootLayout({
       try {
         var root = document.documentElement;
         var path = window.location.pathname || '';
-        var inDashboard = path.startsWith('/dashboard');
+        var inDashboard = path.startsWith('/admin');
         if (!inDashboard) {
           root.classList.remove('dark');
           root.setAttribute('data-theme', 'emerald');
@@ -92,7 +93,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
         <script dangerouslySetInnerHTML={{ __html: scrollbarInit }} />
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

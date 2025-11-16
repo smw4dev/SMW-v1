@@ -21,7 +21,7 @@ export default function HomePage() {
         <SuccessStories />
         {/* <StatisticsSection /> */}
         <GallerySection />
-        <QuickAdmissionForm />
+        {/* <QuickAdmissionForm /> */}
         <FindUsHere />
         {/* <ContactCta /> */}
       </main>

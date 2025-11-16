@@ -69,7 +69,7 @@ const features: Feature[] = [
 
 const ServicesIntro = () => {
   return (
-    <section className="bg-white">
+    <section id="service" className="bg-white scroll-mt-32">
       <div className="max-w-6xl mx-auto flex flex-col items-center justify-center pt-8 pb-12 gap-8">
         <h2 className="text-2xl md:text-3xl lg:text-4xl text-black font-bold text-center">
           আমাদের <span className="text-brand">সেবা সমূহ</span>

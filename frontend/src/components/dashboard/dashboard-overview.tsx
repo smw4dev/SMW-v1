@@ -281,7 +281,7 @@ function LatestUsersTable() {
           </CardDescription>
         </div>
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/students" className="text-sm font-medium">
+          <Link href="/admin/students" className="text-sm font-medium">
             View All
           </Link>
         </Button>

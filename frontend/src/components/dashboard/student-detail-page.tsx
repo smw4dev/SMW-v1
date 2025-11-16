@@ -248,12 +248,12 @@ function DetailBreadcrumbs({ name }: { name: string }) {
       aria-label="Breadcrumb"
       className="text-muted-foreground flex items-center gap-2 text-sm"
     >
-      <Link href="/dashboard" className="hover:text-foreground flex items-center gap-1">
+      <Link href="/admin" className="hover:text-foreground flex items-center gap-1">
         <Home className="h-4 w-4" />
         Dashboard
       </Link>
       <span>/</span>
-      <Link href="/dashboard/students" className="hover:text-foreground">
+      <Link href="/admin/students" className="hover:text-foreground">
         Students
       </Link>
       <span>/</span>
@@ -327,7 +327,7 @@ function StudentHero({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button asChild variant="outline">
-            <Link href="/dashboard/students">
+            <Link href="/admin/students">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to list
             </Link>
           </Button>
