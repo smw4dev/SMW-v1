@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -63,6 +64,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.3",
+    "patch-package": "^8.0.1",
+    "playwright": "^1.56.1",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.8",
     "typescript": "^5"
