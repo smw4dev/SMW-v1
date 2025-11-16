@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
 
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout'
 import { StudentDetailPage } from '@/components/dashboard/student-detail-page'
 import {
   paymentsTable,
@@ -37,9 +36,7 @@ export default function StudentDetailRoute({
   )
 
   return (
-    <DashboardLayout>
-      <StudentDetailPage student={student} admission={admission} payments={payments} />
-    </DashboardLayout>
+    <StudentDetailPage student={student} admission={admission} payments={payments} />
   )
 }
 

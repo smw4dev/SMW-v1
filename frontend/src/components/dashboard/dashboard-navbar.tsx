@@ -3,7 +3,6 @@
 import * as React from 'react'
 import {
   Bell,
-  Github,
   LifeBuoy,
   Menu,
   MessageCircle,
@@ -29,6 +28,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useAuth } from '@/components/auth/AuthProvider'
 
 type DashboardNavbarProps = {
   onToggleSidebar: () => void
@@ -37,6 +37,13 @@ type DashboardNavbarProps = {
 export function DashboardNavbar({ onToggleSidebar }: DashboardNavbarProps) {
   const { mode, toggleMode } = useTheme()
   const isDark = mode === 'dark'
+  const { user, profile, logout } = useAuth()
+  const avatarUrl = (profile?.photo_url as string | null) ?? null
+  const displayName = user?.fullName ?? 'Admin'
+  const email = user?.email ?? 'admin@example.com'
+  const handleLogout = React.useCallback(() => {
+    void logout()
+  }, [logout])
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-background/95 px-4 py-4 md:px-8 supports-[backdrop-filter]:backdrop-blur">
@@ -72,7 +79,12 @@ export function DashboardNavbar({ onToggleSidebar }: DashboardNavbarProps) {
           <Moon className={cn('absolute h-5 w-5', isDark ? 'block' : 'hidden')} />
         </Button>
 
-        <UserDropdown />
+        <UserDropdown
+          name={displayName}
+          email={email}
+          avatarUrl={avatarUrl ?? undefined}
+          onLogout={handleLogout}
+        />
       </nav>
     </header>
   )
@@ -128,27 +140,50 @@ function NotificationsDropdown() {
   )
 }
 
-function UserDropdown() {
+function UserDropdown({
+  name,
+  email,
+  avatarUrl,
+  onLogout,
+}: {
+  name: string
+  email: string
+  avatarUrl?: string
+  onLogout: () => void
+}) {
+  const initials = React.useMemo(() => {
+    const source = name || email
+    if (!source) return 'AD'
+    return source
+      .split(' ')
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase()
+  }, [name, email])
+
+  const handleLogout = React.useCallback(() => {
+    onLogout()
+  }, [onLogout])
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" aria-label="User menu">
           <Avatar className="h-9 w-9">
-            <AvatarImage
-              src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
-              alt="Jane Doe"
-            />
-            <AvatarFallback>JD</AvatarFallback>
+            {avatarUrl ? (
+              <AvatarImage src={avatarUrl} alt={name} />
+            ) : null}
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-60" align="end" sideOffset={12}>
         <DropdownMenuLabel>
           <div className="flex flex-col">
-            <span className="text-sm font-semibold">Jane Doe</span>
-            <span className="text-xs text-muted-foreground">
-              jane.doe@example.com
-            </span>
+            <span className="text-sm font-semibold">{name}</span>
+            <span className="text-xs text-muted-foreground">{email}</span>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -168,7 +203,10 @@ function UserDropdown() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-destructive focus:text-destructive">
+        <DropdownMenuItem
+          className="text-destructive focus:text-destructive"
+          onClick={handleLogout}
+        >
           Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -17,36 +17,6 @@ const courseData: Course[] = [
   {
     id: 1,
     imageUrl:
-      "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
-    title: "৬ষ্ঠ শ্রেণি ব্যাচ",
-    features: [
-      { text: "সাপ্তাহিক ৩টি ক্লাস" },
-      { text: "প্রতিটি অধ্যায়ে ক্লাস টেস্ট" },
-      { text: "মাসিক মূল্যায়ন পরীক্ষা" },
-      { text: "PDF ক্লাসনোট প্রদান" },
-      { text: "গাইডলাইন ও ফলোআপ সাপোর্ট" },
-      { text: "Q&A সাপোর্ট ২৪/৭" },
-    ],
-    detailsLink: "/batches/class-6",
-  },
-  {
-    id: 2,
-    imageUrl:
-      "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?auto=format&fit=crop&w=1200&q=80",
-    title: "৭ম শ্রেণি ব্যাচ",
-    features: [
-      { text: "সাপ্তাহিক ৩টি ক্লাস" },
-      { text: "চ্যাপ্টার ফাইনাল পরীক্ষা" },
-      { text: "মাসিক প্রগ্রেস রিপোর্ট" },
-      { text: "PDF নোটস ও হোমওয়ার্ক" },
-      { text: "অভিভাবক ফিডব্যাক সেশন" },
-      { text: "Q&A সাপোর্ট ২৪/৭" },
-    ],
-    detailsLink: "/batches/class-7",
-  },
-  {
-    id: 3,
-    imageUrl:
       "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=1200&q=80",
     title: "৮ম শ্রেণি ব্যাচ",
     features: [
@@ -60,7 +30,7 @@ const courseData: Course[] = [
     detailsLink: "/batches/class-8",
   },
   {
-    id: 4,
+    id: 2,
     imageUrl:
       "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
     title: "৯ম শ্রেণি ব্যাচ",
@@ -75,7 +45,7 @@ const courseData: Course[] = [
     detailsLink: "/batches/class-9",
   },
   {
-    id: 5,
+    id: 3,
     imageUrl:
       "https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=1200&q=80",
     title: "১০ম শ্রেণি ব্যাচ",
@@ -89,21 +59,7 @@ const courseData: Course[] = [
     ],
     detailsLink: "/batches/class-10",
   },
-  {
-    id: 6,
-    imageUrl:
-      "https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1200&q=80",
-    title: "HSC (১১–১২) ব্যাচ",
-    features: [
-      { text: "টার্গেটেড সিলেবাস কভারেজ" },
-      { text: "চ্যাপ্টার ফাইনাল + মডেল টেস্ট" },
-      { text: "বোর্ড + এডমিশন ওরিয়েন্টেড গাইডেন্স" },
-      { text: "রেকর্ডেড ক্লাস এক্সেস" },
-      { text: "PDF নোটস ও প্রশ্নব্যাংক" },
-      { text: "Q&A সাপোর্ট ২৪/৭" },
-    ],
-    detailsLink: "/batches/hsc",
-  },
+  
 ];
 
 const CourseCard = ({ course }: { course: Course }) => (
@@ -171,7 +127,10 @@ const CourseGrid = () => {
     "শ্রেণি ১০",
   ];
   return (
-    <section className="w-full flex flex-col px-2 sm:px-0 py-8 md:py-16 items-center">
+    <section
+      id="batch"
+      className="w-full flex flex-col px-2 sm:px-0 py-8 md:py-16 items-center scroll-mt-32"
+    >
       <div className="max-w-6xl mx-auto w-full flex flex-col items-center">
         <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black">
           আমাদের <span className="text-brand"> ব্যাচ সমূহ</span>
