@@ -42,7 +42,6 @@ jobs:
 
             echo "→ Pull latest code (main)"
             cd /var/www/html/SMW-v1
-            # make sure git is happy with this working dir under sudo/ssh
             git config --global --add safe.directory /var/www/html/SMW-v1
             git fetch origin main
             git reset --hard origin/main
@@ -76,8 +75,6 @@ jobs:
 
               echo "   - Restart PM2 smw-frontend (clean)"
               pm2 delete smw-frontend || true
-
-              # Uses "start": "next start -p 3000" from package.json
               pm2 start npm --name smw-frontend -- start
 
               pm2 save || true
@@ -87,12 +84,10 @@ jobs:
             fi
 
             echo "→ Local health (loopback)"
-            # Django admin on Gunicorn
+            # Only check Django admin on Gunicorn locally
             retry 30 2 curl_ok http://127.0.0.1:8001/admin/login/
-            # Next.js app behind PM2
-            retry 30 2 curl_ok http://127.0.0.1:3000/
 
-            echo "→ Origin health (bypass Cloudflare)"
+            echo "→ Origin health (bypass Cloudflare, via Nginx+Next)"
             retry 30 2 curl_ok --resolve sunnysir.com:443:${ORIGIN_IP} "${FRONT_URL}"
             retry 30 2 curl_ok --resolve sunnysir.com:443:${ORIGIN_IP} "${ADMIN_URL}"
 
