@@ -1,14 +1,21 @@
+# Backend/admissions/receivers.py
+
 from decimal import Decimal
+
 from django.db import transaction
 from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 from courses_app.models import Batch
 from admissions.models import AdmissionApplication, SeatHold, SeatHoldStatus
-from payments.signals import payment_validated  # we’ll add this in payments
+from payments.signals import payment_validated  # fired once when payment becomes VALIDATED
 
 FEE = Decimal(str(getattr(settings, "ADMISSION_FEE_BDT", "4625.00")))
+
+User = get_user_model()
+
 
 @receiver(payment_validated)
 def on_payment_validated(sender, payment, **kwargs):
@@ -18,14 +25,25 @@ def on_payment_validated(sender, payment, **kwargs):
     - Best-effort allocate if capacity remains (after expiring old holds)
     - Mark application as paid
     - Increment batch.filled_seats once
+    - Create an INACTIVE user for this application if not already created
     """
+
     app_id = getattr(payment, "application_id", None)
-    hold_token = (payment.create_payload or {}).get("hold_token") if hasattr(payment, "create_payload") else None
+    hold_token = (
+        (payment.create_payload or {}).get("hold_token")
+        if hasattr(payment, "create_payload")
+        else None
+    )
     if not app_id:
         return
 
     with transaction.atomic():
-        app = AdmissionApplication.objects.select_for_update().filter(pk=app_id).select_related("batch").first()
+        app = (
+            AdmissionApplication.objects.select_for_update()
+            .filter(pk=app_id)
+            .select_related("batch")
+            .first()
+        )
         if not app:
             return
         batch = Batch.objects.select_for_update().get(pk=app.batch_id)
@@ -34,15 +52,23 @@ def on_payment_validated(sender, payment, **kwargs):
         if app.is_paid:
             return
 
-        # Sanity checks
+        # Sanity checks – only finalize if amount/currency match the configured fee
         if payment.amount != FEE or (payment.currency or "") != "BDT":
             return
 
         # Prefer confirming the held seat bound to this payment
         confirmed = False
         if hold_token:
-            h = SeatHold.objects.select_for_update().filter(hold_token=hold_token).first()
-            if h and h.status == SeatHoldStatus.HELD and h.expires_at > timezone.now():
+            h = (
+                SeatHold.objects.select_for_update()
+                .filter(hold_token=hold_token)
+                .first()
+            )
+            if (
+                h
+                and h.status == SeatHoldStatus.HELD
+                and h.expires_at > timezone.now()
+            ):
                 h.status = SeatHoldStatus.CONFIRMED
                 h.save(update_fields=["status"])
                 confirmed = True
@@ -61,5 +87,34 @@ def on_payment_validated(sender, payment, **kwargs):
                 # Capacity exhausted → in real life: auto-refund / waitlist / alert
                 return
 
+        # Mark as paid
         app.is_paid = True
-        app.save(update_fields=["is_paid"])
+
+        # If no user created yet for this application, create one INACTIVE now
+        if app.created_user is None:
+            email = app.student_email or f"student_{app.id}@example.com"
+            password = User.objects.make_random_password()
+
+            user = User.objects.create_user(
+                email=email,
+                password=password,
+                f_name=app.student_first_name_en,
+                l_name=app.student_last_name_en,
+                phone=app.student_mobile,
+            )
+
+            # Keep them inactive & not approved until an admin approves the application
+            update_fields = []
+            if user.is_active:
+                user.is_active = False
+                update_fields.append("is_active")
+            if hasattr(user, "is_approved") and user.is_approved:
+                user.is_approved = False
+                update_fields.append("is_approved")
+            if update_fields:
+                user.save(update_fields=update_fields)
+
+            app.created_user = user
+            app.save(update_fields=["is_paid", "created_user"])
+        else:
+            app.save(update_fields=["is_paid"])
