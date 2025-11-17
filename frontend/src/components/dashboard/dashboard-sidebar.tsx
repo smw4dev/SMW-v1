@@ -26,7 +26,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import { navSections } from './data'
 
-const HOME_PATH = '/dashboard'
+const HOME_PATH = '/admin'
 
 function isPathActive(pathname: string | null, href?: string) {
   if (!href || !pathname) return false
