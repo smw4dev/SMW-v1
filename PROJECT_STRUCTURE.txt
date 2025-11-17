@@ -9,6 +9,7 @@ SMW-v1/
 │   │   admin.py
 │   │   apps.py
 │   │   models.py
+│   │   receivers.py
 │   │   serializers.py
 │   │   tests.py
 │   │   urls.py
@@ -44,6 +45,17 @@ SMW-v1/
 │   │   urls.py
 │   │   utils.py
 │   │   views.py
+│   payments/
+│   │   __init__.py
+│   │   admin.py
+│   │   apps.py
+│   │   models.py
+│   │   serializers.py
+│   │   services.py
+│   │   signals.py
+│   │   tests.py
+│   │   urls.py
+│   │   views.py
 │   smw/
 │   │   __init__.py
 │   │   asgi.py
@@ -65,6 +77,8 @@ SMW-v1/
 │   manage.py
 │   requirements.txt
 ├── frontend/
+│   patches/
+│   │   @radix-ui+react-select+2.2.6.patch
 │   public/
 │   │   file.svg
 │   │   globe.svg
@@ -80,12 +94,34 @@ SMW-v1/
 │   src/
 │   │   app/
 │   │   │   admission/
+│   │   │   │   payment-result/
+│   │   │   │   page.tsx
+│   │   │   dashboard/
+│   │   │   │   payments/
+│   │   │   │   │   page.tsx
+│   │   │   │   students/
+│   │   │   │   │   [id]/
+│   │   │   │   │   │   page.tsx
+│   │   │   │   │   page.tsx
 │   │   │   │   page.tsx
 │   │   │   favicon.ico
 │   │   │   globals.css
 │   │   │   layout.tsx
 │   │   │   page.tsx
 │   │   components/
+│   │   │   dashboard/
+│   │   │   │   action-icon-button.tsx
+│   │   │   │   add-user-dialog.tsx
+│   │   │   │   dashboard-data-table.tsx
+│   │   │   │   dashboard-layout.tsx
+│   │   │   │   dashboard-navbar.tsx
+│   │   │   │   dashboard-overview.tsx
+│   │   │   │   dashboard-sidebar.tsx
+│   │   │   │   data.ts
+│   │   │   │   payments-page.tsx
+│   │   │   │   status-badge.tsx
+│   │   │   │   student-detail-page.tsx
+│   │   │   │   students-page.tsx
 │   │   │   sections/
 │   │   │   │   admission-form.tsx
 │   │   │   │   contact-cta.tsx
@@ -156,9 +192,12 @@ SMW-v1/
 │   │   │   use-mobile.ts
 │   │   lib/
 │   │   │   utils.ts
+│   .env
+│   .env.local
 │   components.json
 │   eslint.config.mjs
-│   next.config.ts
+│   next-env.d.ts
+│   next.config.js
 │   package-lock.json
 │   package.json
 │   postcss.config.mjs
@@ -171,4 +210,4 @@ SMW-v1/
 ├── print_structure.py
 └── README.md
 
-Summary: 18 dirs, 149 files (excluded common junk).
+Summary: 26 dirs, 180 files (excluded common junk).
