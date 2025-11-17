@@ -122,7 +122,10 @@ const GallerySection = () => {
   }, [isOpen]);
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-4 py-14 lg:px-0">
+    <section
+      id="gallery"
+      className="w-full max-w-6xl mx-auto px-4 py-14 lg:px-0 scroll-mt-32"
+    >
       <div className="mb-10 text-center">
         <h2 className="text-2xl font-bold text-black md:text-3xl lg:text-4xl">
           ফটো <span className="text-brand">গ্যালারী</span>

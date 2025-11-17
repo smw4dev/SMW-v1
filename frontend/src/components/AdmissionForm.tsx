@@ -444,8 +444,83 @@ export default function AdmissionForm() {
     }
   };
 
+  const buildSubmissionPayload = (values: FormData) => ({
+    personalInformation: {
+      fullName: values.fullName,
+      nickname: values.nickname ?? "",
+      homeDistrict: values.homeDistrict,
+      dateOfBirth: values.dateOfBirth
+        ? values.dateOfBirth.toISOString()
+        : null,
+      gender: values.gender,
+      email: values.email,
+      phone: values.phone,
+      address: values.address,
+    },
+    parentsAndGuardian: {
+      father: {
+        name: values.fatherName,
+        occupation: values.fatherOccupation,
+        phone: values.fatherPhone,
+      },
+      mother: {
+        name: values.motherName,
+        occupation: values.motherOccupation,
+        phone: values.motherPhone,
+      },
+      guardian: {
+        relation: values.guardianRelation,
+        contact: values.guardianContact,
+      },
+    },
+    education: {
+      jsc: {
+        school: values.jscSchool || null,
+        grade: values.jscGrade || null,
+      },
+      ssc: {
+        school: values.sscSchool || null,
+        grade: values.sscGrade || null,
+      },
+    },
+    academicPreferences: {
+      classLevel: values.classLevel,
+      group: values.group || (values.classLevel === "class-8"
+        ? "not-required"
+        : ""),
+      subject: values.subject,
+      batchTiming: values.batchTiming || null,
+      hearAboutUs: values.hearAboutUs || null,
+      prevStudent: !!values.prevStudent,
+    },
+    metadata: {
+      submittedAt: new Date().toISOString(),
+      hasPhoto: Boolean(photoPreview),
+    },
+    attachments: {
+      photoPreview: photoPreview ?? null,
+    },
+  });
+
+  const logSubmissionPayload = (values: FormData) => {
+    const payload = buildSubmissionPayload(values);
+    const payloadJSON = JSON.stringify(payload, null, 2);
+
+    if (typeof console !== "undefined") {
+      if (typeof console.groupCollapsed === "function") {
+        console.groupCollapsed("Admission Form Submission");
+        console.log("Structured payload:", payload);
+        console.log("JSON payload:", payloadJSON);
+        console.groupEnd();
+      } else {
+        console.log("Admission Form Submission:", payloadJSON);
+      }
+    }
+  };
+
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
+    logSubmissionPayload(data);
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setSubmittedData(data);
     setIsSubmitting(false);
@@ -1505,6 +1580,7 @@ export default function AdmissionForm() {
           data={{
             ...submittedData,
             nickname: submittedData.nickname ?? "",
+            group: submittedData.group ?? "",
             jscSchool: submittedData.jscSchool ?? "",
             jscGrade: submittedData.jscGrade ?? "",
             sscSchool: submittedData.sscSchool ?? "",

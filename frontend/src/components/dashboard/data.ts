@@ -11,44 +11,38 @@ export const companies: Company[] = [
   { id: "twitter", name: "Twitter", location: "Brooklyn, NY" },
 ]
 
+export type NavItem = {
+  type: "link"
+  label: string
+  href: string
+  icon: string
+  isActive?: boolean
+}
+
 export type NavSection = {
   title: string
-  items: Array<
-    | {
-        type: "link"
-        label: string
-        href?: string
-        icon: string
-        isActive?: boolean
-      }
-    | {
-        type: "collapsible"
-        label: string
-        icon: string
-        items: string[]
-      }
-  >
+  items: NavItem[]
 }
 
 export const navSections: NavSection[] = [
   {
     title: "Main Menu",
     items: [
-      { type: "link", label: "Students", icon: "Users", href: "/dashboard/students" },
-      { type: "link", label: "Payments", icon: "CreditCard", href: "/dashboard/payments" },
+      { type: "link", label: "Students", icon: "Users", href: "/admin/students" },
+      { type: "link", label: "Payments", icon: "CreditCard", href: "/admin/payments" },
       // pruned per requirement: remove Balances, Customers, Products, Reports
     ],
   },
   {
     title: "General",
     items: [
-      { type: "link", label: "Developers", icon: "Code2", href: "/dashboard/developers" },
-      { type: "link", label: "Settings", icon: "Settings", href: "/dashboard/settings" },
+      { type: "link", label: "Developers", icon: "Code2", href: "/admin/developers" },
+      { type: "link", label: "Settings", icon: "Settings", href: "/admin/settings" },
     ],
   },
   {
     title: "Updates",
-    items: [{ type: "link", label: "Changelog", icon: "History", href: "/dashboard/changelog" }],
+    items: [{ type: "link", label: "Changelog", icon: "History", href: "/admin/changelog" }],
   },
 ]
 
