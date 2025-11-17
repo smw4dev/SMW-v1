@@ -5,7 +5,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   // optional: smaller server bundle for pm2
-  output: "standalone",
+
   images: {
     domains: [
       "images.unsplash.com",
