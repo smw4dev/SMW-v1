@@ -6,7 +6,8 @@ class Course(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    def __str__(self): return f"{self.grade_level} - {self.name}"
+    def __str__(self):
+        return f"{self.grade_level} - {self.title}"
 
 class Batch(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="batches")
