@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, Download, Mail } from "lucide-react";
 import { format } from "date-fns";
 
-const batchTimingLabels: Record<string, string> = {
+const defaultBatchTimingLabels: Record<string, string> = {
   "sat-mon-thurs-morning": "Sat, Mon, Thurs - 10:00 AM - 12:00 PM",
   "sun-tue-thu-afternoon": "Sun, Tue, Thu - 2:00 PM - 4:00 PM",
   "fri-sat-evening": "Fri & Sat - 6:00 PM - 8:00 PM",
@@ -21,6 +21,7 @@ const batchTimingLabels: Record<string, string> = {
 interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  batchLabelMap?: Record<string, string>;
   data: {
     fullName: string;
     nickname: string;
@@ -57,14 +58,8 @@ export default function ConfirmationModal({
   onClose,
   data,
   photoPreview,
+  batchLabelMap,
 }: ConfirmationModalProps) {
-  const formatLabel = (key: string): string => {
-    return key
-      .replace(/([A-Z])/g, " $1")
-      .replace(/^./, (str) => str.toUpperCase())
-      .trim();
-  };
-
   type DataShape = ConfirmationModalProps["data"];
   const formatValue = (
     key: keyof DataShape | string,
@@ -95,7 +90,9 @@ export default function ConfirmationModal({
           .replace(/-/g, " ")
           .replace(/\b\w/g, (l: string) => l.toUpperCase());
       case "batchTiming":
-        return batchTimingLabels[str] ?? str;
+        return (
+          batchLabelMap?.[str] ?? defaultBatchTimingLabels[str] ?? str
+        );
       case "hearAboutUs":
         return str
           .split("-")

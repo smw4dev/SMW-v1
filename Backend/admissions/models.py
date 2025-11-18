@@ -34,7 +34,7 @@ class AdmissionApplication(models.Model):
     student_mobile = models.CharField(max_length=20, blank=True, null=True)
     student_email  = models.EmailField(blank=True, null=True)
     home_location  = models.TextField(blank=True, null=True)
-    picture_path   = models.CharField(max_length=255, blank=True, null=True)
+    picture_path   = models.TextField(blank=True, null=True)
 
     is_submitted = models.BooleanField(default=True)
     is_reviewed  = models.BooleanField(default=False)
