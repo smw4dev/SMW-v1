@@ -201,6 +201,47 @@ const DropdownChevron = () => (
   </span>
 );
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ??
+  "http://localhost:8000/api";
+
+const buildApiUrl = (path: string) =>
+  `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+
+type PublicBatch = {
+  id: number;
+  batch_number?: string | null;
+  days?: string | null;
+  time_slot?: string | null;
+  class_name?: string | null;
+  grade_level?: string | null;
+  group_name?: string | null;
+};
+
+type BatchOptionsMap = Record<string, { value: string; label: string }[]>;
+
+const CLASS_MATCHERS: { regex: RegExp; value: string }[] = [
+  { regex: /class\s*-?\s*8|\b8\b|viii/i, value: "class-8" },
+  { regex: /class\s*-?\s*9|\b9\b|ix/i, value: "class-9" },
+  { regex: /class\s*-?\s*10|\b10\b|x\b|ssc/i, value: "class-10" },
+  { regex: /class\s*-?\s*11|\b11\b|xi|hsc\s*1/i, value: "class-11" },
+  { regex: /class\s*-?\s*12|\b12\b|xii|hsc\s*2/i, value: "class-12" },
+];
+
+const mapClassNameToFormValue = (
+  name?: string | null
+): string | null => {
+  if (!name) return null;
+  const normalized = name.trim().toLowerCase();
+  if (!normalized) return null;
+  for (const entry of CLASS_MATCHERS) {
+    if (entry.regex.test(normalized)) {
+      return entry.value;
+    }
+  }
+  return null;
+};
+
 /* ----------------- COMPONENT ----------------- */
 export default function AdmissionForm() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -208,6 +249,14 @@ export default function AdmissionForm() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [submittedData, setSubmittedData] = useState<FormData | null>(null);
   const [activeSection, setActiveSection] = useState("personal");
+  const [batchOptionsByClass, setBatchOptionsByClass] =
+    useState<BatchOptionsMap>({});
+  const [batchLabelLookup, setBatchLabelLookup] = useState<
+    Record<string, string>
+  >({});
+  const [batchesLoading, setBatchesLoading] = useState(true);
+  const [batchLoadError, setBatchLoadError] = useState<string | null>(null);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -288,58 +337,6 @@ export default function AdmissionForm() {
     { value: "humanities", label: "Humanities" },
   ];
 
-  const batchOptions: Record<string, { value: string; label: string }[]> = {
-    "class-8": [
-      { value: "c8-b1-sun-tue-thu-8am", label: "Batch 1: Sun, Tue, Thu (8am)" },
-      { value: "c8-b2-sun-tue-thu-3pm", label: "Batch 2: Sun, Tue, Thu (3pm)" },
-      {
-        value: "c8-special-sat-mon-wed-10am",
-        label: "Special: Sat, Mon, Wed (10am)",
-      },
-    ],
-    "class-9": [
-      { value: "c9-b1-sun-tue-thu-9am", label: "Batch 1: Sun, Tue, Thu (9am)" },
-      {
-        value: "c9-b2-sun-tue-thu-11am",
-        label: "Batch 2: Sun, Tue, Thu (11am)",
-      },
-      { value: "c9-b3-sun-tue-thu-4pm", label: "Batch 3: Sun, Tue, Thu (4pm)" },
-      { value: "c9-b4-sun-tue-thu-6pm", label: "Batch 4: Sun, Tue, Thu (6pm)" },
-      {
-        value: "c9-special-sat-mon-wed-1230pm",
-        label: "Special: Sat, Mon, Wed (12.30pm)",
-      },
-    ],
-    "class-10": [
-      {
-        value: "c10-b1-sun-tue-thu-7am",
-        label: "Batch 1: Sun, Tue, Thu (7am)",
-      },
-      {
-        value: "c10-b2-sun-tue-thu-10am",
-        label: "Batch 2: Sun, Tue, Thu (10am)",
-      },
-      {
-        value: "c10-b3-sun-tue-thu-1230pm",
-        label: "Batch 3: Sun, Tue, Thu (12.30pm)",
-      },
-      {
-        value: "c10-b4-sun-tue-thu-5pm",
-        label: "Batch 4: Sun, Tue, Thu (5pm)",
-      },
-      {
-        value: "c10-special-sat-mon-wed-11pm",
-        label: "Special: Sat, Mon, Wed (11pm)",
-      },
-      {
-        value: "c10-commerce-arts-sat-mon-wed-6pm",
-        label: "Commerce/Arts: Sat, Mon, Wed (6pm)",
-      },
-    ],
-    "class-11": [],
-    "class-12": [],
-  };
-
   useEffect(() => {
     // Reset dependent fields when class changes, without triggering early validation
     form.setValue("group", "", {
@@ -360,7 +357,9 @@ export default function AdmissionForm() {
     const filledFields = sectionFields.filter((field) => {
       if (
         field === "batchTiming" &&
-        (batchOptions[selectedClass as string]?.length ?? 0) === 0
+        selectedClass &&
+        !batchesLoading &&
+        (batchOptionsByClass[selectedClass]?.length ?? 0) === 0
       ) {
         return true;
       }
@@ -418,6 +417,84 @@ export default function AdmissionForm() {
       });
     }
   }, [guardianRelation, form]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchBatches = async () => {
+      setBatchLoadError(null);
+      try {
+        const response = await fetch(buildApiUrl("/public/batches/"));
+        if (!response.ok) {
+          throw new Error("Unable to load available batches right now.");
+        }
+        const data: PublicBatch[] = await response.json();
+        if (cancelled) return;
+
+        const grouped: BatchOptionsMap = {};
+        const labels: Record<string, string> = {};
+
+        data.forEach((batch) => {
+          const classKey =
+            mapClassNameToFormValue(batch.class_name) ||
+            mapClassNameToFormValue(batch.grade_level);
+          if (!classKey) {
+            return;
+          }
+
+          const optionValue = String(batch.id);
+          const batchNumber = batch.batch_number?.trim();
+          const groupSuffix = batch.group_name?.trim()
+            ? ` (${batch.group_name?.trim()})`
+            : "";
+          const schedule = [batch.days, batch.time_slot]
+            .map((segment) => (segment || "").trim())
+            .filter(Boolean)
+            .join(" · ");
+          const labelBase = batchNumber
+            ? `Batch ${batchNumber}`
+            : `Batch #${batch.id}`;
+          const label = `${labelBase}${groupSuffix}${
+            schedule ? ` – ${schedule}` : ""
+          }`;
+
+          if (!grouped[classKey]) {
+            grouped[classKey] = [];
+          }
+          grouped[classKey].push({ value: optionValue, label });
+          labels[optionValue] = label;
+        });
+
+        Object.keys(grouped).forEach((key) => {
+          grouped[key] = grouped[key].sort((a, b) =>
+            a.label.localeCompare(b.label)
+          );
+        });
+
+        setBatchOptionsByClass(grouped);
+        setBatchLabelLookup(labels);
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to load batches", error);
+          setBatchLoadError(
+            error instanceof Error
+              ? error.message
+              : "Failed to load available batches."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setBatchesLoading(false);
+        }
+      }
+    };
+
+    fetchBatches();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -490,6 +567,10 @@ export default function AdmissionForm() {
         : ""),
       subject: values.subject,
       batchTiming: values.batchTiming || null,
+      batchId:
+        values.batchTiming && !Number.isNaN(Number(values.batchTiming))
+          ? Number(values.batchTiming)
+          : null,
       hearAboutUs: values.hearAboutUs || null,
       prevStudent: !!values.prevStudent,
     },
@@ -518,13 +599,60 @@ export default function AdmissionForm() {
     }
   };
 
+  const extractSubmissionError = (body: unknown): string | null => {
+    if (!body) return null;
+    if (typeof body === "string") return body;
+    if (typeof body === "object" && body !== null) {
+      if (
+        "detail" in body &&
+        typeof (body as { detail?: unknown }).detail === "string"
+      ) {
+        return (body as { detail?: string }).detail ?? null;
+      }
+      try {
+        return JSON.stringify(body);
+      } catch (error) {
+        console.error("Failed to stringify submission error", error);
+      }
+    }
+    return null;
+  };
+
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
+    setSubmissionError(null);
     logSubmissionPayload(data);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setSubmittedData(data);
-    setIsSubmitting(false);
-    setShowConfirmation(true);
+
+    try {
+      const response = await fetch(buildApiUrl("/admissions/apply/"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(buildSubmissionPayload(data)),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => null);
+        const parsed = extractSubmissionError(errorBody);
+        throw new Error(
+          parsed || "We could not save your application. Please try again."
+        );
+      }
+
+      await response.json();
+      setSubmittedData(data);
+      setShowConfirmation(true);
+    } catch (error) {
+      console.error("Admission form submission failed", error);
+      setSubmissionError(
+        error instanceof Error
+          ? error.message
+          : "Unexpected error while submitting. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -1382,56 +1510,72 @@ export default function AdmissionForm() {
                       <FormField
                         control={form.control}
                         name="batchTiming"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-slate-800">
-                              Batch Timing
-                            </FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <select
-                                  {...field}
-                                  className={selectFieldClasses}
-                                  value={field.value || ""}
-                                  onChange={(event) =>
-                                    field.onChange(event.target.value)
-                                  }
-                                  disabled={
-                                    !selectedClass ||
-                                    (batchOptions[selectedClass as string]
-                                      ?.length ?? 0) === 0
-                                  }
-                                >
-                                  <option value="" disabled>
-                                    {(batchOptions[selectedClass as string]
-                                      ?.length ?? 0) === 0
-                                      ? selectedClass
-                                        ? "No batch available currently"
-                                        : "Select class first"
-                                      : "Select schedule"}
-                                  </option>
-                                  {(batchOptions[selectedClass as string] ||
-                                    []
-                                  ).map((opt) => (
-                                    <option key={opt.value} value={opt.value}>
-                                      {opt.label}
+                        render={({ field }) => {
+                          const classOptions = selectedClass
+                            ? batchOptionsByClass[selectedClass] || []
+                            : [];
+                          const isDisabled =
+                            !selectedClass ||
+                            batchesLoading ||
+                            classOptions.length === 0;
+                          const placeholder = !selectedClass
+                            ? "Select class first"
+                            : batchesLoading
+                              ? "Loading available batches..."
+                              : classOptions.length === 0
+                                ? "No batch available"
+                                : "Select batch timing";
+
+                          return (
+                            <FormItem>
+                              <FormLabel className="text-slate-800">
+                                Batch Timing
+                              </FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <select
+                                    {...field}
+                                    className={selectFieldClasses}
+                                    value={field.value || ""}
+                                    onChange={(event) =>
+                                      field.onChange(event.target.value)
+                                    }
+                                    disabled={isDisabled}
+                                  >
+                                    <option value="" disabled>
+                                      {placeholder}
                                     </option>
-                                  ))}
-                                </select>
-                                <DropdownChevron />
-                              </div>
-                            </FormControl>
-                            {(batchOptions[selectedClass as string]?.length ??
-                              0) === 0 &&
-                              selectedClass && (
-                                <p className="text-xs text-slate-600 mt-1">
-                                  No batch available currently for the selected
-                                  class.
+                                    {classOptions.map((opt) => (
+                                      <option key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <DropdownChevron />
+                                </div>
+                              </FormControl>
+                              {batchesLoading && selectedClass && (
+                                <p className="text-xs text-slate-500 mt-1">
+                                  Loading batches for the selected class...
                                 </p>
                               )}
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                              {batchLoadError && (
+                                <p className="text-xs text-red-600 mt-1">
+                                  {batchLoadError}
+                                </p>
+                              )}
+                              {!batchesLoading &&
+                                selectedClass &&
+                                classOptions.length === 0 && (
+                                  <p className="text-xs text-slate-600 mt-1">
+                                    No batch available currently for the
+                                    selected class.
+                                  </p>
+                                )}
+                              <FormMessage />
+                            </FormItem>
+                          );
+                        }}
                       />
                     </div>
 
@@ -1549,6 +1693,12 @@ export default function AdmissionForm() {
                     </p>
                   </div>
 
+                  {submissionError && (
+                    <p className="text-center text-sm text-red-600">
+                      {submissionError}
+                    </p>
+                  )}
+
                   <div className="flex justify-center">
                     <Button
                       type="submit"
@@ -1589,6 +1739,7 @@ export default function AdmissionForm() {
             hearAboutUs: submittedData.hearAboutUs ?? "",
           }}
           photoPreview={photoPreview}
+          batchLabelMap={batchLabelLookup}
         />
       )}
     </>
