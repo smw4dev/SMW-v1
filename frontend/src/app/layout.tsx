@@ -48,51 +48,10 @@ export default function RootLayout({
       } catch (e) {}
     })();
   `;
-
-  const scrollbarInit = `
-    (function(){
-      try {
-        var css = 'body[data-scroll-locked]{overflow-y:visible !important;padding-right:0 !important;margin-right:0 !important;padding-left:0 !important;margin-left:0 !important;}';
-        var styleId = 'scrollbar-stable-style';
-        var ensureStyle = function(){
-          var head = document.head;
-          if (!head) return;
-          var style = document.getElementById(styleId);
-          if (!style) {
-            style = document.createElement('style');
-            style.id = styleId;
-            style.appendChild(document.createTextNode(css));
-          }
-          head.appendChild(style);
-        };
-        var observeBody = function(body){
-          if (!body) return;
-          new MutationObserver(function(mutations){
-            for (var i = 0; i < mutations.length; i++) {
-              if (mutations[i].type === 'attributes') {
-                ensureStyle();
-                break;
-              }
-            }
-          }).observe(body, { attributes: true, attributeFilter: ['data-scroll-locked'] });
-        };
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', function(){
-            ensureStyle();
-            observeBody(document.body);
-          });
-        } else {
-          ensureStyle();
-          observeBody(document.body);
-        }
-      } catch (e) {}
-    })();
-  `;
   return (
     <html lang="en" suppressHydrationWarning data-theme="emerald" className={`${hindSiliguri.variable}`}>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
-        <script dangerouslySetInnerHTML={{ __html: scrollbarInit }} />
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
