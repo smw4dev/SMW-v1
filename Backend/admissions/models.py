@@ -17,35 +17,49 @@ class School(models.Model):
 
 class AdmissionApplication(models.Model):
 
-    student_first_name_en = models.CharField(max_length=120)
-    student_last_name_en  = models.CharField(max_length=120)
-    student_nick_name_en  = models.CharField(max_length=120, blank=True, null=True)
-    student_first_name_bn = models.CharField(max_length=120, blank=True, null=True)
-    student_last_name_bn  = models.CharField(max_length=120, blank=True, null=True)
-    student_nick_name_bn  = models.CharField(max_length=120, blank=True, null=True)
-
+    student_name = models.CharField(max_length=120)
+    student_nick_name  = models.CharField(max_length=120, blank=True, null=True)
+    
     date_of_birth = models.DateField()
     sex = models.CharField(max_length=1, choices=SEX_CHOICES)
     current_class = models.CharField(max_length=50)
-    prev_result = models.CharField(max_length=120, blank=True, null=True)
+    jsc_result = models.CharField(max_length=120, blank=True, null=True)
+    ssc_result = models.CharField(max_length=120, blank=True, null=True)
 
     batch = models.ForeignKey(Batch, on_delete=models.PROTECT, related_name="applications")
 
     student_mobile = models.CharField(max_length=20, blank=True, null=True)
     student_email  = models.EmailField(blank=True, null=True)
-    home_location  = models.TextField(blank=True, null=True)
-    picture_path   = models.CharField(max_length=255, blank=True, null=True)
+    home_district  = models.TextField(blank=True, null=True)
+    present_address  = models.TextField(blank=True, null=True)
+
+    picture = models.ImageField(
+        upload_to='images/',   # folder inside MEDIA_ROOT
+        blank=True,
+        null=True
+    )
+
 
     is_submitted = models.BooleanField(default=True)
     is_reviewed  = models.BooleanField(default=False)
     is_approved  = models.BooleanField(default=False)
 
-    is_paid = models.BooleanField(default=False)
+    STATUS_CHOICES = (
+    ('draft', 'Draft'),
+    ('paid', 'Paid'),
+    ('pending', 'Pending'),
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='draft'
+    )
 
     created_user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="admission_application"
     )
-    school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True, related_name="applications")
+    school = models.CharField(max_length=255, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self): return f"{self.student_first_name_en} {self.student_last_name_en} -> {self.batch}"
@@ -54,7 +68,6 @@ class Guardian(models.Model):
     application = models.ForeignKey(AdmissionApplication, on_delete=models.CASCADE, related_name="guardians")
     role = models.CharField(max_length=10)
     name_en = models.CharField(max_length=150)
-    name_bn = models.CharField(max_length=150, blank=True, null=True)
     occupation = models.CharField(max_length=150, blank=True, null=True)
     contact_number = models.CharField(max_length=20, blank=True, null=True)
     email_address = models.EmailField(blank=True, null=True)

@@ -93,22 +93,28 @@ SMW-v1/
 │   │   window.svg
 │   src/
 │   │   app/
+│   │   │   admin/
+│   │   │   │   (dashboard)/
+│   │   │   │   │   payments/
+│   │   │   │   │   │   page.tsx
+│   │   │   │   │   students/
+│   │   │   │   │   │   [id]/
+│   │   │   │   │   │   │   page.tsx
+│   │   │   │   │   │   page.tsx
+│   │   │   │   │   layout.tsx
+│   │   │   │   │   page.tsx
+│   │   │   │   login/
+│   │   │   │   │   page.tsx
 │   │   │   admission/
 │   │   │   │   payment-result/
-│   │   │   │   page.tsx
-│   │   │   dashboard/
-│   │   │   │   payments/
-│   │   │   │   │   page.tsx
-│   │   │   │   students/
-│   │   │   │   │   [id]/
-│   │   │   │   │   │   page.tsx
-│   │   │   │   │   page.tsx
 │   │   │   │   page.tsx
 │   │   │   favicon.ico
 │   │   │   globals.css
 │   │   │   layout.tsx
 │   │   │   page.tsx
 │   │   components/
+│   │   │   auth/
+│   │   │   │   AuthProvider.tsx
 │   │   │   dashboard/
 │   │   │   │   action-icon-button.tsx
 │   │   │   │   add-user-dialog.tsx
@@ -196,6 +202,7 @@ SMW-v1/
 │   .env.local
 │   components.json
 │   eslint.config.mjs
+│   middleware.ts
 │   next-env.d.ts
 │   next.config.js
 │   package-lock.json
@@ -210,4 +217,4 @@ SMW-v1/
 ├── print_structure.py
 └── README.md
 
-Summary: 26 dirs, 180 files (excluded common junk).
+Summary: 29 dirs, 184 files (excluded common junk).

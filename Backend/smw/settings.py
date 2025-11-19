@@ -268,3 +268,19 @@ LOGGING = {
     },
     "root": {"handlers": ["console"], "level": DJANGO_LOG_LEVEL},
 }
+
+# Bridge for SSLCommerzClient
+SSLC_SANDBOX = not SSLC_IS_LIVE  # True when using sandbox
+
+# Alias so SSLCommerzClient can read STORE_PASSWORD
+SSLC_STORE_PASSWORD = SSLC_STORE_PASS
+
+# Defaults for init/validation URLs, can be overridden via env if needed
+SSLC_INIT_URL = os.getenv(
+    "SSLC_INIT_URL",
+    f"{SSLC_BASE_URL.rstrip('/')}/gwprocess/v4/api.php",
+)
+SSLC_VALIDATE_URL = os.getenv(
+    "SSLC_VALIDATE_URL",
+    f"{SSLC_BASE_URL.rstrip('/')}/validator/api/validationserverAPI.php",
+)

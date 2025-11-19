@@ -1,0 +1,2480 @@
+# API Inventory (direct view/serializer introspection)
+- Generated: 2025-11-17 21:58:07
+- Base dir: D:\1SMW\SMW-v1
+- Settings: smw.settings
+
+
+## DELETE /api/admin/create-admin/
+- View: authentication.views.AdminCreateUserView
+- Purpose: Delete – admin create user
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/admin/create-admin/
+- View: authentication.views.AdminCreateUserView
+- Purpose: Retrieve/list – admin create user
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/admin/create-admin/
+- View: authentication.views.AdminCreateUserView
+- Purpose: Update – admin create user
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/admin/create-admin/
+- View: authentication.views.AdminCreateUserView
+- Purpose: Create – admin create user
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/admin/create-admin/
+- View: authentication.views.AdminCreateUserView
+- Purpose: Update – admin create user
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/admin/create-admin/
+- View: authentication.views.AdminCreateUserView
+- Purpose: Trace – admin create user
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/admin/login/
+- View: authentication.views.AdminUserLoginView
+- Purpose: Delete – admin user login
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/admin/login/
+- View: authentication.views.AdminUserLoginView
+- Purpose: Retrieve/list – admin user login
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/admin/login/
+- View: authentication.views.AdminUserLoginView
+- Purpose: Update – admin user login
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/admin/login/
+- View: authentication.views.AdminUserLoginView
+- Purpose: Create – admin user login
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/admin/login/
+- View: authentication.views.AdminUserLoginView
+- Purpose: Update – admin user login
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/admin/login/
+- View: authentication.views.AdminUserLoginView
+- Purpose: Trace – admin user login
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/admin/register/
+- View: authentication.views.StaffUserRegisterView
+- Purpose: Delete – staff user register
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/admin/register/
+- View: authentication.views.StaffUserRegisterView
+- Purpose: Retrieve/list – staff user register
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/admin/register/
+- View: authentication.views.StaffUserRegisterView
+- Purpose: Update – staff user register
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/admin/register/
+- View: authentication.views.StaffUserRegisterView
+- Purpose: Create – staff user register
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/admin/register/
+- View: authentication.views.StaffUserRegisterView
+- Purpose: Update – staff user register
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/admin/register/
+- View: authentication.views.StaffUserRegisterView
+- Purpose: Trace – staff user register
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/admissions/
+- View: admissions.views.AdmissionList
+- Purpose: Delete – admission list
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/admissions/
+- View: admissions.views.AdmissionList
+- Purpose: List – admission list
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/admissions/
+- View: admissions.views.AdmissionList
+- Purpose: Update – admission list
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/admissions/
+- View: admissions.views.AdmissionList
+- Purpose: Create – admission list
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/admissions/
+- View: admissions.views.AdmissionList
+- Purpose: Update – admission list
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/admissions/
+- View: admissions.views.AdmissionList
+- Purpose: Trace – admission list
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/admissions/<int:pk>/
+- View: admissions.views.AdmissionDetail
+- Purpose: Delete – admission detail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/admissions/<int:pk>/
+- View: admissions.views.AdmissionDetail
+- Purpose: Retrieve – admission detail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/admissions/<int:pk>/
+- View: admissions.views.AdmissionDetail
+- Purpose: Update – admission detail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/admissions/<int:pk>/
+- View: admissions.views.AdmissionDetail
+- Purpose: Create – admission detail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/admissions/<int:pk>/
+- View: admissions.views.AdmissionDetail
+- Purpose: Update – admission detail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/admissions/<int:pk>/
+- View: admissions.views.AdmissionDetail
+- Purpose: Trace – admission detail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/admissions/<int:pk>/review/
+- View: admissions.views.AdmissionReviewApprove
+- Purpose: Delete – admission review approve
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/admissions/<int:pk>/review/
+- View: admissions.views.AdmissionReviewApprove
+- Purpose: Retrieve – admission review approve
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/admissions/<int:pk>/review/
+- View: admissions.views.AdmissionReviewApprove
+- Purpose: Update – admission review approve
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/admissions/<int:pk>/review/
+- View: admissions.views.AdmissionReviewApprove
+- Purpose: Create – admission review approve
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/admissions/<int:pk>/review/
+- View: admissions.views.AdmissionReviewApprove
+- Purpose: Update – admission review approve
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/admissions/<int:pk>/review/
+- View: admissions.views.AdmissionReviewApprove
+- Purpose: Trace – admission review approve
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/admissions/apply/
+- View: admissions.views.AdmissionApply
+- Purpose: Delete – admission apply
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/admissions/apply/
+- View: admissions.views.AdmissionApply
+- Purpose: Retrieve/list – admission apply
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/admissions/apply/
+- View: admissions.views.AdmissionApply
+- Purpose: Update – admission apply
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/admissions/apply/
+- View: admissions.views.AdmissionApply
+- Purpose: Create – admission apply
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/admissions/apply/
+- View: admissions.views.AdmissionApply
+- Purpose: Update – admission apply
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/admissions/apply/
+- View: admissions.views.AdmissionApply
+- Purpose: Trace – admission apply
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/batches/
+- View: courses_app.views.BatchListCreate
+- Purpose: Delete – batch list create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/batches/
+- View: courses_app.views.BatchListCreate
+- Purpose: List – batch list create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/batches/
+- View: courses_app.views.BatchListCreate
+- Purpose: Update – batch list create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/batches/
+- View: courses_app.views.BatchListCreate
+- Purpose: Create – batch list create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/batches/
+- View: courses_app.views.BatchListCreate
+- Purpose: Update – batch list create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/batches/
+- View: courses_app.views.BatchListCreate
+- Purpose: Trace – batch list create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/batches/<int:pk>/
+- View: courses_app.views.BatchDetail
+- Purpose: Delete – batch detail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/batches/<int:pk>/
+- View: courses_app.views.BatchDetail
+- Purpose: Retrieve – batch detail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/batches/<int:pk>/
+- View: courses_app.views.BatchDetail
+- Purpose: Update – batch detail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/batches/<int:pk>/
+- View: courses_app.views.BatchDetail
+- Purpose: Create – batch detail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/batches/<int:pk>/
+- View: courses_app.views.BatchDetail
+- Purpose: Update – batch detail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/batches/<int:pk>/
+- View: courses_app.views.BatchDetail
+- Purpose: Trace – batch detail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/courses/
+- View: courses_app.views.CourseListCreate
+- Purpose: Delete – course list create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/courses/
+- View: courses_app.views.CourseListCreate
+- Purpose: List – course list create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/courses/
+- View: courses_app.views.CourseListCreate
+- Purpose: Update – course list create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/courses/
+- View: courses_app.views.CourseListCreate
+- Purpose: Create – course list create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/courses/
+- View: courses_app.views.CourseListCreate
+- Purpose: Update – course list create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/courses/
+- View: courses_app.views.CourseListCreate
+- Purpose: Trace – course list create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/courses/<int:pk>/
+- View: courses_app.views.CourseDetail
+- Purpose: Delete – course detail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/courses/<int:pk>/
+- View: courses_app.views.CourseDetail
+- Purpose: Retrieve – course detail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/courses/<int:pk>/
+- View: courses_app.views.CourseDetail
+- Purpose: Update – course detail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/courses/<int:pk>/
+- View: courses_app.views.CourseDetail
+- Purpose: Create – course detail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/courses/<int:pk>/
+- View: courses_app.views.CourseDetail
+- Purpose: Update – course detail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/courses/<int:pk>/
+- View: courses_app.views.CourseDetail
+- Purpose: Trace – course detail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/f/payments/admission/<int:application_id>/
+- View: financials.views.AdmissionPaymentCreate
+- Purpose: Delete – admission payment create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/f/payments/admission/<int:application_id>/
+- View: financials.views.AdmissionPaymentCreate
+- Purpose: Retrieve – admission payment create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/f/payments/admission/<int:application_id>/
+- View: financials.views.AdmissionPaymentCreate
+- Purpose: Update – admission payment create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/f/payments/admission/<int:application_id>/
+- View: financials.views.AdmissionPaymentCreate
+- Purpose: Create – admission payment create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/f/payments/admission/<int:application_id>/
+- View: financials.views.AdmissionPaymentCreate
+- Purpose: Update – admission payment create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/f/payments/admission/<int:application_id>/
+- View: financials.views.AdmissionPaymentCreate
+- Purpose: Trace – admission payment create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/f/payments/ipn/sslcommerz/
+- View: financials.views.PaymentIPN
+- Purpose: Delete – payment i p n
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/f/payments/ipn/sslcommerz/
+- View: financials.views.PaymentIPN
+- Purpose: Retrieve/list – payment i p n
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/f/payments/ipn/sslcommerz/
+- View: financials.views.PaymentIPN
+- Purpose: Update – payment i p n
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/f/payments/ipn/sslcommerz/
+- View: financials.views.PaymentIPN
+- Purpose: Create – payment i p n
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/f/payments/ipn/sslcommerz/
+- View: financials.views.PaymentIPN
+- Purpose: Update – payment i p n
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/f/payments/ipn/sslcommerz/
+- View: financials.views.PaymentIPN
+- Purpose: Trace – payment i p n
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/f/payments/mine/
+- View: financials.views.MyPayments
+- Purpose: Delete – my payments
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/f/payments/mine/
+- View: financials.views.MyPayments
+- Purpose: Retrieve/list – my payments
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/f/payments/mine/
+- View: financials.views.MyPayments
+- Purpose: Update – my payments
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/f/payments/mine/
+- View: financials.views.MyPayments
+- Purpose: Create – my payments
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/f/payments/mine/
+- View: financials.views.MyPayments
+- Purpose: Update – my payments
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/f/payments/mine/
+- View: financials.views.MyPayments
+- Purpose: Trace – my payments
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/f/payments/ssl/cancel/
+- View: financials.views.SSLCancel
+- Purpose: Delete – s s l cancel
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/f/payments/ssl/cancel/
+- View: financials.views.SSLCancel
+- Purpose: Retrieve/list – s s l cancel
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/f/payments/ssl/cancel/
+- View: financials.views.SSLCancel
+- Purpose: Update – s s l cancel
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/f/payments/ssl/cancel/
+- View: financials.views.SSLCancel
+- Purpose: Create – s s l cancel
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/f/payments/ssl/cancel/
+- View: financials.views.SSLCancel
+- Purpose: Update – s s l cancel
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/f/payments/ssl/cancel/
+- View: financials.views.SSLCancel
+- Purpose: Trace – s s l cancel
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/f/payments/ssl/fail/
+- View: financials.views.SSLFail
+- Purpose: Delete – s s l fail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/f/payments/ssl/fail/
+- View: financials.views.SSLFail
+- Purpose: Retrieve/list – s s l fail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/f/payments/ssl/fail/
+- View: financials.views.SSLFail
+- Purpose: Update – s s l fail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/f/payments/ssl/fail/
+- View: financials.views.SSLFail
+- Purpose: Create – s s l fail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/f/payments/ssl/fail/
+- View: financials.views.SSLFail
+- Purpose: Update – s s l fail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/f/payments/ssl/fail/
+- View: financials.views.SSLFail
+- Purpose: Trace – s s l fail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/f/payments/ssl/success/
+- View: financials.views.SSLSuccess
+- Purpose: Delete – s s l success
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/f/payments/ssl/success/
+- View: financials.views.SSLSuccess
+- Purpose: Retrieve/list – s s l success
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/f/payments/ssl/success/
+- View: financials.views.SSLSuccess
+- Purpose: Update – s s l success
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/f/payments/ssl/success/
+- View: financials.views.SSLSuccess
+- Purpose: Create – s s l success
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/f/payments/ssl/success/
+- View: financials.views.SSLSuccess
+- Purpose: Update – s s l success
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/f/payments/ssl/success/
+- View: financials.views.SSLSuccess
+- Purpose: Trace – s s l success
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/login/
+- View: authentication.views.EndUserLoginView
+- Purpose: Delete – end user login
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/login/
+- View: authentication.views.EndUserLoginView
+- Purpose: Retrieve/list – end user login
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/login/
+- View: authentication.views.EndUserLoginView
+- Purpose: Update – end user login
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/login/
+- View: authentication.views.EndUserLoginView
+- Purpose: Create – end user login
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/login/
+- View: authentication.views.EndUserLoginView
+- Purpose: Update – end user login
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/login/
+- View: authentication.views.EndUserLoginView
+- Purpose: Trace – end user login
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/logout/
+- View: authentication.views.LogoutView
+- Purpose: Delete – logout
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/logout/
+- View: authentication.views.LogoutView
+- Purpose: Retrieve/list – logout
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/logout/
+- View: authentication.views.LogoutView
+- Purpose: Update – logout
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/logout/
+- View: authentication.views.LogoutView
+- Purpose: Create – logout
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/logout/
+- View: authentication.views.LogoutView
+- Purpose: Update – logout
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/logout/
+- View: authentication.views.LogoutView
+- Purpose: Trace – logout
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/password-reset-confirm/
+- View: authentication.views.PasswordResetConfirmView
+- Purpose: Delete – password reset confirm
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/password-reset-confirm/
+- View: authentication.views.PasswordResetConfirmView
+- Purpose: Retrieve/list – password reset confirm
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/password-reset-confirm/
+- View: authentication.views.PasswordResetConfirmView
+- Purpose: Update – password reset confirm
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/password-reset-confirm/
+- View: authentication.views.PasswordResetConfirmView
+- Purpose: Create – password reset confirm
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/password-reset-confirm/
+- View: authentication.views.PasswordResetConfirmView
+- Purpose: Update – password reset confirm
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/password-reset-confirm/
+- View: authentication.views.PasswordResetConfirmView
+- Purpose: Trace – password reset confirm
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/password-reset-request/
+- View: authentication.views.PasswordResetRequestView
+- Purpose: Delete – password reset request
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/password-reset-request/
+- View: authentication.views.PasswordResetRequestView
+- Purpose: Retrieve/list – password reset request
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/password-reset-request/
+- View: authentication.views.PasswordResetRequestView
+- Purpose: Update – password reset request
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/password-reset-request/
+- View: authentication.views.PasswordResetRequestView
+- Purpose: Create – password reset request
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/password-reset-request/
+- View: authentication.views.PasswordResetRequestView
+- Purpose: Update – password reset request
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/password-reset-request/
+- View: authentication.views.PasswordResetRequestView
+- Purpose: Trace – password reset request
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/payments/admission/<int:application_id>/
+- View: payments.views.AdmissionPaymentCreate
+- Purpose: Delete – admission payment create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/payments/admission/<int:application_id>/
+- View: payments.views.AdmissionPaymentCreate
+- Purpose: Retrieve – admission payment create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/payments/admission/<int:application_id>/
+- View: payments.views.AdmissionPaymentCreate
+- Purpose: Update – admission payment create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/payments/admission/<int:application_id>/
+- View: payments.views.AdmissionPaymentCreate
+- Purpose: Create – admission payment create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/payments/admission/<int:application_id>/
+- View: payments.views.AdmissionPaymentCreate
+- Purpose: Update – admission payment create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/payments/admission/<int:application_id>/
+- View: payments.views.AdmissionPaymentCreate
+- Purpose: Trace – admission payment create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/payments/detail/<str:tran_id>/
+- View: payments.views.PaymentDetailByTranId
+- Purpose: Delete – payment detail by tran id
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/payments/detail/<str:tran_id>/
+- View: payments.views.PaymentDetailByTranId
+- Purpose: Retrieve – payment detail by tran id
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/payments/detail/<str:tran_id>/
+- View: payments.views.PaymentDetailByTranId
+- Purpose: Update – payment detail by tran id
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/payments/detail/<str:tran_id>/
+- View: payments.views.PaymentDetailByTranId
+- Purpose: Create – payment detail by tran id
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/payments/detail/<str:tran_id>/
+- View: payments.views.PaymentDetailByTranId
+- Purpose: Update – payment detail by tran id
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/payments/detail/<str:tran_id>/
+- View: payments.views.PaymentDetailByTranId
+- Purpose: Trace – payment detail by tran id
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/payments/ipn/sslcommerz/
+- View: payments.views.SSLIPNView
+- Purpose: Delete – s s l i p n
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/payments/ipn/sslcommerz/
+- View: payments.views.SSLIPNView
+- Purpose: Retrieve/list – s s l i p n
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/payments/ipn/sslcommerz/
+- View: payments.views.SSLIPNView
+- Purpose: Update – s s l i p n
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/payments/ipn/sslcommerz/
+- View: payments.views.SSLIPNView
+- Purpose: Create – s s l i p n
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/payments/ipn/sslcommerz/
+- View: payments.views.SSLIPNView
+- Purpose: Update – s s l i p n
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/payments/ipn/sslcommerz/
+- View: payments.views.SSLIPNView
+- Purpose: Trace – s s l i p n
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/payments/ssl/cancel/
+- View: payments.views.SSLCancelView
+- Purpose: Delete – s s l cancel
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/payments/ssl/cancel/
+- View: payments.views.SSLCancelView
+- Purpose: Retrieve/list – s s l cancel
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/payments/ssl/cancel/
+- View: payments.views.SSLCancelView
+- Purpose: Update – s s l cancel
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/payments/ssl/cancel/
+- View: payments.views.SSLCancelView
+- Purpose: Create – s s l cancel
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/payments/ssl/cancel/
+- View: payments.views.SSLCancelView
+- Purpose: Update – s s l cancel
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/payments/ssl/cancel/
+- View: payments.views.SSLCancelView
+- Purpose: Trace – s s l cancel
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/payments/ssl/fail/
+- View: payments.views.SSLFailView
+- Purpose: Delete – s s l fail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/payments/ssl/fail/
+- View: payments.views.SSLFailView
+- Purpose: Retrieve/list – s s l fail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/payments/ssl/fail/
+- View: payments.views.SSLFailView
+- Purpose: Update – s s l fail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/payments/ssl/fail/
+- View: payments.views.SSLFailView
+- Purpose: Create – s s l fail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/payments/ssl/fail/
+- View: payments.views.SSLFailView
+- Purpose: Update – s s l fail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/payments/ssl/fail/
+- View: payments.views.SSLFailView
+- Purpose: Trace – s s l fail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/payments/ssl/success/
+- View: payments.views.SSLSuccessView
+- Purpose: Delete – s s l success
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/payments/ssl/success/
+- View: payments.views.SSLSuccessView
+- Purpose: Retrieve/list – s s l success
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/payments/ssl/success/
+- View: payments.views.SSLSuccessView
+- Purpose: Update – s s l success
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/payments/ssl/success/
+- View: payments.views.SSLSuccessView
+- Purpose: Create – s s l success
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/payments/ssl/success/
+- View: payments.views.SSLSuccessView
+- Purpose: Update – s s l success
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/payments/ssl/success/
+- View: payments.views.SSLSuccessView
+- Purpose: Trace – s s l success
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/profile/
+- View: users.views.ProfileView
+- Purpose: Delete – profile
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/profile/
+- View: users.views.ProfileView
+- Purpose: Retrieve/list – profile
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/profile/
+- View: users.views.ProfileView
+- Purpose: Update – profile
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/profile/
+- View: users.views.ProfileView
+- Purpose: Create – profile
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/profile/
+- View: users.views.ProfileView
+- Purpose: Update – profile
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/profile/
+- View: users.views.ProfileView
+- Purpose: Trace – profile
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/public/batches/
+- View: courses_app.views.PublicBatches
+- Purpose: Delete – public batches
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/public/batches/
+- View: courses_app.views.PublicBatches
+- Purpose: Retrieve/list – public batches
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/public/batches/
+- View: courses_app.views.PublicBatches
+- Purpose: Update – public batches
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/public/batches/
+- View: courses_app.views.PublicBatches
+- Purpose: Create – public batches
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/public/batches/
+- View: courses_app.views.PublicBatches
+- Purpose: Update – public batches
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/public/batches/
+- View: courses_app.views.PublicBatches
+- Purpose: Trace – public batches
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/public/courses/
+- View: courses_app.views.PublicCourses
+- Purpose: Delete – public courses
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/public/courses/
+- View: courses_app.views.PublicCourses
+- Purpose: Retrieve/list – public courses
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/public/courses/
+- View: courses_app.views.PublicCourses
+- Purpose: Update – public courses
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/public/courses/
+- View: courses_app.views.PublicCourses
+- Purpose: Create – public courses
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/public/courses/
+- View: courses_app.views.PublicCourses
+- Purpose: Update – public courses
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/public/courses/
+- View: courses_app.views.PublicCourses
+- Purpose: Trace – public courses
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/register/
+- View: authentication.views.EndUserRegisterView
+- Purpose: Delete – end user register
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/register/
+- View: authentication.views.EndUserRegisterView
+- Purpose: Retrieve/list – end user register
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/register/
+- View: authentication.views.EndUserRegisterView
+- Purpose: Update – end user register
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/register/
+- View: authentication.views.EndUserRegisterView
+- Purpose: Create – end user register
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/register/
+- View: authentication.views.EndUserRegisterView
+- Purpose: Update – end user register
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/register/
+- View: authentication.views.EndUserRegisterView
+- Purpose: Trace – end user register
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/schools/
+- View: admissions.views.SchoolListCreate
+- Purpose: Delete – school list create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/schools/
+- View: admissions.views.SchoolListCreate
+- Purpose: List – school list create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/schools/
+- View: admissions.views.SchoolListCreate
+- Purpose: Update – school list create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/schools/
+- View: admissions.views.SchoolListCreate
+- Purpose: Create – school list create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/schools/
+- View: admissions.views.SchoolListCreate
+- Purpose: Update – school list create
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/schools/
+- View: admissions.views.SchoolListCreate
+- Purpose: Trace – school list create
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/token/
+- View: rest_framework_simplejwt.views.TokenObtainPairView
+- Purpose: Delete – token obtain pair
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  - email: CharField (required)
+  - password: PasswordField (required)
+
+
+## GET /api/token/
+- View: rest_framework_simplejwt.views.TokenObtainPairView
+- Purpose: Retrieve/list – token obtain pair
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  - email: CharField (required)
+  - password: PasswordField (required)
+
+
+## PATCH /api/token/
+- View: rest_framework_simplejwt.views.TokenObtainPairView
+- Purpose: Update – token obtain pair
+
+Request body fields:
+  - email: CharField (required)
+  - password: PasswordField (required)
+
+Response fields (assumed same serializer):
+  - email: CharField (required)
+  - password: PasswordField (required)
+
+
+## POST /api/token/
+- View: rest_framework_simplejwt.views.TokenObtainPairView
+- Purpose: Create – token obtain pair
+
+Request body fields:
+  - email: CharField (required)
+  - password: PasswordField (required)
+
+Response fields (assumed same serializer):
+  - email: CharField (required)
+  - password: PasswordField (required)
+
+
+## PUT /api/token/
+- View: rest_framework_simplejwt.views.TokenObtainPairView
+- Purpose: Update – token obtain pair
+
+Request body fields:
+  - email: CharField (required)
+  - password: PasswordField (required)
+
+Response fields (assumed same serializer):
+  - email: CharField (required)
+  - password: PasswordField (required)
+
+
+## TRACE /api/token/
+- View: rest_framework_simplejwt.views.TokenObtainPairView
+- Purpose: Trace – token obtain pair
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  - email: CharField (required)
+  - password: PasswordField (required)
+
+
+## DELETE /api/token/refresh/
+- View: rest_framework_simplejwt.views.TokenRefreshView
+- Purpose: Delete – token refresh
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  - refresh: CharField (required)
+  - access: CharField (optional)
+
+
+## GET /api/token/refresh/
+- View: rest_framework_simplejwt.views.TokenRefreshView
+- Purpose: Retrieve/list – token refresh
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  - refresh: CharField (required)
+  - access: CharField (optional)
+
+
+## PATCH /api/token/refresh/
+- View: rest_framework_simplejwt.views.TokenRefreshView
+- Purpose: Update – token refresh
+
+Request body fields:
+  - refresh: CharField (required)
+  - access: CharField (optional)
+
+Response fields (assumed same serializer):
+  - refresh: CharField (required)
+  - access: CharField (optional)
+
+
+## POST /api/token/refresh/
+- View: rest_framework_simplejwt.views.TokenRefreshView
+- Purpose: Create – token refresh
+
+Request body fields:
+  - refresh: CharField (required)
+  - access: CharField (optional)
+
+Response fields (assumed same serializer):
+  - refresh: CharField (required)
+  - access: CharField (optional)
+
+
+## PUT /api/token/refresh/
+- View: rest_framework_simplejwt.views.TokenRefreshView
+- Purpose: Update – token refresh
+
+Request body fields:
+  - refresh: CharField (required)
+  - access: CharField (optional)
+
+Response fields (assumed same serializer):
+  - refresh: CharField (required)
+  - access: CharField (optional)
+
+
+## TRACE /api/token/refresh/
+- View: rest_framework_simplejwt.views.TokenRefreshView
+- Purpose: Trace – token refresh
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  - refresh: CharField (required)
+  - access: CharField (optional)
+
+
+## DELETE /api/token/verify/
+- View: rest_framework_simplejwt.views.TokenVerifyView
+- Purpose: Delete – token verify
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  - token: CharField (required)
+
+
+## GET /api/token/verify/
+- View: rest_framework_simplejwt.views.TokenVerifyView
+- Purpose: Retrieve/list – token verify
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  - token: CharField (required)
+
+
+## PATCH /api/token/verify/
+- View: rest_framework_simplejwt.views.TokenVerifyView
+- Purpose: Update – token verify
+
+Request body fields:
+  - token: CharField (required)
+
+Response fields (assumed same serializer):
+  - token: CharField (required)
+
+
+## POST /api/token/verify/
+- View: rest_framework_simplejwt.views.TokenVerifyView
+- Purpose: Create – token verify
+
+Request body fields:
+  - token: CharField (required)
+
+Response fields (assumed same serializer):
+  - token: CharField (required)
+
+
+## PUT /api/token/verify/
+- View: rest_framework_simplejwt.views.TokenVerifyView
+- Purpose: Update – token verify
+
+Request body fields:
+  - token: CharField (required)
+
+Response fields (assumed same serializer):
+  - token: CharField (required)
+
+
+## TRACE /api/token/verify/
+- View: rest_framework_simplejwt.views.TokenVerifyView
+- Purpose: Trace – token verify
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  - token: CharField (required)
+
+
+## DELETE /api/user/delete/<int:pk>/
+- View: users.views.UserDeleteAPIView
+- Purpose: Delete – user delete
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/user/delete/<int:pk>/
+- View: users.views.UserDeleteAPIView
+- Purpose: Retrieve – user delete
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/user/delete/<int:pk>/
+- View: users.views.UserDeleteAPIView
+- Purpose: Update – user delete
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/user/delete/<int:pk>/
+- View: users.views.UserDeleteAPIView
+- Purpose: Create – user delete
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/user/delete/<int:pk>/
+- View: users.views.UserDeleteAPIView
+- Purpose: Update – user delete
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/user/delete/<int:pk>/
+- View: users.views.UserDeleteAPIView
+- Purpose: Trace – user delete
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/user/edit/<int:pk>/
+- View: users.views.UserEditAPIView
+- Purpose: Delete – user edit
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/user/edit/<int:pk>/
+- View: users.views.UserEditAPIView
+- Purpose: Retrieve – user edit
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/user/edit/<int:pk>/
+- View: users.views.UserEditAPIView
+- Purpose: Update – user edit
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/user/edit/<int:pk>/
+- View: users.views.UserEditAPIView
+- Purpose: Create – user edit
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/user/edit/<int:pk>/
+- View: users.views.UserEditAPIView
+- Purpose: Update – user edit
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/user/edit/<int:pk>/
+- View: users.views.UserEditAPIView
+- Purpose: Trace – user edit
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/users/
+- View: users.views.UserListView
+- Purpose: Delete – user list
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/users/
+- View: users.views.UserListView
+- Purpose: List – user list
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/users/
+- View: users.views.UserListView
+- Purpose: Update – user list
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/users/
+- View: users.views.UserListView
+- Purpose: Create – user list
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/users/
+- View: users.views.UserListView
+- Purpose: Update – user list
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/users/
+- View: users.views.UserListView
+- Purpose: Trace – user list
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## DELETE /api/users/<int:pk>/
+- View: users.views.UserDetailView
+- Purpose: Delete – user detail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## GET /api/users/<int:pk>/
+- View: users.views.UserDetailView
+- Purpose: Retrieve – user detail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PATCH /api/users/<int:pk>/
+- View: users.views.UserDetailView
+- Purpose: Update – user detail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## POST /api/users/<int:pk>/
+- View: users.views.UserDetailView
+- Purpose: Create – user detail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## PUT /api/users/<int:pk>/
+- View: users.views.UserDetailView
+- Purpose: Update – user detail
+
+Request body fields:
+  (no serializer detected)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+
+
+## TRACE /api/users/<int:pk>/
+- View: users.views.UserDetailView
+- Purpose: Trace – user detail
+
+Request body: none (or not used)
+
+Response fields (assumed same serializer):
+  (no serializer detected)
+

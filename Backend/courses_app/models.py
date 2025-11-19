@@ -9,7 +9,6 @@ class Course(models.Model):
     def __str__(self): return f"{self.grade_level} - {self.name}"
 
 class Batch(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="batches")
     batch_number = models.CharField(max_length=50)
     days = models.CharField(max_length=80)
     time_slot = models.CharField(max_length=80)

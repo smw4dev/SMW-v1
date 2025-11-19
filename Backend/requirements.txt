@@ -23,13 +23,15 @@ drf-extra-fields==3.7.0
 filetype==1.2.0
 gunicorn==23.0.0
 idna==3.11
+inflection==0.5.1
 kombu==5.5.4
 lxml==6.0.2
 packaging==25.0
 pathspec==0.12.1
 pillow==12.0.0
 prompt_toolkit==3.0.52
-psycopg[binary]==3.2.2
+psycopg-binary==3.2.11
+psycopg2==2.9.11
 PyJWT==2.10.1
 python-crontab==3.3.0
 python-dateutil==2.9.0.post0
@@ -42,6 +44,7 @@ six==1.17.0
 sqlparse==0.5.3
 typing_extensions==4.15.0
 tzdata==2025.2
+uritemplate==4.2.0
 urllib3==2.5.0
 vine==5.1.0
 wcwidth==0.2.14

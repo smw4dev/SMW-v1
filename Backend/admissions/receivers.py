@@ -2,11 +2,11 @@
 
 from decimal import Decimal
 
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.dispatch import receiver
 from django.utils import timezone
-from django.conf import settings
-from django.contrib.auth import get_user_model
 
 from courses_app.models import Batch
 from admissions.models import AdmissionApplication, SeatHold, SeatHoldStatus
@@ -20,12 +20,15 @@ User = get_user_model()
 @receiver(payment_validated)
 def on_payment_validated(sender, payment, **kwargs):
     """
-    Idempotent finalization:
+    Idempotent finalization when a payment is VALIDATED:
+
     - Confirm active hold if present (and not expired) OR
     - Best-effort allocate if capacity remains (after expiring old holds)
     - Mark application as paid
     - Increment batch.filled_seats once
     - Create an INACTIVE user for this application if not already created
+
+    This must be safe to run multiple times for the same payment.
     """
 
     app_id = getattr(payment, "application_id", None)
@@ -46,6 +49,7 @@ def on_payment_validated(sender, payment, **kwargs):
         )
         if not app:
             return
+
         batch = Batch.objects.select_for_update().get(pk=app.batch_id)
 
         # Already paid? (idempotent)
@@ -102,19 +106,6 @@ def on_payment_validated(sender, payment, **kwargs):
                 l_name=app.student_last_name_en,
                 phone=app.student_mobile,
             )
-
-            # Keep them inactive & not approved until an admin approves the application
-            update_fields = []
-            if user.is_active:
-                user.is_active = False
-                update_fields.append("is_active")
-            if hasattr(user, "is_approved") and user.is_approved:
-                user.is_approved = False
-                update_fields.append("is_approved")
-            if update_fields:
-                user.save(update_fields=update_fields)
-
             app.created_user = user
-            app.save(update_fields=["is_paid", "created_user"])
-        else:
-            app.save(update_fields=["is_paid"])
+
+        app.save(update_fields=["is_paid", "created_user"])
