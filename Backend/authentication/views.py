@@ -1,3 +1,4 @@
+# Backend/authentication/views.py
 # users/views.py
 from django.conf import settings
 from django.core.mail import send_mail

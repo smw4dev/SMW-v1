@@ -1,3 +1,4 @@
+# Backend/smw/settings.py
 from pathlib import Path
 from decimal import Decimal
 import os

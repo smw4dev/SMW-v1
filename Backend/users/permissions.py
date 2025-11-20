@@ -1,3 +1,4 @@
+# Backend/users/permissions.py
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 class IsAdminOrStaff(BasePermission):

@@ -2,17 +2,11 @@
 
 from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
-
-from .models import AdmissionApplication, Guardian, School
+from .models import AdmissionApplication, Guardian
 from courses_app.models import Batch
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime, parse_date
 
-
-class SchoolSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = School
-        fields = ["id", "name", "code", "address", "contact_phone", "created_at", "updated_at"]
 
 
 class GuardianSerializer(serializers.ModelSerializer):

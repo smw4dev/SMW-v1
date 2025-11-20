@@ -1,229 +1,179 @@
-# Django Model Inventory
-- Generated: 2025-11-19 20:05:22
-- Base dir: D:\1SMW\SMW-v1
-- Settings: smw.settings
+=== Django Model Inventory ===
 
+MODEL: admin.LogEntry
+----------------------
+- id (AutoField) [PK]
+- action_time (DateTimeField)
+- user (ForeignKey) [FK → User]
+- content_type (ForeignKey) [FK → ContentType]
+- object_id (TextField)
+- object_repr (CharField)
+- action_flag (PositiveSmallIntegerField)
+- change_message (TextField)
 
-## App: admin
+MODEL: auth.Permission
+-----------------------
+- id (AutoField) [PK]
+- name (CharField)
+- content_type (ForeignKey) [FK → ContentType]
+- codename (CharField)
 
-Model: admin.LogEntry
-  - PK: id (AutoField)
-    - action_time: DateTimeField (not null)
-    - object_id: TextField (nullable)
-    - object_repr: CharField (not null)
-    - action_flag: PositiveSmallIntegerField (not null)
-    - change_message: TextField (not null)
-  - Foreign keys:
-    * user: FK → authentication.User
-    * content_type: FK → contenttypes.ContentType
+MODEL: auth.Group
+------------------
+- id (AutoField) [PK]
+- name (CharField)
+- permissions (ManyToManyField) [ManyToMany → Permission]
 
+MODEL: contenttypes.ContentType
+--------------------------------
+- id (AutoField) [PK]
+- app_label (CharField)
+- model (CharField)
 
-## App: admissions
+MODEL: sessions.Session
+------------------------
+- session_key (CharField) [PK]
+- session_data (TextField)
+- expire_date (DateTimeField)
 
-Model: admissions.AdmissionApplication
-  - PK: id (BigAutoField)
-    - student_first_name_en: CharField (not null)
-    - student_last_name_en: CharField (not null)
-    - student_nick_name_en: CharField (nullable)
-    - student_first_name_bn: CharField (nullable)
-    - student_last_name_bn: CharField (nullable)
-    - student_nick_name_bn: CharField (nullable)
-    - date_of_birth: DateField (not null)
-    - sex: CharField (not null)
-    - current_class: CharField (not null)
-    - prev_result: CharField (nullable)
-    - student_mobile: CharField (nullable)
-    - student_email: EmailField (nullable)
-    - home_location: TextField (nullable)
-    - picture_path: CharField (nullable)
-    - is_submitted: BooleanField (not null)
-    - is_reviewed: BooleanField (not null)
-    - is_approved: BooleanField (not null)
-    - is_paid: BooleanField (not null)
-    - created_at: DateTimeField (not null)
-  - Foreign keys:
-    * batch: FK → courses_app.Batch
-    * created_user: FK → authentication.User
-    * school: FK → admissions.School
+MODEL: authentication.User
+---------------------------
+- id (BigAutoField) [PK]
+- password (CharField)
+- last_login (DateTimeField)
+- email (CharField)
+- f_name (CharField)
+- l_name (CharField)
+- phone (CharField)
+- photo (FileField)
+- is_staff (BooleanField)
+- is_approved (BooleanField)
+- is_active (BooleanField)
+- is_superuser (BooleanField)
+- is_staff_request (BooleanField)
+- is_anonymous_user (BooleanField)
+- created_at (DateTimeField)
+- groups (ManyToManyField) [ManyToMany → Group]
+- user_permissions (ManyToManyField) [ManyToMany → Permission]
 
-Model: admissions.Guardian
-  - PK: id (BigAutoField)
-    - role: CharField (not null)
-    - name_en: CharField (not null)
-    - name_bn: CharField (nullable)
-    - occupation: CharField (nullable)
-    - contact_number: CharField (nullable)
-    - email_address: EmailField (nullable)
-  - Foreign keys:
-    * application: FK → admissions.AdmissionApplication
+MODEL: users.UserProfile
+-------------------------
+- id (BigAutoField) [PK]
+- user (OneToOneField) [FK → User] [OneToOne → User]
+- phone (CharField)
+- photo_url (CharField)
+- current_class (CharField)
+- group_name (CharField)
+- student_uid (CharField)
+- school (ForeignKey) [FK → School]
+- current_batch (ForeignKey) [FK → Batch]
+- created_at (DateTimeField)
+- updated_at (DateTimeField)
 
-Model: admissions.School
-  - PK: id (BigAutoField)
-    - name: CharField (not null)
-    - code: CharField (not null)
-    - address: CharField (not null)
-    - contact_phone: CharField (not null)
-    - created_at: DateTimeField (not null)
-    - updated_at: DateTimeField (not null)
+MODEL: admissions.School
+-------------------------
+- id (BigAutoField) [PK]
+- name (CharField)
+- code (CharField)
+- address (CharField)
+- contact_phone (CharField)
+- created_at (DateTimeField)
+- updated_at (DateTimeField)
 
-Model: admissions.SeatHold
-  - PK: id (BigAutoField)
-    - hold_token: UUIDField (not null)
-    - expires_at: DateTimeField (not null)
-    - status: CharField (not null)
-    - created_at: DateTimeField (not null)
-  - Foreign keys:
-    * application: FK → admissions.AdmissionApplication
-    * batch: FK → courses_app.Batch
+MODEL: admissions.AdmissionApplication
+---------------------------------------
+- id (BigAutoField) [PK]
+- student_name (CharField)
+- student_nick_name (CharField)
+- date_of_birth (DateField)
+- sex (CharField)
+- current_class (CharField)
+- jsc_result (CharField)
+- ssc_result (CharField)
+- batch (ForeignKey) [FK → Batch]
+- student_mobile (CharField)
+- student_email (CharField)
+- home_location (TextField)
+- picture_path (CharField)
+- is_submitted (BooleanField)
+- is_reviewed (BooleanField)
+- is_approved (BooleanField)
+- status (CharField)
+- created_user (OneToOneField) [FK → User] [OneToOne → User]
+- school (CharField)
+- created_at (DateTimeField)
 
+MODEL: admissions.Guardian
+---------------------------
+- id (BigAutoField) [PK]
+- application (ForeignKey) [FK → AdmissionApplication]
+- role (CharField)
+- name_en (CharField)
+- occupation (CharField)
+- contact_number (CharField)
+- email_address (CharField)
 
-## App: auth
+MODEL: admissions.SeatHold
+---------------------------
+- id (BigAutoField) [PK]
+- application (ForeignKey) [FK → AdmissionApplication]
+- batch (ForeignKey) [FK → Batch]
+- hold_token (UUIDField)
+- expires_at (DateTimeField)
+- status (CharField)
+- created_at (DateTimeField)
 
-Model: auth.Group
-  - PK: id (AutoField)
-    - name: CharField (not null)
-  - Many-to-many fields:
-    * permissions: ManyToMany → auth.Permission
+MODEL: courses_app.Course
+--------------------------
+- id (BigAutoField) [PK]
+- title (CharField)
+- grade_level (CharField)
+- is_active (BooleanField)
+- created_at (DateTimeField)
+- updated_at (DateTimeField)
 
-Model: auth.Permission
-  - PK: id (AutoField)
-    - name: CharField (not null)
-    - codename: CharField (not null)
-  - Foreign keys:
-    * content_type: FK → contenttypes.ContentType
+MODEL: courses_app.Batch
+-------------------------
+- id (BigAutoField) [PK]
+- batch_number (CharField)
+- days (CharField)
+- time_slot (CharField)
+- total_seat (PositiveIntegerField)
+- class_name (CharField)
+- group_name (CharField)
+- is_active (BooleanField)
+- created_at (DateTimeField)
+- updated_at (DateTimeField)
+- filled_seats (PositiveIntegerField)
 
+MODEL: financials.Payment
+--------------------------
+- id (BigAutoField) [PK]
+- purpose (CharField)
+- application (ForeignKey) [FK → AdmissionApplication]
+- user (ForeignKey) [FK → User]
+- method (CharField)
+- amount (DecimalField)
+- currency (CharField)
+- status (CharField)
+- gateway_trx_id (CharField)
+- meta (JSONField)
+- created_at (DateTimeField)
+- updated_at (DateTimeField)
 
-## App: authentication
-
-Model: authentication.User
-  - PK: id (BigAutoField)
-    - password: CharField (not null)
-    - last_login: DateTimeField (nullable)
-    - email: EmailField (not null)
-    - f_name: CharField (nullable)
-    - l_name: CharField (not null)
-    - phone: CharField (nullable)
-    - photo: ImageField (nullable)
-    - is_staff: BooleanField (not null)
-    - is_approved: BooleanField (not null)
-    - is_active: BooleanField (not null)
-    - is_superuser: BooleanField (not null)
-    - is_staff_request: BooleanField (not null)
-    - is_anonymous_user: BooleanField (not null)
-    - created_at: DateTimeField (not null)
-  - Many-to-many fields:
-    * groups: ManyToMany → auth.Group
-    * user_permissions: ManyToMany → auth.Permission
-
-
-## App: contenttypes
-
-Model: contenttypes.ContentType
-  - PK: id (AutoField)
-    - app_label: CharField (not null)
-    - model: CharField (not null)
-
-
-## App: corsheaders
-
-  (no models)
-
-## App: courses_app
-
-Model: courses_app.Batch
-  - PK: id (BigAutoField)
-    - batch_number: CharField (not null)
-    - days: CharField (not null)
-    - time_slot: CharField (not null)
-    - total_seat: PositiveIntegerField (not null)
-    - class_name: CharField (not null)
-    - group_name: CharField (not null)
-    - is_active: BooleanField (not null)
-    - created_at: DateTimeField (not null)
-    - updated_at: DateTimeField (not null)
-    - filled_seats: PositiveIntegerField (not null)
-  - Foreign keys:
-    * course: FK → courses_app.Course
-
-Model: courses_app.Course
-  - PK: id (BigAutoField)
-    - title: CharField (not null)
-    - grade_level: CharField (not null)
-    - is_active: BooleanField (not null)
-    - created_at: DateTimeField (not null)
-    - updated_at: DateTimeField (not null)
-
-
-## App: financials
-
-Model: financials.Payment
-  - PK: id (BigAutoField)
-    - purpose: CharField (not null)
-    - method: CharField (not null)
-    - amount: DecimalField (not null)
-    - currency: CharField (not null)
-    - status: CharField (not null)
-    - gateway_trx_id: CharField (not null)
-    - meta: JSONField (not null)
-    - created_at: DateTimeField (not null)
-    - updated_at: DateTimeField (not null)
-  - Foreign keys:
-    * application: FK → admissions.AdmissionApplication
-    * user: FK → authentication.User
-
-
-## App: messages
-
-  (no models)
-
-## App: payments
-
-Model: payments.Payment
-  - PK: id (UUIDField)
-    - tran_id: CharField (not null)
-    - amount: DecimalField (not null)
-    - currency: CharField (not null)
-    - gateway: CharField (not null)
-    - status: CharField (not null)
-    - application_id: IntegerField (nullable)
-    - create_payload: JSONField (nullable)
-    - gateway_response: JSONField (nullable)
-    - validation_response: JSONField (nullable)
-    - created_at: DateTimeField (not null)
-    - updated_at: DateTimeField (not null)
-  - Foreign keys:
-    * created_by: FK → authentication.User
-
-
-## App: rest_framework
-
-  (no models)
-
-## App: sessions
-
-Model: sessions.Session
-  - PK: session_key (CharField)
-    - session_data: TextField (not null)
-    - expire_date: DateTimeField (not null)
-
-
-## App: staticfiles
-
-  (no models)
-
-## App: users
-
-Model: users.UserProfile
-  - PK: id (BigAutoField)
-    - phone: CharField (not null)
-    - photo_url: CharField (not null)
-    - current_class: CharField (not null)
-    - group_name: CharField (not null)
-    - student_uid: CharField (not null)
-    - created_at: DateTimeField (not null)
-    - updated_at: DateTimeField (not null)
-  - Foreign keys:
-    * user: FK → authentication.User
-    * school: FK → admissions.School
-    * current_batch: FK → courses_app.Batch
+MODEL: payments.Payment
+------------------------
+- id (UUIDField) [PK]
+- tran_id (CharField)
+- amount (DecimalField)
+- currency (CharField)
+- gateway (CharField)
+- status (CharField)
+- created_by (ForeignKey) [FK → User]
+- application_id (IntegerField)
+- create_payload (JSONField)
+- gateway_response (JSONField)
+- validation_response (JSONField)
+- created_at (DateTimeField)
+- updated_at (DateTimeField)
 

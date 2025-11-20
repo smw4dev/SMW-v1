@@ -11,6 +11,7 @@ SMW-v1/
 │   │   models.py
 │   │   receivers.py
 │   │   serializers.py
+│   │   services.py
 │   │   tests.py
 │   │   urls.py
 │   │   views.py
@@ -210,11 +211,16 @@ SMW-v1/
 │   postcss.config.mjs
 │   README.md
 │   tsconfig.json
+├── api_inventory.txt
+├── api_inventory_v2.txt
 ├── codebase.docx
+├── generate_api_inventory.py
 ├── generate_cb.py
+├── generate_model_inventory.py
+├── model_inventory.txt
 ├── model_list.py
 ├── model_list.txt
 ├── print_structure.py
 └── README.md
 
-Summary: 29 dirs, 184 files (excluded common junk).
+Summary: 29 dirs, 190 files (excluded common junk).

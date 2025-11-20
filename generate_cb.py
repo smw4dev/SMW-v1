@@ -1,182 +1,176 @@
 #!/usr/bin/env python3
 """
-generate_cb.py — One-click exporter for your whole codebase into codebase.docx
+generate_cb_full.py — One-click exporter for your whole SMW-v1 codebase into a
+single Word document.
 
 Usage:
-  python generate_cb.py
+  python generate_cb_full.py
 
 Behavior:
-  • Scans the CURRENT WORKING DIRECTORY recursively (run it from your project root).
-  • Respects .gitignore if present.
-  • Skips noisy/binary folders and files (node_modules, .next, __pycache__, images, media, archives, etc.).
-  • Writes a single Word document 'codebase.docx' with file-by-file content, using monospace formatting.
+  • Scans the CURRENT WORKING DIRECTORY recursively (run it from SMW-v1 root).
+  • Skips common junk/binary folders and file types (.git, node_modules, images, etc.).
+  • Includes .env and other text config files.
+  • Writes a single Word document 'codebase_full.docx' with file-by-file content,
+    using monospace formatting.
 
 Tip:
-  If Word says permission denied, close codebase.docx and run again.
+  If Word says permission denied, close codebase_full.docx and run again.
 """
 
 import os
-import sys
-from datetime import datetime
+from pathlib import Path
 
 from docx import Document
 from docx.shared import Pt
-from docx.oxml.ns import qn
-from docx.oxml import OxmlElement
-
-try:
-    from pathspec import PathSpec
-    from pathspec.patterns import GitWildMatchPattern
-except ImportError:
-    print("Missing dependency: pathspec\nInstall with: pip install pathspec python-docx")
-    sys.exit(1)
+from docx.enum.style import WD_STYLE_TYPE
 
 # ====== SETTINGS ======
-OUTPUT_FILE = "codebase.docx"
-START_DIR = os.getcwd()  # scan from where you run the script
+ROOT = Path(__file__).resolve().parent
+OUTPUT_FILE = ROOT / "codebase_full.docx"
 
-# File/dir filters (merged & tuned)
-DEFAULT_SKIP_FILENAMES = {
-    # utility scripts commonly excluded
-    'api_list.py', 'clear_project.py', 'clear_migrations.py', 'clear_pg_tables.py',
-    'count_django_loc.py', 'inspect_apis.py', 'model_list.py', 'reset.py',
-    'save_structure.py', 'seed_db.py',
-    # this script name will be added dynamically below
+# Directories we completely skip
+EXCLUDED_DIRS = {
+    ".git",
+    ".idea",
+    ".vscode",
+    "__pycache__",
+    "node_modules",
+    ".next",
+    ".turbo",
+    ".venv",
+    "venv",
+    ".pytest_cache",
+    ".mypy_cache",
+    "dist",
+    "build",
 }
 
-DEFAULT_SKIP_EXTENSIONS = {
-    # docs & text
-    '.docx', '.pdf',
-    # images & assets
-    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.ico', '.svg',
-    # fonts
-    '.ttf', '.woff', '.woff2', '.eot',
-    # misc/binary
-    '.map', '.lock', '.env', '.zip', '.tar', '.gz', '.7z', '.rar',
-    # media
-    '.mp4', '.mp3', '.wav', '.webm', '.ogg',
-    # big artifacts
-    '.sqlite3',
+# File extensions to SKIP (binary/irrelevant for code export)
+SKIP_EXTENSIONS = {
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".ico",
+    ".svg",
+    ".webp",
+    ".pdf",
+    ".ttf",
+    ".woff",
+    ".woff2",
+    ".eot",
+    ".otf",
+    ".mp3",
+    ".mp4",
+    ".mov",
+    ".avi",
+    ".zip",
+    ".tar",
+    ".gz",
+    ".bz2",
+    ".7z",
+    ".exe",
+    ".dll",
+    ".so",
+    ".dylib",
+    ".obj",
+    ".pyc",
+    ".pyo",
+    ".class",
+    ".db",
+    ".sqlite3",
+    ".docx",   # avoid including our own output docx or others
 }
 
-DEFAULT_EXCLUDED_DIRS = {
-    '__pycache__', 'migrations', '.git', '.idea', '.vscode',
-    '.venv', 'env', 'venv', 'media',
-    'node_modules', '.next', 'public', 'out', '.vercel',
-    'build', 'dist', '.cache', '.pytest_cache', '.tox',
-}
 
-# ====== Helpers ======
-def load_gitignore_spec(root_dir: str):
-    """Load .gitignore as a PathSpec matcher, if available."""
-    gitignore_path = os.path.join(root_dir, '.gitignore')
-    if os.path.exists(gitignore_path):
-        try:
-            with open(gitignore_path, 'r', encoding='utf-8', errors='ignore') as f:
-                patterns = f.read().splitlines()
-            return PathSpec.from_lines(GitWildMatchPattern, patterns)
-        except Exception:
-            return None
-    return None
-
-def add_heading(doc: Document, text: str, level: int = 1):
-    doc.add_heading(text, level=level)
-
-def add_code_block(doc: Document, header: str, content: str):
-    """Add a file header and its text content in monospace formatting."""
-    # Header (bold)
-    p = doc.add_paragraph()
-    run = p.add_run(header)
-    run.bold = True
-
-    # Content (monospace, small)
-    p2 = doc.add_paragraph()
-    run2 = p2.add_run(content)
-    run2.font.name = 'Consolas'
-    run2.font.size = Pt(9)
-
-    # Force Word to actually use Consolas across locales
-    r = run2._element
-    rPr = r.get_or_add_rPr()
-    rFonts = rPr.find(qn('w:rFonts'))
-    if rFonts is None:
-        rFonts = OxmlElement('w:rFonts')
-        rPr.append(rFonts)
-    rFonts.set(qn('w:ascii'), 'Consolas')
-    rFonts.set(qn('w:hAnsi'), 'Consolas')
-    rFonts.set(qn('w:cs'), 'Consolas')
-    rFonts.set(qn('w:eastAsia'), 'Consolas')
-
-def scan_everything(doc: Document, root_dir: str, output_file: str):
-    """Walk the repo from root_dir, respecting .gitignore and skip rules, and write into doc."""
-    add_heading(doc, f"Project Root — {os.path.abspath(root_dir)}", level=2)
-    spec = load_gitignore_spec(root_dir)
-
-    # Skip this script file too
-    skip_filenames = set(DEFAULT_SKIP_FILENAMES)
+def setup_code_style(doc: Document):
+    """
+    Ensure there is a 'Code' character style with monospace font.
+    No low-level XML tricks, just standard python-docx API.
+    """
+    styles = doc.styles
     try:
-        skip_filenames.add(os.path.basename(__file__))
-    except NameError:
-        pass
+        code_style = styles["Code"]
+    except KeyError:
+        code_style = styles.add_style("Code", WD_STYLE_TYPE.CHARACTER)
 
-    for current_root, dirs, files in os.walk(root_dir):
-        # Prune excluded/hidden dirs
-        dirs[:] = [
-            d for d in dirs
-            if d not in DEFAULT_EXCLUDED_DIRS and not d.startswith('.')
-        ]
+    font = code_style.font
+    font.name = "Consolas"
+    font.size = Pt(9)
+    return code_style
 
-        for filename in files:
-            # basic skips
-            if filename == os.path.basename(output_file):
+
+def is_binary_file(path: Path) -> bool:
+    """
+    Simple heuristic: skip by extension using SKIP_EXTENSIONS.
+    """
+    return path.suffix.lower() in SKIP_EXTENSIONS
+
+
+def iter_files(root: Path):
+    """
+    Yield all files under root, respecting EXCLUDED_DIRS.
+    """
+    for dirpath, dirnames, filenames in os.walk(root):
+        # remove excluded dirs in-place so os.walk won't descend into them
+        dirnames[:] = [d for d in dirnames if d not in EXCLUDED_DIRS]
+
+        for filename in filenames:
+            full_path = Path(dirpath) / filename
+            # skip the output file itself, if present in tree
+            if full_path.resolve() == OUTPUT_FILE.resolve():
                 continue
-            if filename.startswith('.'):
+            if is_binary_file(full_path):
                 continue
-            if filename in skip_filenames:
-                continue
+            yield full_path
 
-            ext = os.path.splitext(filename)[1].lower()
-            if ext in DEFAULT_SKIP_EXTENSIONS:
-                continue
 
-            full_path = os.path.join(current_root, filename)
-            rel_path = os.path.relpath(full_path, root_dir)
-
-            # .gitignore filtering (use POSIX-style rel path for match)
-            rel_posix = rel_path.replace(os.sep, '/')
-            if spec and spec.match_file(rel_posix):
-                continue
-
-            # read as text
-            try:
-                with open(full_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-            except Exception:
-                # likely binary/unreadable — skip silently
-                continue
-
-            add_code_block(doc, f"# {rel_path}", content)
-
-# ====== Main ======
 def main():
+    print(f"Project root: {ROOT}")
+    print(f"Output file : {OUTPUT_FILE}")
+    print("Building Word document...")
+
     doc = Document()
-    doc.add_heading('Full Codebase Documentation', 0)
-    doc.add_paragraph(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    doc.add_paragraph(
-        "This document lists source files under the current directory. "
-        "Each file is preceded by a header of its relative path. "
-        "Binary/asset files and noisy directories are skipped by default, "
-        "and .gitignore rules are respected."
-    )
+    doc.core_properties.title = "SMW-v1 Codebase"
+    doc.add_heading("SMW-v1 Codebase Export", level=0)
+    doc.add_paragraph("Generated from project root: {}".format(ROOT))
 
-    scan_everything(doc, START_DIR, OUTPUT_FILE)
+    code_style = setup_code_style(doc)
 
-    try:
-        doc.save(OUTPUT_FILE)
-        print(f"✅ Wrote {OUTPUT_FILE}")
-    except PermissionError:
-        print(f"❌ Permission denied: Could not save '{OUTPUT_FILE}'. Close it if open and run again.")
-        sys.exit(2)
+    for path in sorted(iter_files(ROOT)):
+        rel_path = path.relative_to(ROOT).as_posix()
+        print(f"Adding: {rel_path}")
 
-if __name__ == '__main__':
+        # Add a heading for this file
+        doc.add_heading(rel_path, level=2)
+
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except Exception as e:
+            # If something goes wrong, note it in the doc
+            p = doc.add_paragraph()
+            run = p.add_run(f"[Error reading file: {e}]")
+            run.italic = True
+            continue
+
+        if not text:
+            p = doc.add_paragraph()
+            run = p.add_run("[Empty file]")
+            run.italic = True
+            continue
+
+        # Add file content as a "code" run
+        # (newline characters in `text` become Word line breaks)
+        p = doc.add_paragraph()
+        run = p.add_run(text)
+        run.style = code_style
+
+        # Spacer between files
+        doc.add_paragraph()
+
+    doc.save(str(OUTPUT_FILE))
+    print("Done. Saved:", OUTPUT_FILE)
+
+
+if __name__ == "__main__":
     main()

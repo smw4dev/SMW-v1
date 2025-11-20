@@ -1,3 +1,4 @@
+# Backend/financials/apps.py
 from django.apps import AppConfig
 
 

@@ -1,3 +1,4 @@
+# Backend/smw/urls.py
 """
 URL configuration for smw project.
 
@@ -25,7 +26,7 @@ urlpatterns = [
     path("api/", include("users.urls")),
     path("api/", include("admissions.urls")),
     path("api/", include("courses_app.urls")),
-    path("api/f/", include("financials.urls")),
+    path("api/", include("financials.urls")),
     path("api/payments/", include("payments.urls")),
 ]
 

@@ -6,39 +6,15 @@ from rest_framework import status, permissions
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.db import transaction
-
-from .models import AdmissionApplication, School
+from .models import AdmissionApplication
 from .serializers import (
     AdmissionApplicationSerializer,
-    SchoolSerializer,
     PublicAdmissionApplicationSerializer,
 )
 from users.models import UserProfile
 from users.services import generate_student_uid
 
 User = get_user_model()
-
-
-class SchoolListCreate(APIView):
-    # Admin/staff write, public read
-    def get_permissions(self):
-        if self.request.method in ("GET", "HEAD", "OPTIONS"):
-            return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
-
-    def get(self, request):
-        return Response(
-            SchoolSerializer(School.objects.all().order_by("name"), many=True).data
-        )
-
-    def post(self, request):
-        if not (request.user.is_staff or request.user.is_superuser):
-            return Response({"detail": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
-        s = SchoolSerializer(data=request.data)
-        if s.is_valid():
-            s.save()
-            return Response(s.data, status=status.HTTP_201_CREATED)
-        return Response(s.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AdmissionApply(APIView):

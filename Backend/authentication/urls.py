@@ -1,3 +1,4 @@
+# Backend/authentication/urls.py
 from django.urls import path
 from .views import EndUserRegisterView, StaffUserRegisterView, EndUserLoginView, LogoutView, AdminUserLoginView, PasswordResetRequestView, PasswordResetConfirmView, AdminCreateUserView
 from rest_framework_simplejwt.views import (

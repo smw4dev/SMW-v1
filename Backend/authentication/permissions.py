@@ -1,3 +1,4 @@
+# Backend/authentication/permissions.py
 from rest_framework.permissions import BasePermission
 
 class IsStaffOrSuperUser(BasePermission):

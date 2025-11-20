@@ -1,3 +1,4 @@
+# Backend/authentication/throttles.py
 from rest_framework.throttling import AnonRateThrottle
 
 class RegistrationRateThrottle(AnonRateThrottle):
