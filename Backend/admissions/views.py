@@ -47,17 +47,27 @@ class AdmissionList(APIView):
     def get(self, request):
         u = request.user
         if u.is_superuser or u.is_staff:
-            qs = AdmissionApplication.objects.all().order_by("-id")
+            qs = AdmissionApplication.objects.select_related(
+                "batch__course"
+            ).all().order_by("-id")
         else:
-            qs = AdmissionApplication.objects.filter(created_user=u)
-        return Response(AdmissionApplicationSerializer(qs, many=True).data)
+            qs = AdmissionApplication.objects.select_related(
+                "batch__course"
+            ).filter(user=u)
+        serializer = AdmissionApplicationSerializer(
+            qs, many=True, context={"request": request}
+        )
+        return Response(serializer.data)
 
 
 class AdmissionDetail(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk):
-        app = get_object_or_404(AdmissionApplication, pk=pk)
+        app = get_object_or_404(
+            AdmissionApplication.objects.select_related("batch__course"),
+            pk=pk,
+        )
         # restrict normal users to own record
         if not (
             request.user.is_superuser
@@ -65,7 +75,8 @@ class AdmissionDetail(APIView):
             or app.created_user == request.user
         ):
             return Response({"detail": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
-        return Response(AdmissionApplicationSerializer(app).data)
+        serializer = AdmissionApplicationSerializer(app, context={"request": request})
+        return Response(serializer.data)
 
 
 class AdmissionReviewApprove(APIView):

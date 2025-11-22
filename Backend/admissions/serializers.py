@@ -12,7 +12,15 @@ from django.utils.dateparse import parse_datetime, parse_date
 class GuardianSerializer(serializers.ModelSerializer):
     class Meta:
         model = Guardian
-        fields = ["id", "role", "name_en", "name_bn", "occupation", "contact_number", "email_address"]
+        fields = [
+            "id",
+            "role",
+            "name",
+            "occupation",
+            "contact_number",
+            "email_address",
+            "is_primary_contact",
+        ]
 
 
 class AdmissionApplicationSerializer(serializers.ModelSerializer):
@@ -20,30 +28,82 @@ class AdmissionApplicationSerializer(serializers.ModelSerializer):
     Internal / admin serializer that exposes the flat AdmissionApplication model
     plus the related Guardian rows. This is used for listing, detail, review, etc.
     """
-    picture = Base64ImageField(source="picture_path", required=False, allow_null=True)
-    guardians = GuardianSerializer(many=True)
-    school_code = serializers.CharField(source="school.code", read_only=True)
+    picture = serializers.ImageField(read_only=True)
+    guardians = GuardianSerializer(many=True, read_only=True)
+    batch_detail = serializers.SerializerMethodField()
 
     class Meta:
         model = AdmissionApplication
         fields = [
             "id",
-            "student_first_name_en", "student_last_name_en", "student_nick_name_en",
-            "student_first_name_bn", "student_last_name_bn", "student_nick_name_bn",
-            "date_of_birth", "sex", "current_class", "prev_result",
-            "batch", "student_mobile", "student_email", "home_location", "picture",
-            "is_submitted", "is_reviewed", "is_approved", "is_paid",
-            "created_user", "school", "school_code", "created_at",
+            "student_name",
+            "student_nick_name",
+            "home_district",
+            "date_of_birth",
+            "sex",
+            "current_class",
+            "group_name",
+            "subject",
+            "jsc_school_name",
+            "jsc_result",
+            "ssc_school_name",
+            "ssc_result",
+            "batch",
+            "batch_detail",
+            "student_mobile",
+            "student_email",
+            "home_location",
+            "picture",
+            "hear_about_us",
+            "prev_student",
+            "status",
+            "is_reviewed",
+            "user",
+            "created_at",
+            "updated_at",
             "guardians",
         ]
         read_only_fields = [
-            "is_submitted",
             "is_reviewed",
-            "is_approved",
-            "is_paid",
-            "created_user",
             "created_at",
+            "updated_at",
+            "status",
+            "user",
         ]
+
+    def get_batch_detail(self, obj):
+        batch = getattr(obj, "batch", None)
+        if batch is None:
+            return None
+        course = getattr(batch, "course", None)
+        label_parts = []
+        if course and course.grade_level:
+            label_parts.append(course.grade_level)
+        if batch.batch_number:
+            label_parts.append(f"Batch {batch.batch_number}")
+        label = " ".join(label_parts).strip()
+        schedule = " · ".join(filter(None, [batch.days, batch.time_slot])).strip()
+        if schedule:
+            label = f"{label} – {schedule}" if label else schedule
+        if batch.group_name:
+            label = f"{label} ({batch.group_name})" if label else batch.group_name
+        course_data = None
+        if course:
+            course_data = {
+                "id": course.id,
+                "title": course.title,
+                "grade_level": course.grade_level,
+            }
+        return {
+            "id": batch.id,
+            "label": label or str(batch),
+            "batch_number": batch.batch_number,
+            "class_name": batch.class_name,
+            "group_name": batch.group_name,
+            "days": batch.days,
+            "time_slot": batch.time_slot,
+            "course": course_data,
+        }
 
     def validate(self, attrs):
         guardians = self.initial_data.get("guardians", [])
@@ -56,9 +116,6 @@ class AdmissionApplicationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         guardians_data = validated_data.pop("guardians", [])
-        pic = self.initial_data.get("picture")
-        if pic:
-            validated_data["picture_path"] = pic  # store as base64 string or external path
         app = AdmissionApplication.objects.create(**validated_data)
         for g in guardians_data:
             Guardian.objects.create(application=app, **g)
@@ -129,19 +186,24 @@ class PublicAdmissionApplicationSerializer(serializers.Serializer):
         return data
 
     def create(self, validated_data):
-        from .models import AdmissionApplication, Guardian
-
         pi = validated_data.get("personalInformation") or {}
         pg = validated_data.get("parentsAndGuardian") or {}
         edu = validated_data.get("education") or {}
         acad = validated_data.get("academicPreferences") or {}
         attachments = validated_data.get("attachments") or {}
 
+        def normalize(value):
+            if value is None:
+                return None
+            value = str(value).strip()
+            return value or None
+
         # --- Names ---
         full_name = (pi.get("fullName") or "").strip()
-        parts = full_name.split()
-        first_name = parts[0] if parts else ""
-        last_name = " ".join(parts[1:]) if len(parts) > 1 else ""
+        nickname = normalize(pi.get("nickname"))
+        home_district = normalize(pi.get("homeDistrict"))
+        if home_district and len(home_district) > 120:
+            home_district = home_district[:120]
 
         # --- DOB ---
         dob_raw = pi.get("dateOfBirth")
@@ -159,30 +221,33 @@ class PublicAdmissionApplicationSerializer(serializers.Serializer):
                 {"personalInformation": {"dateOfBirth": "Invalid or missing date"}}
             )
 
-        # --- Gender → SEX_CHOICES ---
+        # --- Gender → SEX_CHOICES (M/F/O) ---
         gender_map = {"male": "M", "female": "F", "other": "O"}
         sex = gender_map.get(str(pi.get("gender", "")).lower(), "O")
 
-        # --- Current class ---
+        # --- Current class & group / subject ---
         current_class = (acad.get("classLevel") or "").strip()
+        group_raw = (acad.get("group") or "").strip()
+        if group_raw.lower() in {"", "not-required", "not_required", "n/a"}:
+            group_name = None
+        else:
+            group_name = group_raw
+        subject = normalize(acad.get("subject"))
 
-        # --- Previous result summary from JSC/SSC ---
-        prev_result_parts = []
+        # --- JSC / SSC breakdown ---
         jsc = edu.get("jsc") or {}
         ssc = edu.get("ssc") or {}
-        if jsc.get("school") or jsc.get("grade"):
-            prev_result_parts.append(
-                f"JSC: {jsc.get('school', '')} (GPA {jsc.get('grade', '')})"
-            )
-        if ssc.get("school") or ssc.get("grade"):
-            prev_result_parts.append(
-                f"SSC: {ssc.get('school', '')} (GPA {ssc.get('grade', '')})"
-            )
-        prev_result = " | ".join(prev_result_parts) if prev_result_parts else None
+        jsc_school_name = normalize(jsc.get("school"))
+        jsc_result = normalize(jsc.get("grade"))
+        ssc_school_name = normalize(ssc.get("school"))
+        ssc_result = normalize(ssc.get("grade"))
+        if jsc_school_name and len(jsc_school_name) > 255:
+            jsc_school_name = jsc_school_name[:255]
+        if ssc_school_name and len(ssc_school_name) > 255:
+            ssc_school_name = ssc_school_name[:255]
 
         # --- Home address / district mapped to home_location ---
         address = (pi.get("address") or "").strip()
-        home_district = (pi.get("homeDistrict") or "").strip()
         home_location = address or None
         if home_district and home_district not in (address or ""):
             if home_location:
@@ -199,49 +264,129 @@ class PublicAdmissionApplicationSerializer(serializers.Serializer):
                 {"academicPreferences": {"batchId": "Invalid batch id"}}
             )
 
-        # --- Photo (data URL / base64) ---
-        picture = attachments.get("photoPreview")
+        # --- Hear about us / previous student ---
+        raw_hear = normalize(acad.get("hearAboutUs"))
+        hear_map = {
+            "social-media": "social-media",
+            "friend-family": "friend-family",
+            "prev-student": "prev-student",
+            "banner": "banner",
+            "other": "other",
+            # legacy labels
+            "friends": "friend-family",
+            "student": "prev-student",
+            "newspaper": "banner",
+            "website": "other",
+        }
+        hear_about_us = hear_map.get(raw_hear) if raw_hear else None
+        prev_student = bool(acad.get("prevStudent"))
 
-        # --- Create the AdmissionApplication ---
+        # --- Contact & photo ---
+        phone = normalize(pi.get("phone"))
+        email = normalize(pi.get("email"))
+        picture_file = None
+        picture_raw = attachments.get("photoPreview")
+        if picture_raw:
+            # Expect a data URL or raw base64 string from the frontend.
+            import base64
+            import uuid
+            from django.core.files.base import ContentFile
+
+            data_str = str(picture_raw).strip()
+            try:
+                if ";base64," in data_str:
+                    header, b64data = data_str.split(";base64,", 1)
+                    if "image/" in header:
+                        ext = header.split("image/")[-1]
+                    else:
+                        ext = "jpg"
+                else:
+                    b64data = data_str
+                    ext = "jpg"
+                decoded = base64.b64decode(b64data)
+                filename = f"admission_{uuid.uuid4().hex[:12]}.{ext}"
+                picture_file = ContentFile(decoded, name=filename)
+            except Exception:
+                picture_file = None
+
+        # --- Create the AdmissionApplication with the new schema ---
         app = AdmissionApplication.objects.create(
-            student_first_name_en=first_name,
-            student_last_name_en=last_name or first_name,
-            student_nick_name_en=pi.get("nickname") or None,
+            student_name=(full_name or "")[:120],
+            student_nick_name=nickname,
+            home_district=home_district,
             date_of_birth=dob,
             sex=sex,
             current_class=current_class,
-            prev_result=prev_result,
+            group_name=group_name,
+            subject=subject,
+            jsc_school_name=jsc_school_name,
+            jsc_result=jsc_result,
+            ssc_school_name=ssc_school_name,
+            ssc_result=ssc_result,
             batch=batch,
-            student_mobile=pi.get("phone") or None,
-            student_email=pi.get("email") or None,
+            student_mobile=phone,
+            student_email=email,
             home_location=home_location,
-            picture_path=picture or None,
-            is_submitted=True,
+            picture=picture_file,
+            hear_about_us=hear_about_us,
+            prev_student=prev_student,
         )
 
         # --- Guardians (father & mother) ---
         father = pg.get("father") or {}
         mother = pg.get("mother") or {}
+        guardian_meta = pg.get("guardian") or {}
+        primary_relation = str(guardian_meta.get("relation") or "").lower()
 
         if father.get("name"):
             Guardian.objects.create(
                 application=app,
-                role="FATHER",
-                name_en=father.get("name"),
+                role="father",
+                name=father.get("name"),
                 occupation=father.get("occupation") or "",
                 contact_number=father.get("phone") or "",
+                is_primary_contact=primary_relation == "father",
             )
 
         if mother.get("name"):
             Guardian.objects.create(
                 application=app,
-                role="MOTHER",
-                name_en=mother.get("name"),
+                role="mother",
+                name=mother.get("name"),
                 occupation=mother.get("occupation") or "",
                 contact_number=mother.get("phone") or "",
+                is_primary_contact=primary_relation == "mother",
             )
 
-        # Note: parentsAndGuardian.guardian (relation/contact) can be used later
-        # if you want to store "primary guardian" separately.
+        # Optionally handle an extra "other" guardian coming from the
+        # flattened 'guardians' array that the public admission form sends.
+        # This keeps backward compatibility for existing payloads that only
+        # include father/mother while allowing richer guardian data.
+        extra_guardians = self.initial_data.get("guardians") or []
+        if isinstance(extra_guardians, list):
+            for g in extra_guardians:
+                role = str((g or {}).get("role") or "").lower()
+                if role != "other":
+                    continue
+
+                name = normalize((g or {}).get("name"))
+                if not name:
+                    # Skip rows without a usable name
+                    continue
+
+                occupation = normalize((g or {}).get("occupation")) or ""
+                contact_number = normalize((g or {}).get("contact_number")) or ""
+                email_address = normalize((g or {}).get("email_address"))
+                is_primary = bool((g or {}).get("is_primary_contact"))
+
+                Guardian.objects.create(
+                    application=app,
+                    role="other",
+                    name=name,
+                    occupation=occupation,
+                    contact_number=contact_number,
+                    email_address=email_address,
+                    is_primary_contact=is_primary,
+                )
 
         return app

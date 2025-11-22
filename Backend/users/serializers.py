@@ -13,6 +13,9 @@ class UserLiteSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserLiteSerializer(read_only=True)
+    school = serializers.CharField(
+        source="school_name", allow_blank=True, required=False
+    )
 
     class Meta:
         model = UserProfile
