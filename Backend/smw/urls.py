@@ -21,7 +21,7 @@ from django.urls import include, path
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path("/secret-admin-987/", admin.site.urls),
+    path("secret-admin-987/", admin.site.urls),
     path("api/", include("authentication.urls")),
     path("api/", include("users.urls")),
     path("api/", include("admissions.urls")),

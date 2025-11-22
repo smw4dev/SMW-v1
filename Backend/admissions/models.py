@@ -68,7 +68,7 @@ class AdmissionApplication(models.Model):
     student_mobile = models.CharField(max_length=20, blank=True, null=True)
     student_email = models.EmailField(blank=True, null=True)
     home_location = models.TextField(blank=True, null=True)  # address from frontend
-    picture_path = models.CharField(max_length=255, blank=True, null=True)
+    picture = models.ImageField(upload_to="admissions/", blank=True, null=True)
 
     # --- Extra meta from admission form ---
     hear_about_us = models.CharField(

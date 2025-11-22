@@ -59,6 +59,8 @@ const formSchema = z
     motherPhone: z.string().min(1, "Phone number is required"),
     guardianRelation: z.enum(["father", "mother", "other"]),
     guardianContact: z.string().min(1, "Guardian contact is required"),
+    guardianName: z.string().optional().or(z.literal("")),
+    guardianOccupation: z.string().optional().or(z.literal("")),
     jscSchool: z.string().optional().or(z.literal("")),
     jscGrade: z.string().optional().or(z.literal("")),
     sscSchool: z.string().optional().or(z.literal("")),
@@ -108,6 +110,23 @@ const formSchema = z
           code: z.ZodIssueCode.custom,
           path: ["batchTiming"],
           message: "Please select batch timing",
+        });
+      }
+    }
+
+    if (values.guardianRelation === "other") {
+      if (!values.guardianName || values.guardianName.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["guardianName"],
+          message: "Guardian name is required when relation is Other",
+        });
+      }
+      if (!values.guardianOccupation || values.guardianOccupation.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["guardianOccupation"],
+          message: "Guardian occupation is required when relation is Other",
         });
       }
     }
@@ -275,6 +294,8 @@ export default function AdmissionForm() {
       motherPhone: "",
       guardianRelation: undefined,
       guardianContact: "",
+      guardianName: "",
+      guardianOccupation: "",
       jscSchool: "",
       jscGrade: "",
       sscSchool: "",
@@ -335,6 +356,14 @@ export default function AdmissionForm() {
     { value: "science", label: "Science" },
     { value: "commerce", label: "Commerce" },
     { value: "humanities", label: "Humanities" },
+  ];
+
+  const hearAboutUsOptions = [
+    { value: "social-media", label: "Social media (Facebook, Instagram)" },
+    { value: "friend-family", label: "Friend or family recommendation" },
+    { value: "prev-student", label: "Previous student reference" },
+    { value: "banner", label: "Banner / poster / outdoor media" },
+    { value: "other", label: "Other" },
   ];
 
   useEffect(() => {
@@ -521,70 +550,188 @@ export default function AdmissionForm() {
     }
   };
 
-  const buildSubmissionPayload = (values: FormData) => ({
-    personalInformation: {
-      fullName: values.fullName,
-      nickname: values.nickname ?? "",
-      homeDistrict: values.homeDistrict,
-      dateOfBirth: values.dateOfBirth
-        ? values.dateOfBirth.toISOString()
-        : null,
-      gender: values.gender,
-      email: values.email,
-      phone: values.phone,
-      address: values.address,
-    },
-    parentsAndGuardian: {
-      father: {
-        name: values.fatherName,
-        occupation: values.fatherOccupation,
-        phone: values.fatherPhone,
-      },
-      mother: {
-        name: values.motherName,
-        occupation: values.motherOccupation,
-        phone: values.motherPhone,
-      },
-      guardian: {
-        relation: values.guardianRelation,
-        contact: values.guardianContact,
-      },
-    },
-    education: {
-      jsc: {
-        school: values.jscSchool || null,
-        grade: values.jscGrade || null,
-      },
-      ssc: {
-        school: values.sscSchool || null,
-        grade: values.sscGrade || null,
-      },
-    },
-    academicPreferences: {
-      classLevel: values.classLevel,
-      group: values.group || (values.classLevel === "class-8"
-        ? "not-required"
-        : ""),
-      subject: values.subject,
-      batchTiming: values.batchTiming || null,
-      batchId:
-        values.batchTiming && !Number.isNaN(Number(values.batchTiming))
-          ? Number(values.batchTiming)
-          : null,
-      hearAboutUs: values.hearAboutUs || null,
-      prevStudent: !!values.prevStudent,
-    },
-    metadata: {
-      submittedAt: new Date().toISOString(),
-      hasPhoto: Boolean(photoPreview),
-    },
-    attachments: {
-      photoPreview: photoPreview ?? null,
-    },
-  });
+  const buildSubmissionPayload = (values: FormData) => {
+    const normalize = (value?: string | null) => {
+      if (value === undefined || value === null) return null;
+      const trimmed = value.trim();
+      return trimmed.length > 0 ? trimmed : null;
+    };
 
-  const logSubmissionPayload = (values: FormData) => {
-    const payload = buildSubmissionPayload(values);
+    const formatDateForApi = (date?: Date | null) => {
+      if (!date) return null;
+      return date.toISOString().split("T")[0];
+    };
+
+    const parseBatchId = (value?: string | null) => {
+      if (!value) return null;
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const mapGenderToSex = (gender?: string | null) => {
+      if (!gender) return "O";
+      switch (gender.toLowerCase()) {
+        case "male":
+          return "M";
+        case "female":
+          return "F";
+        default:
+          return "O";
+      }
+    };
+
+    const mapHearAboutUsValue = (value?: string | null) => {
+      if (!value) return null;
+      const normalized = value.trim();
+      if (
+        ["social-media", "friend-family", "prev-student", "banner", "other"].includes(
+          normalized
+        )
+      ) {
+        return normalized;
+      }
+      // Fallback for legacy selections
+      if (normalized === "friends") return "friend-family";
+      if (normalized === "student") return "prev-student";
+      if (normalized === "newspaper") return "banner";
+      if (normalized === "website") return "other";
+      return null;
+    };
+
+    const selectedPrimary = values.guardianRelation;
+    const guardianEntries = [
+      {
+        role: "father" as const,
+        name: values.fatherName.trim(),
+        occupation: normalize(values.fatherOccupation),
+        contact_number: values.fatherPhone.trim(),
+        email_address: null,
+      },
+      {
+        role: "mother" as const,
+        name: values.motherName.trim(),
+        occupation: normalize(values.motherOccupation),
+        contact_number: values.motherPhone.trim(),
+        email_address: null,
+      },
+    ];
+
+    const guardianContact = normalize(values.guardianContact);
+    if (selectedPrimary === "other" && guardianContact) {
+      guardianEntries.push({
+        role: "other" as const,
+        name: values.guardianName?.trim() || "Primary guardian",
+        occupation: normalize(values.guardianOccupation),
+        contact_number: guardianContact,
+        email_address: null,
+      });
+    }
+
+    const guardiansPayload = guardianEntries.map((guardian) => ({
+      ...guardian,
+      is_primary_contact: guardian.role === selectedPrimary,
+    }));
+
+    const legacyPayload = {
+      personalInformation: {
+        fullName: values.fullName,
+        nickname: values.nickname ?? "",
+        homeDistrict: values.homeDistrict,
+        dateOfBirth: values.dateOfBirth
+          ? values.dateOfBirth.toISOString()
+          : null,
+        gender: values.gender,
+        email: values.email,
+        phone: values.phone,
+        address: values.address,
+      },
+      parentsAndGuardian: {
+        father: {
+          name: values.fatherName,
+          occupation: values.fatherOccupation,
+          phone: values.fatherPhone,
+        },
+        mother: {
+          name: values.motherName,
+          occupation: values.motherOccupation,
+          phone: values.motherPhone,
+        },
+        guardian: {
+          relation: values.guardianRelation,
+          contact: values.guardianRelation === "other"
+            ? values.guardianContact
+            : values.guardianRelation === "father"
+              ? values.fatherPhone
+              : values.guardianRelation === "mother"
+                ? values.motherPhone
+                : values.guardianContact,
+        },
+      },
+      education: {
+        jsc: {
+          school: values.jscSchool || null,
+          grade: values.jscGrade || null,
+        },
+        ssc: {
+          school: values.sscSchool || null,
+          grade: values.sscGrade || null,
+        },
+      },
+      academicPreferences: {
+        classLevel: values.classLevel,
+        group: values.group || (values.classLevel === "class-8"
+          ? "not-required"
+          : ""),
+        subject: values.subject,
+        batchTiming: values.batchTiming || null,
+        batchId: parseBatchId(values.batchTiming),
+        hearAboutUs: values.hearAboutUs || null,
+        prevStudent: !!values.prevStudent,
+      },
+      metadata: {
+        submittedAt: new Date().toISOString(),
+        hasPhoto: Boolean(photoPreview),
+      },
+      attachments: {
+        photoPreview: photoPreview ?? null,
+      },
+    };
+
+    const normalizedGroup =
+      values.classLevel === "class-8" ? null : normalize(values.group);
+
+    const flatPayload = {
+      student_name: values.fullName.trim(),
+      student_nick_name: normalize(values.nickname),
+      home_district: values.homeDistrict.trim(),
+      date_of_birth: formatDateForApi(values.dateOfBirth),
+      sex: mapGenderToSex(values.gender),
+      current_class: values.classLevel,
+      group_name: normalizedGroup,
+      subject: values.subject,
+      jsc_school_name: normalize(values.jscSchool),
+      jsc_result: normalize(values.jscGrade),
+      ssc_school_name: normalize(values.sscSchool),
+      ssc_result: normalize(values.sscGrade),
+      batch: parseBatchId(values.batchTiming),
+      student_mobile: values.phone.trim(),
+      student_email: values.email.trim(),
+      home_location: values.address.trim(),
+      hear_about_us: mapHearAboutUsValue(values.hearAboutUs),
+      prev_student: Boolean(values.prevStudent),
+      picture_path: photoPreview ?? null,
+      guardians: guardiansPayload,
+    };
+
+    return {
+      ...legacyPayload,
+      ...flatPayload,
+    };
+  };
+
+  const logSubmissionPayload = (
+    payload: ReturnType<typeof buildSubmissionPayload>
+  ) => {
     const payloadJSON = JSON.stringify(payload, null, 2);
 
     if (typeof console !== "undefined") {
@@ -621,7 +768,8 @@ export default function AdmissionForm() {
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     setSubmissionError(null);
-    logSubmissionPayload(data);
+    const payload = buildSubmissionPayload(data);
+    logSubmissionPayload(payload);
 
     try {
       const response = await fetch(buildApiUrl("/admissions/apply/"), {
@@ -629,7 +777,7 @@ export default function AdmissionForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(buildSubmissionPayload(data)),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -1248,6 +1396,50 @@ export default function AdmissionForm() {
                             </FormItem>
                           )}
                         />
+
+                        {guardianRelation === "other" && (
+                          <>
+                            <FormField
+                              control={form.control}
+                              name="guardianName"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-slate-800">
+                                    Guardian Name *
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Enter guardian's full name"
+                                      className={inputFieldClasses}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="guardianOccupation"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-slate-800">
+                                    Guardian Occupation *
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="e.g. Service, Business"
+                                      className={inputFieldClasses}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1598,22 +1790,11 @@ export default function AdmissionForm() {
                                 }
                               >
                                 <option value="">Select an option</option>
-                                <option value="friends">
-                                  Friends or Family Recommendation
-                                </option>
-                                <option value="social-media">
-                                  Social Media (Facebook, Instagram)
-                                </option>
-                                <option value="newspaper">
-                                  Newspaper Advertisement
-                                </option>
-                                <option value="website">
-                                  Website / Google Search
-                                </option>
-                                <option value="student">
-                                  Current Student Reference
-                                </option>
-                                <option value="other">Other</option>
+                                {hearAboutUsOptions.map((option) => (
+                                  <option key={option.value} value={option.value}>
+                                    {option.label}
+                                  </option>
+                                ))}
                               </select>
                               <DropdownChevron />
                             </div>

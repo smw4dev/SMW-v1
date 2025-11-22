@@ -5,12 +5,13 @@ import Link from 'next/link'
 import {
   BarChart2,
   Box,
+  ClipboardList,
   Code2,
   CreditCard,
-  PiggyBank,
   Eye,
   History,
   Home,
+  PiggyBank,
   Settings,
   SlidersHorizontal,
   UserCircle2,
@@ -24,7 +25,9 @@ import { Button } from '@/components/ui/button'
 // removed collapsible menu items per request
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-import { navSections } from './data'
+import { navSections, usersTable, paymentsTable } from './data'
+import { useAuth } from '@/components/auth/AuthProvider'
+import { buildApiUrl } from '@/lib/api-client'
 
 const HOME_PATH = '/admin'
 
@@ -48,6 +51,7 @@ const iconMap = {
   Eye,
   Settings,
   History,
+  ClipboardList,
 }
 
 type DashboardSidebarProps = {
@@ -57,6 +61,39 @@ type DashboardSidebarProps = {
 }
 
 export function DashboardSidebar({ open, onClose, pathname }: DashboardSidebarProps) {
+  const { fetchWithAuth } = useAuth()
+  const [counts, setCounts] = React.useState({
+    students: usersTable.length,
+    admissions: 0,
+    payments: paymentsTable.length,
+  })
+
+  React.useEffect(() => {
+    let cancelled = false
+
+    const loadCounts = async () => {
+      try {
+        const response = await fetchWithAuth(buildApiUrl('/admissions/'))
+        if (!response.ok) {
+          return
+        }
+        const data = await response.json()
+        const admissionsCount = Array.isArray(data) ? data.length : 0
+        if (!cancelled) {
+          setCounts((prev) => ({ ...prev, admissions: admissionsCount }))
+        }
+      } catch {
+        // ignore errors; keep existing counts
+      }
+    }
+
+    loadCounts()
+
+    return () => {
+      cancelled = true
+    }
+  }, [fetchWithAuth])
+
 
   React.useEffect(() => {
     if (!open) {
@@ -110,6 +147,14 @@ export function DashboardSidebar({ open, onClose, pathname }: DashboardSidebarPr
 
                     const IconComponent =
                       iconMap[item.icon as keyof typeof iconMap] ?? iconMap.Home
+                    const count =
+                      item.href === '/admin/students'
+                        ? counts.students
+                        : item.href === '/admin/admissions'
+                          ? counts.admissions
+                          : item.href === '/admin/payments'
+                            ? counts.payments
+                            : undefined
                     return (
                       <SidebarLink
                         key={item.label}
@@ -118,6 +163,7 @@ export function DashboardSidebar({ open, onClose, pathname }: DashboardSidebarPr
                         href={item.href}
                         active={isPathActive(pathname, item.href)}
                         onNavigate={onClose}
+                        count={count}
                       />
                     )
                   })}
@@ -172,6 +218,7 @@ type SidebarLinkProps = {
   href?: string
   active?: boolean
   onNavigate: () => void
+  count?: number
 }
 
 function SidebarLink({
@@ -180,6 +227,7 @@ function SidebarLink({
   href,
   active,
   onNavigate,
+  count,
 }: SidebarLinkProps) {
   const handleClick = React.useCallback(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
@@ -203,9 +251,9 @@ function SidebarLink({
         <Link href={href} className="flex w-full items-center gap-3">
           <Icon className="h-4 w-4 text-muted-foreground" />
           <span>{label}</span>
-          {label === 'Students' ? (
+          {typeof count === 'number' ? (
             <Badge variant="secondary" className="ml-auto">
-              24
+              {count}
             </Badge>
           ) : null}
         </Link>
